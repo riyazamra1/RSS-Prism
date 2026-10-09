@@ -4,23 +4,19 @@ Tags: page-builder, layout, templates
 Requires at least: 6.4
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 0.1.1
+Stable tag: 0.2.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Foundation for RSS Prism's theme-independent visual page builder.
+An early visual layout builder for RSS Prism.
 
 == Current scope ==
-* Registers a theme-independent Prism Template content type.
-* Supports WordPress revisions and the block editor for template content.
-* Provides the [rss_prism_pricing] shortcode for the proposed pricing catalog.
-* Checkout and entitlement processing are not implemented.
+* Registers theme-independent Prism Template content.
+* Provides an admin canvas with draggable/reorderable section, heading, text, and button elements.
+* Provides basic text, button URL, background color, and padding settings.
+* Saves sanitized layout data through a permission-checked REST endpoint.
+* Provides [rss_prism_canvas id="123"] to render a published template.
+* Provides [rss_prism_pricing] to display proposed plans. Checkout is not implemented.
 
-== Planned, not yet implemented ==
-* Drag-and-drop visual canvas and widget panel.
-* Inline text editing, nested containers, columns, and navigator.
-* Desktop, tablet, and mobile responsive editing.
-* Global design tokens and responsive style controls.
-* Template library, import/export, and premium entitlements.
-
-This early development build is not a complete visual builder.
+== Limitations ==
+This is an early MVP, not the complete visual builder. Nested containers, columns, responsive controls, autosave/revisions for layout JSON, import/export, template library, full-site editing, premium entitlements, and payment processing are not yet implemented.
