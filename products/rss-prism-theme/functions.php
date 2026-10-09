@@ -22,6 +22,7 @@ function rss_prism_setup() {
 	) );
 }
 add_action( 'after_setup_theme', 'rss_prism_setup' );
+add_theme_support( 'html5', array( 'search-form','comment-form','comment-list','gallery','caption','style','script' ) );
 
 function rss_prism_customize_register( $wp_customize ) {
 	$wp_customize->add_section( 'rss_prism_design', array(
@@ -67,16 +68,32 @@ function rss_prism_customize_register( $wp_customize ) {
 		'type'        => 'number',
 		'input_attrs' => array( 'min' => 720, 'max' => 1600, 'step' => 20 ),
 	) );
+
+	$wp_customize->add_panel('rss_prism_panel',array('title'=>__('RSS Prism Theme Settings','rss-prism'),'priority'=>30,'description'=>__('Customize homepage, layouts, and footer.','rss-prism')));
+	$wp_customize->add_section('rss_prism_home',array('title'=>__('Homepage Hero','rss-prism'),'panel'=>'rss_prism_panel','priority'=>30));
+	$fields=array('hero_eyebrow'=>array(__('Small heading','rss-prism'),'A CLEARER WAY FORWARD'),'hero_title'=>array(__('Main heading','rss-prism'),'Build something remarkable.'),'hero_text'=>array(__('Supporting text','rss-prism'),'A flexible starting point for your business, portfolio, publication, or personal website.'),'hero_primary_label'=>array(__('Primary button label','rss-prism'),'Explore our work'),'hero_primary_url'=>array(__('Primary button URL','rss-prism'),'#latest'),'hero_secondary_label'=>array(__('Secondary button label','rss-prism'),'Learn more'),'hero_secondary_url'=>array(__('Secondary button URL','rss-prism'),'#about'),'features_title'=>array(__('Features heading','rss-prism'),'Everything you need to begin'),'features_text'=>array(__('Features description','rss-prism'),'Flexible building blocks to make the site your own.'),'cta_title'=>array(__('Call-to-action heading','rss-prism'),'Ready to get started?'),'cta_text'=>array(__('Call-to-action text','rss-prism'),'Make your next idea real with a website that grows with you.'),'cta_label'=>array(__('Call-to-action button','rss-prism'),'Get in touch'),'cta_url'=>array(__('Call-to-action URL','rss-prism'),'#contact'));
+	foreach($fields as $key=>$field){$id='rss_prism_'.$key;$wp_customize->add_setting($id,array('default'=>$field[1],'sanitize_callback'=>strpos($key,'url')!==false?'esc_url_raw':'sanitize_text_field'));$wp_customize->add_control($id,array('label'=>$field[0],'section'=>'rss_prism_home','type'=>strpos($key,'text')!==false?'textarea':(strpos($key,'url')!==false?'url':'text')));}
+	$wp_customize->add_section('rss_prism_layouts',array('title'=>__('Layouts & Style','rss-prism'),'panel'=>'rss_prism_panel','priority'=>40));
+	$choices=array('rss_prism_header_style'=>array('standard',array('standard'=>__('Logo left · menu right','rss-prism'),'centered'=>__('Centered brand','rss-prism'),'minimal'=>__('Compact header','rss-prism'),'dark'=>__('Dark header','rss-prism'))),'rss_prism_blog_layout'=>array('grid',array('grid'=>__('Card grid','rss-prism'),'list'=>__('Horizontal list','rss-prism'))),'rss_prism_corner_style'=>array('round',array('sharp'=>__('Sharp corners','rss-prism'),'round'=>__('Rounded corners','rss-prism'),'soft'=>__('Extra rounded corners','rss-prism'))),'rss_prism_shadow'=>array('yes',array('yes'=>__('Subtle shadows','rss-prism'),'no'=>__('No shadows','rss-prism'))));
+	foreach($choices as $id=>$cfg){$wp_customize->add_setting($id,array('default'=>$cfg[0],'sanitize_callback'=>function($v)use($cfg){return array_key_exists($v,$cfg[1])?$v:$cfg[0];}));$wp_customize->add_control($id,array('label'=>ucwords(str_replace(array('rss_prism_','_'),array('',' '),$id)),'section'=>'rss_prism_layouts','type'=>'select','choices'=>$cfg[1]));}
+	$wp_customize->add_setting('rss_prism_sticky_header',array('default'=>false,'sanitize_callback'=>'rest_sanitize_boolean'));$wp_customize->add_control('rss_prism_sticky_header',array('label'=>__('Sticky header','rss-prism'),'section'=>'rss_prism_layouts','type'=>'checkbox'));
+	$wp_customize->add_setting('rss_prism_show_author',array('default'=>true,'sanitize_callback'=>'rest_sanitize_boolean'));$wp_customize->add_control('rss_prism_show_author',array('label'=>__('Show post author','rss-prism'),'section'=>'rss_prism_layouts','type'=>'checkbox'));
+	$wp_customize->add_setting('rss_prism_show_sidebar',array('default'=>true,'sanitize_callback'=>'rest_sanitize_boolean'));$wp_customize->add_control('rss_prism_show_sidebar',array('label'=>__('Show sidebar widgets','rss-prism'),'section'=>'rss_prism_layouts','type'=>'checkbox'));
+	$wp_customize->add_section('rss_prism_footer',array('title'=>__('Footer','rss-prism'),'panel'=>'rss_prism_panel','priority'=>50));
+	$wp_customize->add_setting('rss_prism_footer_text',array('default'=>'Ideas made clearer.','sanitize_callback'=>'sanitize_text_field'));$wp_customize->add_control('rss_prism_footer_text',array('label'=>__('Footer description','rss-prism'),'section'=>'rss_prism_footer','type'=>'textarea'));
+	$wp_customize->add_setting('rss_prism_footer_style',array('default'=>'light','sanitize_callback'=>function($v){return in_array($v,array('light','dark'),true)?$v:'light';}));$wp_customize->add_control('rss_prism_footer_style',array('label'=>__('Footer style','rss-prism'),'section'=>'rss_prism_footer','type'=>'select','choices'=>array('light'=>__('Light','rss-prism'),'dark'=>__('Dark','rss-prism'))));
+
 }
 add_action( 'customize_register', 'rss_prism_customize_register' );
 
 function rss_prism_enqueue_assets() {
 	wp_enqueue_style( 'rss-prism-style', get_stylesheet_uri(), array(), wp_get_theme()->get( 'Version' ) );
+	wp_enqueue_script( 'rss-prism-navigation', get_template_directory_uri() . '/assets/js/navigation.js', array(), wp_get_theme()->get( 'Version' ), true );
 	$accent = sanitize_hex_color( get_theme_mod( 'rss_prism_accent_color', '#b88a2b' ) );
 	$background = sanitize_hex_color( get_theme_mod( 'rss_prism_background_color', '#f7f7f5' ) );
 	$width = absint( get_theme_mod( 'rss_prism_content_width', 1120 ) );
 	$width = min( 1600, max( 720, $width ) );
-	$css = ':root{--rss-prism-accent:' . ( $accent ? $accent : '#b88a2b' ) . ';--rss-prism-background:' . ( $background ? $background : '#f7f7f5' ) . ';--rss-prism-content-width:' . $width . 'px}';
+	$corner=get_theme_mod('rss_prism_corner_style','round');if(!in_array($corner,array('sharp','round','soft'),true))$corner='round';$radius=array('sharp'=>'4px','round'=>'16px','soft'=>'24px')[$corner];$surface=sanitize_hex_color(get_theme_mod('rss_prism_surface_color','#ffffff'));$text=sanitize_hex_color(get_theme_mod('rss_prism_text_color','#202124'));$muted=sanitize_hex_color(get_theme_mod('rss_prism_muted_color','#686b70'));$css=':root{--rss-prism-accent:'.($accent?$accent:'#b88a2b').';--rss-prism-background:'.($background?$background:'#f5f6f8').';--rss-prism-content-width:'.$width.'px;--rp-accent:'.($accent?$accent:'#b88a2b').';--rp-bg:'.($background?$background:'#f5f6f8').';--rp-width:'.$width.'px;--rp-paper:'.($surface?$surface:'#ffffff').';--rp-ink:'.($text?$text:'#202124').';--rp-muted:'.($muted?$muted:'#686b70').';--rp-radius:'.$radius.';'.('no'===get_theme_mod('rss_prism_shadow','yes')?'--rp-shadow:none;':'').'}';
 	wp_add_inline_style( 'rss-prism-style', $css );
 }
 add_action( 'wp_enqueue_scripts', 'rss_prism_enqueue_assets' );
@@ -95,3 +112,9 @@ function rss_prism_excerpt_length( $length ) {
 	return 28;
 }
 add_filter( 'excerpt_length', 'rss_prism_excerpt_length' );
+
+function rss_prism_body_classes($classes){$classes[]='rp-layout--'.sanitize_html_class(get_theme_mod('rss_prism_blog_layout','grid'));if(!get_theme_mod('rss_prism_show_sidebar',true))$classes[]='rp-sidebar-hidden';return $classes;} add_filter('body_class','rss_prism_body_classes');
+function rss_prism_meta(){echo '<div class="entry-meta"><time datetime="'.esc_attr(get_the_date(DATE_W3C)).'">'.esc_html(get_the_date()).'</time>';if(get_theme_mod('rss_prism_show_author',true))echo '<span aria-hidden="true"> · </span>'.wp_kses_post(get_the_author_posts_link());echo '</div>';}
+function rss_prism_post_card(){?><article <?php post_class('entry-card'); ?> id="post-<?php the_ID(); ?>"><?php if(has_post_thumbnail()):?><a class="entry-thumbnail" href="<?php the_permalink(); ?>" tabindex="-1" aria-hidden="true"><?php the_post_thumbnail('large',array('loading'=>'lazy'));?></a><?php endif;?><div class="entry-card__body"><?php rss_prism_meta();?><h2 class="entry-title"><a href="<?php the_permalink(); ?>"><?php the_title();?></a></h2><div class="entry-excerpt"><?php the_excerpt();?></div><a class="entry-read-more" href="<?php the_permalink(); ?>"><?php esc_html_e('Read article','rss-prism');?> →</a></div></article><?php}
+function rss_prism_sidebar(){if(get_theme_mod('rss_prism_show_sidebar',true)&&is_active_sidebar('sidebar-1')){echo '<aside class="sidebar" aria-label="'.esc_attr__('Sidebar','rss-prism').'">';dynamic_sidebar('sidebar-1');echo '</aside>';}}
+function rss_prism_widgets_init(){register_sidebar(array('name'=>__('Main Sidebar','rss-prism'),'id'=>'sidebar-1','before_widget'=>'<section id="%1$s" class="widget %2$s">','after_widget'=>'</section>','before_title'=>'<h2 class="widget-title">','after_title'=>'</h2>'));register_sidebar(array('name'=>__('Footer Column 1','rss-prism'),'id'=>'footer-1','before_widget'=>'<section class="footer-widget %2$s">','after_widget'=>'</section>','before_title'=>'<h2>','after_title'=>'</h2>'));register_sidebar(array('name'=>__('Footer Column 2','rss-prism'),'id'=>'footer-2','before_widget'=>'<section class="footer-widget %2$s">','after_widget'=>'</section>','before_title'=>'<h2>','after_title'=>'</h2>'));} add_action('widgets_init','rss_prism_widgets_init');
