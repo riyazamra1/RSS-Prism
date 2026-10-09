@@ -1,0 +1,11 @@
+{
+  "status": "archived_inactive",
+  "purpose": "Historical pricing proposals only. Not used by the active catalog or public pricing shortcode.",
+  "plans": [
+    { "id": "personal", "name": "Personal", "price": { "USD": 59, "LKR": 14900 }, "billing": "annual", "production_sites": 1 },
+    { "id": "freelancer", "name": "Freelancer", "price": { "USD": 99, "LKR": 24900 }, "billing": "annual", "production_sites": 5 },
+    { "id": "agency", "name": "Agency", "price": { "USD": 199, "LKR": 49900 }, "billing": "annual", "production_sites": -1 },
+    { "id": "lifetime_personal", "name": "Lifetime Personal", "price": { "USD": 199, "LKR": 49900 }, "billing": "one_time", "production_sites": 1 }
+  ],
+  "warning": "These are old proposals, not current prices, offers, or checkout values. Do not activate without explicit approval."
+}
