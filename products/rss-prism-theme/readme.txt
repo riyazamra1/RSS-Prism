@@ -21,6 +21,10 @@ A responsive multipurpose WordPress theme with customizable colours, homepage co
 * Accent/background/surface/text colours, content width, corner and shadow controls.
 * Typography scale, button shape, content alignment, archive thumbnails, breadcrumbs, hero artwork, and back-to-top controls.
 * Activation welcome notice with quick links to customization, menus, and the live site.
+* Expanded welcome card with quick-start actions and optional email signup.
+* Header controls for logo position and width, navigation style and alignment, header colour, spacing, and divider.
+* Footer controls for logo, alignment, column count, colour, spacing, menus, widgets, description, and copyright.
+* Email signups are stored in WordPress for administrators; no external mailing service is configured automatically.
 * Editable footer copyright and responsive theme screenshot preview.
 * Editable homepage hero, CTA copy, header layout, sticky header, and footer.
 * Blog grid/list layout, sidebar visibility, custom logo, featured images, widgets, comments, and pagination.
