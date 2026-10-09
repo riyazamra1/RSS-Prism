@@ -3,7 +3,7 @@
  * Plugin Name: RSS Prism Builder
  * Plugin URI: https://www.rsscctvsolution.eu.cc/
  * Description: Theme-independent visual layout builder and template foundation.
- * Version: 0.2.0
+ * Version: 0.3.0
  * Requires at least: 6.4
  * Requires PHP: 7.4
  * Author: Razeen Secure Solution
@@ -13,7 +13,7 @@
  * @package RSSPrismBuilder
  */
 defined( 'ABSPATH' ) || exit;
-define( 'RSS_PRISM_BUILDER_VERSION', '0.2.0' );
+define( 'RSS_PRISM_BUILDER_VERSION', '0.3.0' );
 
 function rss_prism_builder_register_templates() {
 	register_post_type( 'rss_prism_template', array(
@@ -82,6 +82,9 @@ function rss_prism_builder_sanitize_layout( $layout ) {
 			'text' => isset( $item['text'] ) ? sanitize_textarea_field( $item['text'] ) : '',
 			'url' => isset( $item['url'] ) ? esc_url_raw( $item['url'] ) : '',
 			'background' => isset( $item['background'] ) ? sanitize_hex_color( $item['background'] ) : '',
+			'text_color' => isset( $item['text_color'] ) ? sanitize_hex_color( $item['text_color'] ) : '',
+			'font_size' => min( 96, max( 10, absint( $item['font_size'] ?? 16 ) ) ),
+			'align' => isset( $item['align'] ) && in_array( $item['align'], array( 'left', 'center', 'right' ), true ) ? $item['align'] : 'left',
 			'padding' => min( 200, $padding ),
 		);
 	}
@@ -128,7 +131,9 @@ function rss_prism_builder_render_canvas_shortcode( $atts ) {
 		$type = isset( $item['type'] ) ? $item['type'] : '';
 		$text = isset( $item['text'] ) ? $item['text'] : '';
 		$style = 'padding:' . min( 200, absint( $item['padding'] ?? 24 ) ) . 'px;';
+		$style .= 'font-size:' . min( 96, max( 10, absint( $item['font_size'] ?? 16 ) ) ) . 'px;text-align:' . ( in_array( $item['align'] ?? 'left', array( 'left', 'center', 'right' ), true ) ? $item['align'] : 'left' ) . ';';
 		if ( ! empty( $item['background'] ) && sanitize_hex_color( $item['background'] ) ) { $style .= 'background:' . sanitize_hex_color( $item['background'] ) . ';'; }
+		if ( ! empty( $item['text_color'] ) && sanitize_hex_color( $item['text_color'] ) ) { $style .= 'color:' . sanitize_hex_color( $item['text_color'] ) . ';' ; }
 		if ( 'section' === $type ) {
 			$out .= '<section class="rss-prism-canvas-section" style="' . esc_attr( $style ) . '">' . esc_html( $text ) . '</section>';
 		} elseif ( 'heading' === $type ) {
