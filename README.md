@@ -1,41 +1,39 @@
 # RSS Prism
 
-RSS Prism is the WordPress design platform from Razeen Secure Solution (RSS): a lightweight theme, a visual page-builder plugin, and a reusable template library.
+RSS Prism is the WordPress design platform from Razeen Secure Solution (RSS).
 
 > Developing Ideas. Delivering Solutions.
 
+## Current release
+
+**RSS Prism Theme 1.0.0** is the installable multipurpose theme in `products/rss-prism-theme/`. It includes a customizable homepage, responsive navigation, colour and width controls, header/footer options, grid/list archive layouts, widget areas, and templates for pages, posts, archives, search, comments, and 404 pages.
+
 ## Product family
-- **RSS Prism Theme** — free core theme with essential customization.
-- **RSS Prism Builder** — visual editor plugin, designed to keep layouts independent of the active theme.
-- **RSS Prism Studio** — free starter templates and paid template packs.
-- **Premium plans** — premium features, updates, and support under the applicable license.
+
+- **RSS Prism Theme** — free, installable multipurpose WordPress theme.
+- **RSS Prism Builder** — a separate visual layout-builder plugin foundation.
+- **RSS Prism Studio** — planned template library.
+
+Only the Free plan is currently offered. Paid prices and plans are not active and are not displayed by the public pricing shortcode. Historical proposed prices are kept separately in `pricing/archived-proposals.json` for internal reference only; they are not offers or checkout prices.
 
 ## Repository layout
+
 - `products/rss-prism-theme/` — installable WordPress theme.
 - `products/rss-prism-builder/` — installable plugin foundation.
-- `config/pricing.php` — canonical PHP pricing catalog.
-- `pricing/plans.json` — machine-readable public plan data.
-- `docs/` — pricing, licensing, payment, and release notes.
-
-## Proposed launch pricing
-
-| Plan | USD | LKR | Billing | Production sites |
-| --- | ---: | ---: | --- | --- |
-| Free | $0 | LKR 0 | Free | Core free features |
-| Personal | $59 | LKR 14,900 | Annual | 1 |
-| Freelancer | $99 | LKR 24,900 | Annual | 5 |
-| Agency | $199 | LKR 49,900 | Annual | Unlimited |
-| Lifetime Personal | $199 | LKR 49,900 | One-time | 1 |
-
-These are proposed launch prices, not live checkout prices. See [pricing policy](docs/PRICING.md).
+- `pricing/plans.json` — current public plan catalog (Free only).
+- `pricing/archived-proposals.json` — inactive historical pricing proposals, not used by the public shortcode.
+- `config/pricing.php` — canonical catalog loader.
+- `docs/` — product, pricing, licensing, and release notes.
 
 ## Principles
+
 - Keep builder content separate from theme presentation.
 - Sanitize inputs and escape output at trust boundaries.
-- Subscription expiry must not remotely disable an already-published site.
-- Verify signed server-side payment notifications before granting entitlements.
+- Published customer websites must not be remotely disabled because of an entitlement change.
+- Verify signed server-side payment notifications before granting future paid entitlements.
 - Never commit payment secrets or customer data.
 - Review current GPL and WordPress.org distribution rules before release.
 
 ## Status
-Initial foundations only. Pricing data and starter theme/plugin scaffolding are present. The complete drag-and-drop builder, licensing backend, checkout, and template library remain unimplemented.
+
+The theme is implemented and syntax/ZIP checks pass. A live WordPress installation test remains outstanding. The Builder has an initial visual layout editor and template foundation; a complete drag-and-drop page-builder product, template library, licensing backend, and checkout are not yet complete.
