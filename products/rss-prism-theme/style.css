@@ -21,3 +21,18 @@ body{background:var(--rp-bg);color:var(--rp-ink)}.site-header,.site-footer,.entr
 @media(max-width:980px){.rp-hero__inner{grid-template-columns:1fr}.rp-hero__orb{width:200px}.rp-card-grid,.entry-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.single-layout{grid-template-columns:1fr 240px}}
 @media(max-width:760px){.rp-menu-toggle{display:inline-flex}.main-navigation{display:none;position:absolute;top:100%;left:0;right:0;padding:1rem;background:var(--rp-paper);border-bottom:1px solid var(--rp-border)}.main-navigation.is-open{display:block}.main-navigation ul{display:grid}.site-header--centered .site-header__inner{flex-direction:row;justify-content:space-between}.rp-card-grid,.entry-grid{grid-template-columns:1fr}.single-layout{grid-template-columns:1fr}.rp-layout--list .entry-card{display:block}.site-footer__main{grid-template-columns:1fr}.rp-hero h1{font-size:2.6rem}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+
+/* Additional RSS Prism personalization controls */
+body{font-size:var(--rp-font-size,16px)}
+.rp-button{border-radius:var(--rp-button-radius,999px)}
+.rp-content-align--center .rp-section>h2,.rp-content-align--center .rp-section>p{text-align:center}
+.rp-hero-visual-hidden .rp-hero__inner{grid-template-columns:minmax(0,1fr)}
+.rp-hero-visual-hidden .rp-hero__visual{display:none}
+.rp-breadcrumbs{padding-top:1rem;font-size:.9rem;color:var(--rp-muted)}
+.rp-breadcrumbs a{color:var(--rp-muted);text-decoration:none}
+.rp-breadcrumbs a:hover{color:var(--rp-accent)}
+.rp-back-to-top{position:fixed;right:1rem;bottom:1rem;z-index:50;display:inline-flex;gap:.35rem;align-items:center;padding:.65rem .85rem;border:1px solid var(--rp-border);border-radius:var(--rp-button-radius,999px);background:var(--rp-paper);color:var(--rp-ink);box-shadow:var(--rp-shadow);font-weight:700;text-decoration:none}
+.rp-back-to-top:hover{background:var(--rp-accent);color:#fff}
+.rp-welcome-notice{padding:1rem 1.25rem;border-left-color:var(--rp-accent)}
+.rp-welcome-notice h2{margin:.1rem 0 .5rem;font-size:1.35rem}
+@media(max-width:760px){.rp-back-to-top{right:.65rem;bottom:.65rem}.rp-back-to-top span{display:none}}
