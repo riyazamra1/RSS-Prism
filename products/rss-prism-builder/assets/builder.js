@@ -12,7 +12,12 @@
 		text: { label: 'Text', text: 'Write something useful for your visitors.' },
 		button: { label: 'Button', text: 'Learn more' }
 	};
-	const fresh = type => ({ id: 'item-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7), type, text: TYPES[type].text, url: type === 'button' ? '' : '', background: type === 'section' ? '#f7f6f2' : '', text_color: '#202124', font_size: type === 'heading' ? 32 : 16, align: 'left', padding: 24 });
+	const fresh = type => {
+		const fontSize = type === 'heading' ? 32 : 16;
+		const responsive = {};
+		['desktop', 'tablet', 'mobile'].forEach(device => { responsive[device] = { font_size: fontSize, padding: 24, align: 'left' }; });
+		return { id: 'item-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7), type, text: TYPES[type].text, url: '', background: type === 'section' ? '#f7f6f2' : '', text_color: '#202124', font_size: fontSize, align: 'left', padding: 24, responsive };
+	};
 	const clone = value => JSON.parse(JSON.stringify(value));
 	function App() {
 		const [items, setItems] = useState(Array.isArray(config.layout) ? config.layout : []);
@@ -24,7 +29,16 @@
 		const [future, setFuture] = useState([]);
 		const commitItems = next => { setHistory(old => [...old.slice(-29), clone(items)]); setFuture([]); setItems(typeof next === 'function' ? next(items) : next); };
 		const item = items[selected] || null;
-		const update = (key, value) => commitItems(old => old.map((entry, i) => i === selected ? { ...entry, [key]: value } : entry));
+		const update = (key, value) => commitItems(old => old.map((entry, i) => {
+			if (i !== selected) return entry;
+			if (['font_size', 'padding', 'align'].includes(key)) {
+				const responsive = clone(entry.responsive || {});
+				['desktop', 'tablet', 'mobile'].forEach(device => { if (!responsive[device]) responsive[device] = { font_size: entry.font_size || 16, padding: entry.padding ?? 24, align: entry.align || 'left' }; });
+				responsive[preview] = { ...responsive[preview], [key]: value };
+				return { ...entry, [key]: value, responsive };
+			}
+			return { ...entry, [key]: value };
+		}));
 		const add = type => { const next = [...items, fresh(type)]; commitItems(next); setSelected(next.length - 1); setNotice(''); };
 		const move = (from, to) => { if (to < 0 || to >= items.length || from === to) return; const next = items.slice(); const [entry] = next.splice(from, 1); next.splice(to, 0, entry); commitItems(next); setSelected(to); };
 		const remove = index => { commitItems(items.filter((_, i) => i !== index)); setSelected(Math.max(0, Math.min(selected, items.length - 2))); };
@@ -43,7 +57,8 @@
 		};
 		const field = (label, key, value, type = 'text') => h('label', { className: 'rss-prism-field' }, h('span', null, label), h(type === 'textarea' ? 'textarea' : 'input', { type: type === 'textarea' ? undefined : type, value: value ?? '', onChange: e => update(key, type === 'range' ? Number(e.target.value) : e.target.value), rows: type === 'textarea' ? 4 : undefined, min: type === 'range' ? 10 : undefined, max: type === 'range' ? 96 : undefined }));
 		const previewElement = (entry, i) => {
-			const style = { padding: (Number(entry.padding) || 0) + 'px', background: entry.background || 'transparent', color: entry.text_color || '#202124', fontSize: (Number(entry.font_size) || 16) + 'px', textAlign: entry.align || 'left', boxSizing: 'border-box', overflowWrap: 'anywhere' };
+			const deviceStyle = (entry.responsive && entry.responsive[preview]) || entry;
+			const style = { padding: (Number(deviceStyle.padding ?? entry.padding) || 0) + 'px', background: entry.background || 'transparent', color: entry.text_color || '#202124', fontSize: (Number(deviceStyle.font_size ?? entry.font_size) || 16) + 'px', textAlign: deviceStyle.align || entry.align || 'left', boxSizing: 'border-box', overflowWrap: 'anywhere' };
 			const common = { key: entry.id || i, className: 'rss-prism-live-element ' + (i === selected ? 'is-selected' : ''), style, onClick: () => setSelected(i) };
 			if (entry.type === 'heading') return h('h2', common, entry.text || 'Heading');
 			if (entry.type === 'text') return h('p', common, entry.text || 'Text');
@@ -70,9 +85,9 @@
 					item.type === 'button' ? field('Button URL', 'url', item.url, 'url') : null,
 					item.type === 'section' ? field('Background color', 'background', item.background, 'color') : null,
 					field('Text color', 'text_color', item.text_color || '#202124', 'color'),
-					field('Font size: ' + (item.font_size || 16) + 'px', 'font_size', item.font_size || 16, 'range'),
-					h('label', { className: 'rss-prism-field' }, h('span', null, 'Text alignment'), h('select', { value: item.align || 'left', onChange: e => update('align', e.target.value) }, ...['left','center','right'].map(v => h('option', { key: v, value: v }, v[0].toUpperCase() + v.slice(1))))),
-					h('label', { className: 'rss-prism-field' }, h('span', null, 'Padding: ' + (item.padding || 0) + ' px'), h('input', { type: 'range', min: 0, max: 100, value: item.padding || 0, onChange: e => update('padding', Number(e.target.value)) })),
+					field('Font size (' + preview + '): ' + ((((item.responsive || {})[preview] || item).font_size) || item.font_size || 16) + 'px', 'font_size', (((item.responsive || {})[preview] || item).font_size || item.font_size || 16), 'range'),
+					h('label', { className: 'rss-prism-field' }, h('span', null, 'Text alignment'), h('select', { value: (((item.responsive || {})[preview] || item).align || item.align || 'left'), onChange: e => update('align', e.target.value) }, ...['left','center','right'].map(v => h('option', { key: v, value: v }, v[0].toUpperCase() + v.slice(1))))),
+					h('label', { className: 'rss-prism-field' }, h('span', null, 'Padding (' + preview + '): ' + ((((item.responsive || {})[preview] || item).padding ?? item.padding) || 0) + ' px'), h('input', { type: 'range', min: 0, max: 200, value: (((item.responsive || {})[preview] || item).padding ?? item.padding ?? 0), onChange: e => update('padding', Number(e.target.value)) })),
 					h('div', { className: 'rss-prism-inspector-actions' }, h('button', { type: 'button', className: 'button', disabled: selected <= 0, onClick: () => move(selected, selected - 1) }, 'Move up'), h('button', { type: 'button', className: 'button', disabled: selected >= items.length - 1, onClick: () => move(selected, selected + 1) }, 'Move down'))
 				) : h('p', null, 'Select an element on the canvas to edit its settings.')),
 				h('section', { className: 'rss-prism-preview-frame rss-prism-preview-' + preview }, h('div', { className: 'rss-prism-preview-caption' }, preview.charAt(0).toUpperCase() + preview.slice(1) + ' canvas preview'), items.length ? items.map(previewElement) : h('p', { className: 'rss-prism-empty' }, 'Your page preview will appear here.'))

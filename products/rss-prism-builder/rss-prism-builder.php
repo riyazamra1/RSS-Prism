@@ -3,7 +3,7 @@
  * Plugin Name: RSS Prism Builder
  * Plugin URI: https://www.rsscctvsolution.eu.cc/
  * Description: Theme-independent visual layout builder and template foundation.
- * Version: 0.3.0
+ * Version: 0.4.0
  * Requires at least: 6.4
  * Requires PHP: 7.4
  * Author: Razeen Secure Solution
@@ -13,7 +13,7 @@
  * @package RSSPrismBuilder
  */
 defined( 'ABSPATH' ) || exit;
-define( 'RSS_PRISM_BUILDER_VERSION', '0.3.0' );
+define( 'RSS_PRISM_BUILDER_VERSION', '0.4.0' );
 
 function rss_prism_builder_register_templates() {
 	register_post_type( 'rss_prism_template', array(
@@ -86,6 +86,20 @@ function rss_prism_builder_sanitize_layout( $layout ) {
 			'font_size' => min( 96, max( 10, absint( $item['font_size'] ?? 16 ) ) ),
 			'align' => isset( $item['align'] ) && in_array( $item['align'], array( 'left', 'center', 'right' ), true ) ? $item['align'] : 'left',
 			'padding' => min( 200, $padding ),
+			'responsive' => rss_prism_builder_sanitize_responsive( $item['responsive'] ?? array(), $item ),
+		);
+	}
+	return $clean;
+}
+
+function rss_prism_builder_sanitize_responsive( $responsive, $item ) {
+	$clean = array();
+	foreach ( array( 'desktop', 'tablet', 'mobile' ) as $device ) {
+		$source = isset( $responsive[ $device ] ) && is_array( $responsive[ $device ] ) ? $responsive[ $device ] : array();
+		$clean[ $device ] = array(
+			'font_size' => min( 96, max( 10, absint( $source['font_size'] ?? $item['font_size'] ?? 16 ) ) ),
+			'padding' => min( 200, absint( $source['padding'] ?? $item['padding'] ?? 24 ) ),
+			'align' => isset( $source['align'] ) && in_array( $source['align'], array( 'left', 'center', 'right' ), true ) ? $source['align'] : ( isset( $item['align'] ) && in_array( $item['align'], array( 'left', 'center', 'right' ), true ) ? $item['align'] : 'left' ),
 		);
 	}
 	return $clean;
@@ -127,23 +141,34 @@ function rss_prism_builder_render_canvas_shortcode( $atts ) {
 	$layout = get_post_meta( $post_id, '_rss_prism_layout', true );
 	if ( ! is_array( $layout ) ) { return ''; }
 	$out = '<div class="rss-prism-canvas-output">';
+	$responsive_css = '';
 	foreach ( $layout as $item ) {
 		$type = isset( $item['type'] ) ? $item['type'] : '';
 		$text = isset( $item['text'] ) ? $item['text'] : '';
+		$safe_id = isset( $item['id'] ) ? sanitize_html_class( $item['id'] ) : '';
+		$responsive = rss_prism_builder_sanitize_responsive( $item['responsive'] ?? array(), $item );
 		$style = 'padding:' . min( 200, absint( $item['padding'] ?? 24 ) ) . 'px;';
+		if ( $safe_id ) {
+			foreach ( array( 'desktop' => '', 'tablet' => '@media (max-width: 1024px){', 'mobile' => '@media (max-width: 640px){' ) as $device => $prefix ) {
+				$s = $responsive[ $device ];
+				$rule = '.rss-prism-item-' . $safe_id . '{font-size:' . $s['font_size'] . 'px!important;padding:' . $s['padding'] . 'px!important;text-align:' . $s['align'] . '!important;}';
+				$responsive_css .= $prefix . $rule . ( '' !== $prefix ? '}' : '' );
+			}
+		}
 		$style .= 'font-size:' . min( 96, max( 10, absint( $item['font_size'] ?? 16 ) ) ) . 'px;text-align:' . ( in_array( $item['align'] ?? 'left', array( 'left', 'center', 'right' ), true ) ? $item['align'] : 'left' ) . ';';
 		if ( ! empty( $item['background'] ) && sanitize_hex_color( $item['background'] ) ) { $style .= 'background:' . sanitize_hex_color( $item['background'] ) . ';'; }
 		if ( ! empty( $item['text_color'] ) && sanitize_hex_color( $item['text_color'] ) ) { $style .= 'color:' . sanitize_hex_color( $item['text_color'] ) . ';' ; }
 		if ( 'section' === $type ) {
-			$out .= '<section class="rss-prism-canvas-section" style="' . esc_attr( $style ) . '">' . esc_html( $text ) . '</section>';
+			$out .= '<section class="rss-prism-canvas-section ' . esc_attr( 'rss-prism-item-' . $safe_id ) . '" style="' . esc_attr( $style ) . '">' . esc_html( $text ) . '</section>';
 		} elseif ( 'heading' === $type ) {
-			$out .= '<h2 class="rss-prism-canvas-heading" style="' . esc_attr( $style ) . '">' . esc_html( $text ) . '</h2>';
+			$out .= '<h2 class="rss-prism-canvas-heading ' . esc_attr( 'rss-prism-item-' . $safe_id ) . '" style="' . esc_attr( $style ) . '">' . esc_html( $text ) . '</h2>';
 		} elseif ( 'text' === $type ) {
-			$out .= '<p class="rss-prism-canvas-text" style="' . esc_attr( $style ) . '">' . nl2br( esc_html( $text ) ) . '</p>';
+			$out .= '<p class="rss-prism-canvas-text ' . esc_attr( 'rss-prism-item-' . $safe_id ) . '" style="' . esc_attr( $style ) . '">' . nl2br( esc_html( $text ) ) . '</p>';
 		} elseif ( 'button' === $type && ! empty( $item['url'] ) ) {
-			$out .= '<p style="' . esc_attr( $style ) . '"><a class="rss-prism-canvas-button" href="' . esc_url( $item['url'] ) . '">' . esc_html( $text ) . '</a></p>';
+			$out .= '<p class="' . esc_attr( 'rss-prism-item-' . $safe_id ) . '" style="' . esc_attr( $style ) . '"><a class="rss-prism-canvas-button" href="' . esc_url( $item['url'] ) . '">' . esc_html( $text ) . '</a></p>';
 		}
 	}
+	if ( $responsive_css ) { $out .= '<style>' . $responsive_css . '</style>'; }
 	return $out . '</div>';
 }
 add_shortcode( 'rss_prism_canvas', 'rss_prism_builder_render_canvas_shortcode' );
