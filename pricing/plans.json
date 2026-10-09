@@ -1,19 +1,24 @@
 {
-  "catalog_version": 1,
-  "status": "proposed",
+  "catalog_version": 2,
+  "status": "free_only",
   "base_currency": "USD",
   "local_currency": "LKR",
   "plans": [
-    {"id":"free","name":"Free","price":{"USD":0,"LKR":0},"billing":"free","production_sites":null,"site_limit_label":"Core free features","includes":["Lightweight responsive theme","Essential typography and color controls","Basic layout and spacing controls","WordPress block editor compatibility"]},
-    {"id":"personal","name":"Personal","price":{"USD":59,"LKR":14900},"billing":"annual","production_sites":1,"site_limit_label":"1 production site","includes":["Premium theme features","RSS Prism Builder premium features","Premium template library access","Updates and support while active"]},
-    {"id":"freelancer","name":"Freelancer","price":{"USD":99,"LKR":24900},"billing":"annual","production_sites":5,"site_limit_label":"5 production sites","includes":["All Personal features","Up to 5 production sites","Updates and support while active"]},
-    {"id":"agency","name":"Agency","price":{"USD":199,"LKR":49900},"billing":"annual","production_sites":-1,"site_limit_label":"Unlimited production sites","includes":["All Freelancer features","Unlimited production-site activations","Updates and support while active"]},
-    {"id":"lifetime_personal","name":"Lifetime Personal","price":{"USD":199,"LKR":49900},"billing":"one_time","production_sites":1,"site_limit_label":"1 production site","includes":["Lifetime usage rights as defined by the license","One-time payment","Update and support coverage defined separately in the license"]}
+    {
+      "id": "free",
+      "name": "Free",
+      "price": { "USD": 0, "LKR": 0 },
+      "billing": "free",
+      "production_sites": null,
+      "site_limit_label": "Free",
+      "includes": [
+        "RSS Prism multipurpose theme",
+        "Customizable colours and content width",
+        "Homepage, header, footer, and archive layout settings",
+        "Responsive navigation and WordPress core templates",
+        "RSS Prism Builder foundation"
+      ]
+    }
   ],
-  "important": [
-    "Proposed prices only; validate before enabling live checkout.",
-    "Grant entitlements only after verifying signed server-side payment notifications.",
-    "Subscription expiry must not remotely disable a published customer website.",
-    "Never store payment secrets in this repository."
-  ]
+  "note": "Only the Free plan is currently offered. No paid plan or paid price is active."
 }
