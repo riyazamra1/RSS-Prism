@@ -27,13 +27,22 @@ defined( 'ABSPATH' ) || exit;
 <main id="content" class="site-content">
 	<?php if ( have_posts() ) : while ( have_posts() ) : the_post(); ?>
 		<article <?php post_class( 'entry-card' ); ?> id="post-<?php the_ID(); ?>">
-			<?php if ( is_singular() ) : ?><h1 class="entry-title"><?php the_title(); ?></h1><?php else : ?><h2 class="entry-title"><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h2><?php endif; ?>
-			<div class="entry-meta"><time datetime="<?php echo esc_attr( get_the_date( DATE_W3C ) ); ?>"><?php echo esc_html( get_the_date() ); ?></time> · <?php the_author_posts_link(); ?></div>
-			<div class="entry-content"><?php if ( is_singular() ) { the_content(); wp_link_pages(); } else { the_excerpt(); } ?></div>
+			<?php if ( has_post_thumbnail() && ! is_singular() ) : ?>
+				<a class="entry-thumbnail" href="<?php the_permalink(); ?>" tabindex="-1" aria-hidden="true"><?php the_post_thumbnail( 'large' ); ?></a>
+			<?php endif; ?>
+			<?php if ( is_singular() ) : ?><h1 class="entry-title"><?php the_title(); ?></h1><?php else : ?><h2 class="entry-title"><a href="<?php echo esc_url( get_permalink() ); ?>"><?php the_title(); ?></a></h2><?php endif; ?>
+			<div class="entry-meta"><time datetime="<?php echo esc_attr( get_the_date( DATE_W3C ) ); ?>"><?php echo esc_html( get_the_date() ); ?></time> <span aria-hidden="true">·</span> <?php the_author_posts_link(); ?></div>
+			<div class="entry-content"><?php if ( is_singular() ) { the_content(); wp_link_pages(); } else { the_excerpt(); ?><p class="entry-read-more"><a href="<?php echo esc_url( get_permalink() ); ?>"><?php esc_html_e( 'Read more', 'rss-prism' ); ?> <span aria-hidden="true">→</span></a></p><?php } ?></div>
 		</article>
 	<?php endwhile; ?>
 		<nav class="pagination" aria-label="<?php esc_attr_e( 'Posts navigation', 'rss-prism' ); ?>"><?php the_posts_pagination(); ?></nav>
-	<?php else : ?><section class="entry-card"><h1 class="entry-title"><?php esc_html_e( 'Nothing here yet', 'rss-prism' ); ?></h1><p><?php esc_html_e( 'Publish your first post to get started.', 'rss-prism' ); ?></p></section><?php endif; ?>
+	<?php else : ?>
+		<section class="entry-card">
+			<h1 class="entry-title"><?php echo esc_html( is_search() ? __( 'No results found', 'rss-prism' ) : __( 'Nothing here yet', 'rss-prism' ) ); ?></h1>
+			<p><?php echo esc_html( is_search() ? __( 'Try a different search term, or browse the latest posts.', 'rss-prism' ) : __( 'Publish your first post to get started.', 'rss-prism' ) ); ?></p>
+			<?php if ( is_search() ) { get_search_form(); } ?>
+		</section>
+	<?php endif; ?>
 </main>
 <footer class="site-footer"><div class="site-footer__inner">
 	<span><?php echo esc_html( get_bloginfo( 'name' ) ); ?></span>
