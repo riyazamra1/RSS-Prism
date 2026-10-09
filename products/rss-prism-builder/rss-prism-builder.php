@@ -48,15 +48,13 @@ function rss_prism_builder_pricing_shortcode() {
 	ob_start();
 	?>
 	<section class="rss-prism-pricing" aria-label="<?php esc_attr_e( 'RSS Prism plans', 'rss-prism-builder' ); ?>">
-		<p class="rss-prism-pricing__notice"><?php esc_html_e( 'Proposed launch pricing — checkout is not yet available.', 'rss-prism-builder' ); ?></p>
 		<div class="rss-prism-pricing__grid">
 			<?php foreach ( $catalog['plans'] as $plan_id => $plan ) : ?>
 				<article class="rss-prism-plan rss-prism-plan--<?php echo esc_attr( sanitize_html_class( $plan_id ) ); ?>">
 					<h3 class="rss-prism-plan__name"><?php echo esc_html( $plan['name'] ); ?></h3>
-					<p class="rss-prism-plan__price"><?php echo esc_html( rss_prism_builder_format_price( $plan['price_usd'], 'USD' ) ); ?>
-						<?php if ( 'annual' === $plan['billing'] ) : ?><span><?php esc_html_e( '/ year', 'rss-prism-builder' ); ?></span><?php elseif ( 'one_time' === $plan['billing'] ) : ?><span><?php esc_html_e( 'one-time', 'rss-prism-builder' ); ?></span><?php else : ?><span><?php esc_html_e( 'forever', 'rss-prism-builder' ); ?></span><?php endif; ?>
+					<p class="rss-prism-plan__price"><?php echo esc_html( 'free' === $plan_id ? __( 'Free', 'rss-prism-builder' ) : rss_prism_builder_format_price( $plan['price_usd'], 'USD' ) ); ?>
+						<?php if ( 'annual' === $plan['billing'] ) : ?><span><?php esc_html_e( '/ year', 'rss-prism-builder' ); ?></span><?php elseif ( 'one_time' === $plan['billing'] ) : ?><span><?php esc_html_e( 'one-time', 'rss-prism-builder' ); ?></span><?php elseif ( 'free' === $plan['billing'] ) : ?><span><?php esc_html_e( 'Included', 'rss-prism-builder' ); ?></span><?php endif; ?>
 					</p>
-					<p class="rss-prism-plan__local"><?php echo esc_html( rss_prism_builder_format_price( $plan['price_lkr'], 'LKR' ) ); ?></p>
 					<p class="rss-prism-plan__sites"><?php echo esc_html( $plan['site_limit_label'] ); ?></p>
 					<ul class="rss-prism-plan__features"><?php foreach ( $plan['features'] as $feature ) : ?><li><?php echo esc_html( $feature ); ?></li><?php endforeach; ?></ul>
 				</article>
