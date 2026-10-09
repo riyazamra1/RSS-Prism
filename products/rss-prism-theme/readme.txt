@@ -18,7 +18,10 @@ A responsive multipurpose WordPress theme with customizable colours, homepage co
 
 == Features ==
 * Responsive homepage, page, post, archive, search, and 404 templates.
-* Accent/background colours, content width, corner and shadow controls.
+* Accent/background/surface/text colours, content width, corner and shadow controls.
+* Typography scale, button shape, content alignment, archive thumbnails, breadcrumbs, hero artwork, and back-to-top controls.
+* Activation welcome notice with quick links to customization, menus, and the live site.
+* Editable footer copyright and responsive theme screenshot preview.
 * Editable homepage hero, CTA copy, header layout, sticky header, and footer.
 * Blog grid/list layout, sidebar visibility, custom logo, featured images, widgets, comments, and pagination.
 * Keyboard-friendly mobile navigation and reduced-motion support.
