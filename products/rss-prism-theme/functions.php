@@ -51,6 +51,9 @@ function rss_prism_customize_register( $wp_customize ) {
 		'section' => 'rss_prism_design',
 	) ) );
 
+	$extra_colors = array('surface_color'=>array(__('Card and header surface','rss-prism'),'#ffffff'),'text_color'=>array(__('Main text colour','rss-prism'),'#202124'),'muted_color'=>array(__('Secondary text colour','rss-prism'),'#686b70'));
+	foreach($extra_colors as $key=>$item){$setting='rss_prism_'.$key;$wp_customize->add_setting($setting,array('default'=>$item[1],'sanitize_callback'=>'sanitize_hex_color','transport'=>'refresh'));$wp_customize->add_control(new WP_Customize_Color_Control($wp_customize,$setting,array('label'=>$item[0],'section'=>'rss_prism_design')));}
+
 	$wp_customize->add_setting( 'rss_prism_content_width', array(
 		'default'           => 1120,
 		'sanitize_callback' => 'absint',
