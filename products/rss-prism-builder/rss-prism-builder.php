@@ -3,7 +3,7 @@
  * Plugin Name: RSS Prism Builder
  * Plugin URI: https://www.rsscctvsolution.eu.cc/
  * Description: Theme-independent visual layout builder with image elements and responsive controls.
- * Version: 0.11.0
+ * Version: 0.12.0
  * Requires at least: 6.4
  * Requires PHP: 7.4
  * Author: Razeen Secure Solution
@@ -13,7 +13,7 @@
  * @package RSSPrismBuilder
  */
 defined( 'ABSPATH' ) || exit;
-define( 'RSS_PRISM_BUILDER_VERSION', '0.11.0' );
+define( 'RSS_PRISM_BUILDER_VERSION', '0.12.0' );
 
 function rss_prism_builder_register_templates() {
 	register_post_type( 'rss_prism_template', array(
@@ -284,7 +284,10 @@ add_action( 'admin_menu', 'rss_prism_builder_admin_menu' );
 
 function rss_prism_builder_render_admin_page() {
 	if ( ! current_user_can( 'edit_posts' ) ) { return; }
-	$templates = get_posts( array( 'post_type' => 'rss_prism_template', 'post_status' => array( 'publish', 'draft', 'pending', 'private' ), 'numberposts' => 100, 'orderby' => 'modified', 'order' => 'DESC' ) );
+	$template_search = isset( $_GET['template_search'] ) ? sanitize_text_field( wp_unslash( $_GET['template_search'] ) ) : '';
+	$template_query = array( 'post_type' => 'rss_prism_template', 'post_status' => array( 'publish', 'draft', 'pending', 'private' ), 'numberposts' => 100, 'orderby' => 'modified', 'order' => 'DESC' );
+	if ( '' !== $template_search ) { $template_query['s'] = $template_search; }
+	$templates = get_posts( $template_query );
 	$selected_id = isset( $_GET['post_id'] ) ? absint( $_GET['post_id'] ) : 0;
 	$selected = $selected_id ? get_post( $selected_id ) : null;
 	if ( ! $selected || 'rss_prism_template' !== $selected->post_type || ! current_user_can( 'edit_post', $selected_id ) ) { $selected_id = 0; $selected = null; }
@@ -295,17 +298,23 @@ function rss_prism_builder_render_admin_page() {
 		<h1><?php esc_html_e( 'RSS Prism Builder', 'rss-prism-builder' ); ?></h1>
 		<p><?php esc_html_e( 'Build a starter layout with draggable elements. This is an early builder MVP, not the complete visual editor.', 'rss-prism-builder' ); ?></p>
 		<p><a class="button button-primary" href="<?php echo esc_url( admin_url( 'post-new.php?post_type=rss_prism_template' ) ); ?>"><?php esc_html_e( 'Create template', 'rss-prism-builder' ); ?></a></p>
-		<?php if ( $templates ) : ?>
-			<form method="get" class="rss-prism-template-select">
-				<input type="hidden" name="page" value="rss-prism-builder">
-				<label for="rss-prism-template-id"><?php esc_html_e( 'Choose template', 'rss-prism-builder' ); ?></label>
-				<select id="rss-prism-template-id" name="post_id">
-					<option value="0"><?php esc_html_e( 'Select a template…', 'rss-prism-builder' ); ?></option>
-					<?php foreach ( $templates as $template ) : ?><option value="<?php echo esc_attr( $template->ID ); ?>" <?php selected( $selected_id, $template->ID ); ?>><?php echo esc_html( $template->post_title ? $template->post_title : '(Untitled template #' . $template->ID . ')' ); ?></option><?php endforeach; ?>
-				</select>
-				<button class="button"><?php esc_html_e( 'Load', 'rss-prism-builder' ); ?></button>
-			</form>
-		<?php endif; ?>
+		<form method="get" class="rss-prism-template-select">
+			<input type="hidden" name="page" value="rss-prism-builder">
+			<label for="rss-prism-template-search"><?php esc_html_e( 'Search templates', 'rss-prism-builder' ); ?></label>
+			<input type="search" id="rss-prism-template-search" name="template_search" value="<?php echo esc_attr( $template_search ); ?>" placeholder="<?php esc_attr_e( 'Search by template title…', 'rss-prism-builder' ); ?>">
+			<button class="button"><?php esc_html_e( 'Search', 'rss-prism-builder' ); ?></button>
+			<?php if ( '' !== $template_search ) : ?><a class="button" href="<?php echo esc_url( admin_url( 'admin.php?page=rss-prism-builder' ) ); ?>"><?php esc_html_e( 'Clear', 'rss-prism-builder' ); ?></a><?php endif; ?>
+			<label for="rss-prism-template-id"><?php esc_html_e( 'Choose template', 'rss-prism-builder' ); ?></label>
+			<select id="rss-prism-template-id" name="post_id">
+				<option value="0"><?php esc_html_e( 'Select a template…', 'rss-prism-builder' ); ?></option>
+				<?php foreach ( $templates as $template ) : $status_object = get_post_status_object( $template->post_status ); $status_label = $status_object ? $status_object->label : $template->post_status; ?>
+					<option value="<?php echo esc_attr( $template->ID ); ?>" <?php selected( $selected_id, $template->ID ); ?>><?php echo esc_html( ( $template->post_title ? $template->post_title : '(Untitled template #' . $template->ID . ')' ) . ' — ' . $status_label ); ?></option>
+				<?php endforeach; ?>
+			</select>
+			<button class="button button-primary"><?php esc_html_e( 'Load template', 'rss-prism-builder' ); ?></button>
+		</form>
+		<p class="description"><?php echo esc_html( sprintf( _n( '%d matching template found.', '%d matching templates found.', count( $templates ), 'rss-prism-builder' ), count( $templates ) ) ); ?> <?php esc_html_e( 'Draft templates remain separate from published pages; use “Save as new draft template” to make a safe copy.', 'rss-prism-builder' ); ?></p>
+		<?php if ( '' !== $template_search && ! $templates ) : ?><div class="notice notice-warning inline"><p><?php esc_html_e( 'No templates matched that search. Try another title or clear the search.', 'rss-prism-builder' ); ?></p></div><?php endif; ?>
 		<?php if ( $selected ) : ?>
 			<div id="rss-prism-builder-app"></div>
 			<script type="application/json" id="rss-prism-builder-data"><?php echo wp_json_encode( array( 'postId' => $selected_id, 'layout' => array_values( $layout ), 'nonce' => wp_create_nonce( 'wp_rest' ), 'restUrl' => esc_url_raw( rest_url( 'rss-prism/v1/layout' ) ), 'copyUrl' => esc_url_raw( rest_url( 'rss-prism/v1/template-copy' ) ) ), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT ); ?></script>
