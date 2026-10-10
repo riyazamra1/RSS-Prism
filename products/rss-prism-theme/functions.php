@@ -109,6 +109,8 @@ add_action( 'customize_register', 'rss_prism_customize_register' );
 function rss_prism_enqueue_assets() {
 	wp_enqueue_style( 'rss-prism-style', get_stylesheet_uri(), array(), wp_get_theme()->get( 'Version' ) );
 	wp_enqueue_script( 'rss-prism-navigation', get_template_directory_uri() . '/assets/js/navigation.js', array(), wp_get_theme()->get( 'Version' ), true );
+	// The navigation script is small and independent; defer execution to avoid blocking HTML parsing.
+	wp_script_add_data( 'rss-prism-navigation', 'strategy', 'defer' );
 	$accent = sanitize_hex_color( get_theme_mod( 'rss_prism_accent_color', '#b88a2b' ) );
 	$background = sanitize_hex_color( get_theme_mod( 'rss_prism_background_color', '#f7f7f5' ) );
 	$width = absint( get_theme_mod( 'rss_prism_content_width', 1120 ) );
