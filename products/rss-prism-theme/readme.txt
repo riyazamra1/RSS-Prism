@@ -27,6 +27,7 @@ A responsive WordPress theme for Razeen Secure Solution (RSS), with RSS-branded 
 * Email signups are stored in WordPress for administrators; no external mailing service is configured automatically.
 * Editable footer copyright and responsive theme screenshot preview.
 * RSS-branded homepage demo sections for About RSS, features, RSS Prism, RSS Project Manager, RSS Core, RSS Prism Builder, RSS KIT, planned RSS APK Analyzer, security principles, Free-only public offering, articles, and contact.
+* Official RSS business profile includes A C M Riyaz, COE (established 2015), core services, website, email, and phone contact details.
 * Project descriptions distinguish planned work from released products and avoid unverified security certification claims.
 * Editable homepage hero, CTA copy, header layout, sticky header, and footer.
 * Blog grid/list layout, sidebar visibility, custom logo, featured images, widgets, comments, and pagination.
