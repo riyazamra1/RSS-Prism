@@ -1,0 +1,12 @@
+name = "rss-prism-licensing"
+main = "src/index.js"
+compatibility_date = "2026-10-11"
+
+# Create a D1 database, then replace the placeholder before deploying.
+# npx wrangler d1 create rss-prism-licensing
+# npx wrangler d1 execute rss-prism-licensing --remote --file=schema.sql
+# Never put payment secrets or customer data in this file.
+[[d1_databases]]
+binding = "DB"
+database_name = "rss-prism-licensing"
+database_id = "REPLACE_WITH_D1_DATABASE_ID"

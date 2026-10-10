@@ -1,0 +1,41 @@
+name: RSS Prism Licensing Foundation
+
+on:
+  push:
+    branches: [main, feature/email-bound-licensing-foundation]
+    paths:
+      - "licensing/**"
+      - "docs/LICENSING-SECURITY.md"
+      - ".github/workflows/rss-prism-licensing.yml"
+  pull_request:
+    paths:
+      - "licensing/**"
+      - "docs/LICENSING-SECURITY.md"
+      - ".github/workflows/rss-prism-licensing.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Check Worker JavaScript syntax
+        run: node --check licensing/worker/src/index.js
+      - name: Run licensing tests
+        working-directory: licensing/worker
+        run: npm test
+      - name: Check schema security invariants
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -Fq "customer_email_hash TEXT NOT NULL" licensing/worker/schema.sql
+          grep -Fq "license_key_hash TEXT NOT NULL UNIQUE" licensing/worker/schema.sql
+          grep -Fq "activation_limit IN (1, 5)" licensing/worker/schema.sql
+          grep -Fq "PRIMARY KEY (provider, event_id)" licensing/worker/schema.sql
+          grep -Fq "No public endpoint may create a license" licensing/worker/schema.sql
