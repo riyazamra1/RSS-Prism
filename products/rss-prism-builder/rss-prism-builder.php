@@ -201,11 +201,15 @@ function rss_prism_builder_rest_can_edit_template( $request ) {
 		return new WP_Error( 'rss_prism_payload_too_large', __( 'The layout request exceeds the 1 MB safety limit.', 'rss-prism-builder' ), array( 'status' => 413 ) );
 	}
 	$rate_key = 'rss_prism_builder_rate_' . get_current_user_id();
-	$rate_count = (int) get_transient( $rate_key );
-	if ( $rate_count >= 120 ) {
+	$rate = get_transient( $rate_key );
+	if ( ! is_array( $rate ) || empty( $rate['started'] ) || ( time() - (int) $rate['started'] ) >= MINUTE_IN_SECONDS ) {
+		$rate = array( 'count' => 0, 'started' => time() );
+	}
+	if ( (int) $rate['count'] >= 120 ) {
 		return new WP_Error( 'rss_prism_rate_limited', __( 'Too many builder requests. Wait a minute and try again.', 'rss-prism-builder' ), array( 'status' => 429 ) );
 	}
-	set_transient( $rate_key, $rate_count + 1, MINUTE_IN_SECONDS );
+	$rate['count'] = (int) $rate['count'] + 1;
+	set_transient( $rate_key, $rate, max( 1, MINUTE_IN_SECONDS - ( time() - (int) $rate['started'] ) ) );
 	return true;
 }
 
