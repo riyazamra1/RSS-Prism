@@ -3,7 +3,7 @@
  * Plugin Name: RSS Prism Builder
  * Plugin URI: https://www.rsscctvsolution.eu.cc/
  * Description: Theme-independent visual layout builder with image elements and responsive controls.
- * Version: 0.8.0
+ * Version: 0.9.0
  * Requires at least: 6.4
  * Requires PHP: 7.4
  * Author: Razeen Secure Solution
@@ -13,7 +13,7 @@
  * @package RSSPrismBuilder
  */
 defined( 'ABSPATH' ) || exit;
-define( 'RSS_PRISM_BUILDER_VERSION', '0.8.0' );
+define( 'RSS_PRISM_BUILDER_VERSION', '0.9.0' );
 
 function rss_prism_builder_register_templates() {
 	register_post_type( 'rss_prism_template', array(
@@ -144,6 +144,16 @@ function rss_prism_builder_sanitize_responsive( $responsive, $item ) {
 }
 
 function rss_prism_builder_register_rest_routes() {
+	register_rest_route( 'rss-prism/v1', '/template-copy', array(
+		'methods' => WP_REST_Server::CREATABLE,
+		'callback' => 'rss_prism_builder_copy_template',
+		'permission_callback' => function() { return current_user_can( 'edit_posts' ); },
+		'args' => array(
+			'post_id' => array( 'required' => true, 'type' => 'integer', 'sanitize_callback' => 'absint' ),
+			'title' => array( 'required' => true, 'type' => 'string', 'sanitize_callback' => 'sanitize_text_field' ),
+			'layout' => array( 'required' => true, 'type' => 'array' ),
+		),
+	) );
 	register_rest_route( 'rss-prism/v1', '/layout', array(
 		'methods' => WP_REST_Server::CREATABLE,
 		'callback' => 'rss_prism_builder_save_layout',
@@ -155,6 +165,22 @@ function rss_prism_builder_register_rest_routes() {
 	) );
 }
 add_action( 'rest_api_init', 'rss_prism_builder_register_rest_routes' );
+
+function rss_prism_builder_copy_template( WP_REST_Request $request ) {
+	$source_id = absint( $request->get_param( 'post_id' ) );
+	$source = get_post( $source_id );
+	if ( ! $source || 'rss_prism_template' !== $source->post_type || ! current_user_can( 'edit_post', $source_id ) ) {
+		return new WP_Error( 'invalid_source_template', __( 'Choose a template you are allowed to edit.', 'rss-prism-builder' ), array( 'status' => 403 ) );
+	}
+	$title = sanitize_text_field( $request->get_param( 'title' ) );
+	if ( '' === $title ) { return new WP_Error( 'missing_template_title', __( 'Enter a name for the new template.', 'rss-prism-builder' ), array( 'status' => 400 ) ); }
+	$layout = rss_prism_builder_sanitize_layout( $request->get_param( 'layout' ) );
+	if ( is_wp_error( $layout ) ) { return $layout; }
+	$new_id = wp_insert_post( array( 'post_type' => 'rss_prism_template', 'post_status' => 'draft', 'post_title' => $title, 'post_content' => '', 'post_author' => get_current_user_id() ), true );
+	if ( is_wp_error( $new_id ) ) { return $new_id; }
+	update_post_meta( $new_id, '_rss_prism_layout', $layout );
+	return rest_ensure_response( array( 'created' => true, 'post_id' => $new_id, 'edit_url' => add_query_arg( array( 'page' => 'rss-prism-builder', 'post_id' => $new_id ), admin_url( 'admin.php' ) ) ) );
+}
 
 function rss_prism_builder_save_layout( WP_REST_Request $request ) {
 	$post_id = absint( $request->get_param( 'post_id' ) );

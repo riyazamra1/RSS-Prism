@@ -32,6 +32,7 @@
 		const [selected, setSelected] = useState(0);
 		const [notice, setNotice] = useState('');
 		const [busy, setBusy] = useState(false);
+		const [copyTitle, setCopyTitle] = useState('');
 		const [preview, setPreview] = useState('desktop');
 		const [history, setHistory] = useState([]);
 		const [future, setFuture] = useState([]);
@@ -76,6 +77,17 @@
 			} catch (error) { setNotice(error.message || 'Could not save the layout.'); }
 			finally { setBusy(false); }
 		};
+		const copyTemplate = async () => {
+			const title = copyTitle.trim();
+			if (!title) { setNotice('Enter a name for the reusable template first.'); return; }
+			setBusy(true); setNotice('');
+			try {
+				const response = await fetch(config.copyUrl, { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': config.nonce }, body: JSON.stringify({ post_id: config.postId, title, layout: items }) });
+				const result = await response.json();
+				if (!response.ok || !result.created || !result.edit_url) throw new Error(result.message || 'Could not create the reusable template.');
+				setNotice('Reusable draft created. Opening the copied template…'); window.location.href = result.edit_url;
+			} catch (error) { setNotice(error.message || 'Could not create the reusable template.'); setBusy(false); }
+		};
 		const field = (label, key, value, type = 'text') => h('label', { className: 'rss-prism-field' }, h('span', null, label), h(type === 'textarea' ? 'textarea' : 'input', { type: type === 'textarea' ? undefined : type, value: value ?? '', onChange: e => update(key, type === 'range' ? Number(e.target.value) : e.target.value), rows: type === 'textarea' ? 4 : undefined, min: type === 'range' ? 10 : undefined, max: type === 'range' ? 96 : undefined }));
 		const previewElement = (entry, i) => {
 			const deviceStyle = (entry.responsive && entry.responsive[preview]) || entry;
@@ -98,7 +110,8 @@
 			h('div', { className: 'rss-prism-builder-toolbar' },
 				h('div', { className: 'rss-prism-builder-add' }, h('strong', null, 'Add element'), ...Object.keys(TYPES).map(type => h('button', { key: type, type: 'button', className: 'button', onClick: () => add(type) }, '+ ' + TYPES[type].label))),
 				h('div', { className: 'rss-prism-builder-add rss-prism-starters' }, h('strong', null, 'Insert RSS starter layout'), ...[['business','Business landing'],['services','Services'],['contact','Contact page']].map(([kind,label]) => h('button', { key: kind, type: 'button', className: 'button', onClick: () => insertStarter(kind) }, label))),
-				h('div', { className: 'rss-prism-builder-actions' }, h('button', { type: 'button', className: 'button', disabled: !history.length, onClick: undo }, 'Undo'), h('button', { type: 'button', className: 'button', disabled: !future.length, onClick: redo }, 'Redo'), h('button', { type: 'button', className: 'button button-primary', disabled: busy, onClick: save }, busy ? 'Saving…' : 'Save layout'))),
+				h('div', { className: 'rss-prism-builder-actions' }, h('button', { type: 'button', className: 'button', disabled: !history.length, onClick: undo }, 'Undo'), h('button', { type: 'button', className: 'button', disabled: !future.length, onClick: redo }, 'Redo'), h('button', { type: 'button', className: 'button button-primary', disabled: busy, onClick: save }, busy ? 'Saving…' : 'Save layout')),
+				h('div', { className: 'rss-prism-template-copy' }, h('label', { htmlFor: 'rss-prism-copy-title' }, 'Reusable template name'), h('input', { id: 'rss-prism-copy-title', type: 'text', value: copyTitle, placeholder: 'e.g. RSS Services Landing', onChange: e => setCopyTitle(e.target.value), maxLength: 120 }), h('button', { type: 'button', className: 'button', disabled: busy, onClick: copyTemplate }, 'Save as new draft template'))),
 			notice ? h('div', { className: 'notice notice-info rss-prism-builder-notice', role: 'status' }, h('p', null, notice)) : null,
 			h('div', { className: 'rss-prism-preview-toolbar' }, h('strong', null, 'Responsive preview'), ...[['desktop','Desktop'],['tablet','Tablet'],['mobile','Mobile']].map(pair => h('button', { key: pair[0], type: 'button', className: 'button ' + (preview === pair[0] ? 'button-primary' : ''), onClick: () => setPreview(pair[0]), 'aria-pressed': preview === pair[0] }, pair[1]))),
 			h('div', { className: 'rss-prism-builder-workspace' },
@@ -119,7 +132,8 @@
 							const removeChild = childIndex => { const next = clone(item.column_elements || []); while (next.length < Number(item.columns_count || 2)) next.push([]); next[columnIndex] = (next[columnIndex] || []).filter((_, index) => index !== childIndex); update('column_elements', next); };
 							return h('div', { className: 'rss-prism-nested-column-editor', key: columnIndex },
 								h('h4', null, 'Column ' + (columnIndex + 1)),
-								...children.map((child, childIndex) => h('div', { className: 'rss-prism-nested-child', key: child.id || childIndex },
+								...children.map((child, childIndex) => h('div', { className: 'rss-prism-nested-child', key: child.id || childIndex, draggable: true, onDragStart: e => { e.dataTransfer.setData('text/plain', JSON.stringify({ columnIndex, childIndex })); e.dataTransfer.effectAllowed = 'move'; }, onDragOver: e => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; }, onDrop: e => { e.preventDefault(); let source; try { source = JSON.parse(e.dataTransfer.getData('text/plain')); } catch (error) { return; } if (!source || source.columnIndex !== columnIndex || source.childIndex === childIndex) return; const next = normalizedColumnElements(item); const moved = next[columnIndex].splice(source.childIndex, 1)[0]; next[columnIndex].splice(childIndex, 0, moved); update('column_elements', next); } },
+									h('div', { className: 'rss-prism-nested-child-toolbar' }, h('span', { className: 'rss-prism-child-drag-handle', title: 'Drag to reorder this element', 'aria-label': 'Drag to reorder this element' }, '⠿ Drag to reorder'), h('button', { type: 'button', className: 'button-link', disabled: childIndex === 0, onClick: () => { const next = normalizedColumnElements(item); const moved = next[columnIndex].splice(childIndex, 1)[0]; next[columnIndex].splice(childIndex - 1, 0, moved); update('column_elements', next); } }, 'Move up'), h('button', { type: 'button', className: 'button-link', disabled: childIndex === children.length - 1, onClick: () => { const next = normalizedColumnElements(item); const moved = next[columnIndex].splice(childIndex, 1)[0]; next[columnIndex].splice(childIndex + 1, 0, moved); update('column_elements', next); } }, 'Move down')),
 									h('label', { className: 'rss-prism-field' }, h('span', null, 'Element type'), h('select', { value: child.type || 'text', onChange: e => updateChild(childIndex, 'type', e.target.value) }, ...[['heading','Heading'],['text','Text'],['button','Button']].map(([value,label]) => h('option', { key: value, value }, label)))),
 									h('label', { className: 'rss-prism-field' }, h('span', null, 'Content'), h('textarea', { value: child.text || '', rows: 2, onChange: e => updateChild(childIndex, 'text', e.target.value) })),
 									child.type === 'button' ? h('label', { className: 'rss-prism-field' }, h('span', null, 'Button URL'), h('input', { type: 'url', value: child.url || '', onChange: e => updateChild(childIndex, 'url', e.target.value) })) : null,

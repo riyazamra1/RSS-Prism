@@ -4,7 +4,7 @@ Tags: page-builder, layout, templates
 Requires at least: 6.4
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 0.8.0
+Stable tag: 0.9.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -13,7 +13,8 @@ An early visual layout builder for RSS Prism.
 == Current scope ==
 * Theme-independent Prism Template content.
 * Draggable/reorderable section, heading, text, button, image, and 2/3-column layout elements.
-* Edit multiple nested heading, text, and button elements independently inside each column. Existing text-only column layouts remain supported.
+* Edit and drag-reorder nested heading, text, and button elements independently inside each column, with move-up/down controls. Existing text-only column layouts remain supported.
+* Save the current layout as a separate reusable draft template without overwriting the source template.
 * Insert RSS business, services, and contact starter layouts, then edit their content before saving.
 * Select images directly from the WordPress Media Library, with editable image URL, accessible alternative text, and percentage width control.
 * Configure call-to-action button destination, background colour, text colour, and corner radius.
