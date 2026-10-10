@@ -107,6 +107,39 @@
 			} catch (error) { setNotice(error.message || 'Could not create the reusable template.'); setBusy(false); }
 		};
 		const field = (label, key, value, type = 'text') => h('label', { className: 'rss-prism-field' }, h('span', null, label), h(type === 'textarea' ? 'textarea' : 'input', { type: type === 'textarea' ? undefined : type, value: value ?? '', onChange: e => update(key, type === 'range' ? Number(e.target.value) : e.target.value), rows: type === 'textarea' ? 4 : undefined, min: type === 'range' ? 10 : undefined, max: type === 'range' ? 96 : undefined }));
+		const mutateNested = (parentPath, callback) => {
+			const rootChildren = clone(item.container_elements || []);
+			let target = rootChildren;
+			parentPath.forEach(index => { target = target[index] && Array.isArray(target[index].container_elements) ? target[index].container_elements : []; });
+			callback(target);
+			update('container_elements', rootChildren);
+		};
+		const nestedEditor = (children, parentPath, depth) => h('div', { className: 'rss-prism-nested-editor rss-prism-nested-depth-' + depth },
+			...(children || []).map((child, index) => h('div', { className: 'rss-prism-nested-child', key: child.id || index, draggable: true,
+				onDragStart: e => { e.dataTransfer.setData('text/plain', JSON.stringify({ path: parentPath, index })); e.dataTransfer.effectAllowed = 'move'; },
+				onDragOver: e => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; },
+				onDrop: e => { e.preventDefault(); let source; try { source = JSON.parse(e.dataTransfer.getData('text/plain')); } catch (error) { return; }
+					if (!source || JSON.stringify(source.path) !== JSON.stringify(parentPath) || source.index === index) return;
+					mutateNested(parentPath, list => { if (!Number.isInteger(source.index) || source.index < 0 || source.index >= list.length) return; const moved = list.splice(source.index, 1)[0]; list.splice(index, 0, moved); });
+				}
+			},
+				h('div', { className: 'rss-prism-nested-child-toolbar' }, h('strong', null, (child.type === 'container' ? 'Nested container ' : 'Nested element ') + (index + 1)),
+					h('button', { type: 'button', className: 'button-link', disabled: index === 0, onClick: () => mutateNested(parentPath, list => { const moved = list.splice(index, 1)[0]; list.splice(index - 1, 0, moved); }) }, 'Move up'),
+					h('button', { type: 'button', className: 'button-link', disabled: index === children.length - 1, onClick: () => mutateNested(parentPath, list => { const moved = list.splice(index, 1)[0]; list.splice(index + 1, 0, moved); }) }, 'Move down')),
+				h('label', { className: 'rss-prism-field' }, h('span', null, 'Type'), h('select', { value: child.type || 'text', onChange: e => mutateNested(parentPath, list => { list[index].type = e.target.value; if (e.target.value === 'container') { list[index].container_background = list[index].container_background || '#f7f6f2'; list[index].container_elements = Array.isArray(list[index].container_elements) ? list[index].container_elements : [{ id: 'nested-' + Date.now(), type: 'text', text: 'Nested content', url: '' }]; } }) },
+					...([['heading','Heading'],['text','Text'],['button','Button'],['image','Image']].concat(depth < 2 ? [['container','Nested container']] : [])).map(([value,label]) => h('option', { key: value, value }, label)))),
+				child.type === 'container' ? h('div', { className: 'rss-prism-image-controls' },
+					h('label', { className: 'rss-prism-field' }, h('span', null, 'Container background'), h('input', { type: 'color', value: child.container_background || '#f7f6f2', onChange: e => mutateNested(parentPath, list => { list[index].container_background = e.target.value; }) })),
+					nestedEditor(child.container_elements || [], [...parentPath, index], depth + 1)
+				) : null,
+				child.type !== 'container' ? h('label', { className: 'rss-prism-field' }, h('span', null, 'Content'), h('textarea', { rows: 2, value: child.text || '', onChange: e => mutateNested(parentPath, list => { list[index].text = e.target.value; }) })) : null,
+				child.type === 'button' ? h('label', { className: 'rss-prism-field' }, h('span', null, 'Button URL'), h('input', { type: 'url', value: child.url || '', onChange: e => mutateNested(parentPath, list => { list[index].url = e.target.value; }) })) : null,
+				child.type === 'image' ? h('div', { className: 'rss-prism-field' }, h('span', null, 'Image URL'), h('input', { type: 'url', value: child.image_url || '', onChange: e => mutateNested(parentPath, list => { list[index].image_url = e.target.value; }) }), h('input', { type: 'text', value: child.alt || '', placeholder: 'Alternative text', onChange: e => mutateNested(parentPath, list => { list[index].alt = e.target.value; }) })) : null,
+				child.type === 'container' ? h('p', { className: 'description' }, depth >= 1 ? 'Maximum nested depth reached for child containers.' : 'This container can include another container.') : null,
+				h('button', { type: 'button', className: 'button-link-delete', onClick: () => mutateNested(parentPath, list => list.splice(index, 1)) }, 'Remove element')
+			)),
+			h('button', { type: 'button', className: 'button', disabled: (children || []).length >= 20, onClick: () => mutateNested(parentPath, list => list.push({ id: 'nested-' + Date.now() + '-' + Math.random().toString(36).slice(2,6), type: 'text', text: 'New nested content', url: '' })) }, '+ Add nested element')
+		);
 		const previewElement = (entry, i) => {
 			const deviceStyle = (entry.responsive && entry.responsive[preview]) || entry;
 			const style = { padding: (Number(deviceStyle.padding ?? entry.padding) || 0) + 'px', background: entry.background || 'transparent', color: entry.text_color || '#202124', fontSize: (Number(deviceStyle.font_size ?? entry.font_size) || 16) + 'px', textAlign: deviceStyle.align || entry.align || 'left', boxSizing: 'border-box', overflowWrap: 'anywhere' };
@@ -114,7 +147,15 @@
 			if (entry.type === 'heading') return h('h2', common, entry.text || 'Heading');
 			if (entry.type === 'text') return h('p', common, entry.text || 'Text');
 			if (entry.type === 'button') return h('div', common, h('span', { className: 'rss-prism-live-button', style: { background: entry.button_bg || '#b88a2b', color: entry.button_text || '#ffffff', borderRadius: (Number(entry.button_radius ?? 6)) + 'px' } }, entry.text || 'Button'));
-			if (entry.type === 'container') return h('div', { ...common, className: common.className + ' rss-prism-live-container', style: { ...style, background: entry.container_background || '#f7f6f2', border: '1px solid #e2e4e7', borderRadius: '10px' } }, ...(Array.isArray(entry.container_elements) ? entry.container_elements : []).map((child, childIndex) => child.type === 'heading' ? h('h3', { key: child.id || childIndex }, child.text || 'Heading') : child.type === 'button' ? h('p', { key: child.id || childIndex }, h('span', { className: 'rss-prism-live-button' }, child.text || 'Button')) : child.type === 'image' && child.image_url ? h('p', { key: child.id || childIndex }, h('img', { src: child.image_url, alt: child.alt || '', className: 'rss-prism-live-image' })) : h('p', { key: child.id || childIndex }, child.text || 'Text')));
+			const previewNested = (child, childIndex, depth = 0) => {
+				const key = child.id || childIndex;
+				if (child.type === 'container' && depth < 2) return h('div', { key, className: 'rss-prism-live-container rss-prism-live-container--nested', style: { background: child.container_background || '#f7f6f2', border: '1px solid #e2e4e7', borderRadius: '8px', padding: '12px', margin: '12px 0' } }, ...(Array.isArray(child.container_elements) ? child.container_elements : []).map((nested, nestedIndex) => previewNested(nested, nestedIndex, depth + 1)));
+				if (child.type === 'heading') return h('h3', { key }, child.text || 'Heading');
+				if (child.type === 'button') return h('p', { key }, h('span', { className: 'rss-prism-live-button' }, child.text || 'Button'));
+				if (child.type === 'image' && child.image_url) return h('p', { key }, h('img', { src: child.image_url, alt: child.alt || '', className: 'rss-prism-live-image' }));
+				return h('p', { key }, child.text || 'Text');
+			};
+			if (entry.type === 'container') return h('div', { ...common, className: common.className + ' rss-prism-live-container', style: { ...style, background: entry.container_background || '#f7f6f2', border: '1px solid #e2e4e7', borderRadius: '10px' } }, ...(Array.isArray(entry.container_elements) ? entry.container_elements : []).map((child, childIndex) => previewNested(child, childIndex, 0)));
 			if (entry.type === 'columns') return h('div', { ...common, className: common.className + ' rss-prism-live-columns', style: { ...style, display: 'grid', gridTemplateColumns: 'repeat(' + Math.min(3, Math.max(2, Number(entry.columns_count || 2))) + ', minmax(0, 1fr))', gap: '12px' } }, ...Array.from({ length: Number(entry.columns_count || 2) }, (_, index) => { const children = normalizedColumnElements(entry)[index]; return h('div', { key: index, className: 'rss-prism-live-column-cell' }, ...children.map((child, childIndex) => child.type === 'heading' ? h('h3', { key: child.id || childIndex }, child.text || 'Heading') : child.type === 'button' ? h('p', { key: child.id || childIndex }, h('span', { className: 'rss-prism-live-button' }, child.text || 'Button')) : h('p', { key: child.id || childIndex }, child.text || 'Text'))); }));
 			if (entry.type === 'image') return h('div', common, entry.image_url ? h('img', { src: entry.image_url, alt: entry.alt || '', className: 'rss-prism-live-image', style: { width: Math.min(100, Math.max(10, Number(entry.image_width ?? 100))) + '%' } }) : h('span', { className: 'rss-prism-image-placeholder' }, 'Choose an image in Element settings'));
 			return h('section', common, entry.text || 'Section');
@@ -141,14 +182,8 @@
 					item.type === 'button' ? h('div', { className: 'rss-prism-image-controls' }, field('Button URL', 'url', item.url, 'url'), field('Button background', 'button_bg', item.button_bg || '#b88a2b', 'color'), field('Button text color', 'button_text', item.button_text || '#ffffff', 'color'), h('label', { className: 'rss-prism-field' }, h('span', null, 'Corner radius: ' + (item.button_radius ?? 6) + ' px'), h('input', { type: 'range', min: 0, max: 40, value: item.button_radius ?? 6, onChange: e => update('button_radius', Number(e.target.value)) }))) : null,
 					item.type === 'container' ? h('div', { className: 'rss-prism-image-controls' },
 						field('Container background', 'container_background', item.container_background || '#f7f6f2', 'color'),
-						...(item.container_elements || []).map((child, index) => h('div', { className: 'rss-prism-nested-child', key: child.id || index, draggable: true, onDragStart: e => { e.dataTransfer.setData('text/plain', String(index)); e.dataTransfer.effectAllowed = 'move'; }, onDragOver: e => { e.preventDefault(); }, onDrop: e => { e.preventDefault(); const from = Number(e.dataTransfer.getData('text/plain')); const next = clone(item.container_elements || []); if (!Number.isInteger(from) || from < 0 || from >= next.length || from === index) return; const moved = next.splice(from, 1)[0]; next.splice(index, 0, moved); update('container_elements', next); } },
-							h('div', { className: 'rss-prism-nested-child-toolbar' }, h('strong', null, 'Nested element ' + (index + 1)), h('button', { type: 'button', className: 'button-link', disabled: index === 0, onClick: () => { const next = clone(item.container_elements || []); const moved = next.splice(index, 1)[0]; next.splice(index - 1, 0, moved); update('container_elements', next); } }, 'Move up'), h('button', { type: 'button', className: 'button-link', disabled: index === (item.container_elements || []).length - 1, onClick: () => { const next = clone(item.container_elements || []); const moved = next.splice(index, 1)[0]; next.splice(index + 1, 0, moved); update('container_elements', next); } }, 'Move down')),
-							h('label', { className: 'rss-prism-field' }, h('span', null, 'Type'), h('select', { value: child.type || 'text', onChange: e => { const next = clone(item.container_elements || []); next[index].type = e.target.value; update('container_elements', next); } }, ...[['heading','Heading'],['text','Text'],['button','Button'],['image','Image']].map(([value,label]) => h('option', { key: value, value }, label)))),
-							h('label', { className: 'rss-prism-field' }, h('span', null, 'Content'), h('textarea', { rows: 2, value: child.text || '', onChange: e => { const next = clone(item.container_elements || []); next[index].text = e.target.value; update('container_elements', next); } })),
-							child.type === 'button' ? h('label', { className: 'rss-prism-field' }, h('span', null, 'Button URL'), h('input', { type: 'url', value: child.url || '', onChange: e => { const next = clone(item.container_elements || []); next[index].url = e.target.value; update('container_elements', next); } })) : null,
-							child.type === 'image' ? h('div', { className: 'rss-prism-field' }, h('span', null, 'Image URL'), h('input', { type: 'url', value: child.image_url || '', onChange: e => { const next = clone(item.container_elements || []); next[index].image_url = e.target.value; update('container_elements', next); } }), h('input', { type: 'text', value: child.alt || '', placeholder: 'Alternative text', onChange: e => { const next = clone(item.container_elements || []); next[index].alt = e.target.value; update('container_elements', next); } })) : null,
-							h('button', { type: 'button', className: 'button-link-delete', onClick: () => update('container_elements', (item.container_elements || []).filter((_, i) => i !== index)) }, 'Remove nested element'))),
-						h('button', { type: 'button', className: 'button', disabled: (item.container_elements || []).length >= 20, onClick: () => update('container_elements', [...(item.container_elements || []), { id: 'nested-' + Date.now(), type: 'text', text: 'New nested content', url: '' }]) }, '+ Add nested element')
+						h('p', { className: 'description' }, 'Containers can hold up to 20 elements per level, with nesting limited to two levels inside the main container.'),
+						nestedEditor(item.container_elements || [], [], 0)
 					) : null,
 					item.type === 'columns' ? h('div', { className: 'rss-prism-image-controls' },
 						h('p', null, h('strong', null, 'Number of columns')),
