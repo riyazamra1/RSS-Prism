@@ -4,7 +4,7 @@ Theme URI: https://www.rsscctvsolution.eu.cc/
 Author: Razeen Secure Solution
 Author URI: https://www.rsscctvsolution.eu.cc/
 Description: A responsive multipurpose WordPress theme with flexible layouts and visual settings.
-Version: 1.2.0
+Version: 1.2.1
 Requires at least: 6.4
 Tested up to: 6.8
 Requires PHP: 7.4
@@ -55,3 +55,5 @@ body{font-size:var(--rp-font-size,16px)}
 
 /* RSS business profile and contact details */
 .rss-business-details{margin-top:2.5rem;padding:clamp(1.25rem,3vw,2rem);border:1px solid var(--rp-border);border-radius:var(--rp-radius);background:var(--rp-paper)}.rss-business-details h3{margin-top:0}.rss-service-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.75rem 1.5rem;padding-left:1.2rem}.rss-service-list li{padding-left:.2rem;line-height:1.6}.rss-contact-details{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1rem;margin:1.5rem 0}.rss-contact-details p{margin:0;padding:1rem;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:12px;overflow-wrap:anywhere}.rss-contact-details a{color:inherit;text-decoration-thickness:1px;text-underline-offset:3px}@media(max-width:680px){.rss-service-list{grid-template-columns:1fr}.rss-contact-details{grid-template-columns:1fr}}
+
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}}
