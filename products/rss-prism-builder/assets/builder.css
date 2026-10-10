@@ -30,3 +30,7 @@
 
 /* Builder 0.14.0: live WordPress testing and JSON backup tools */
 .rss-prism-live-test-guide{margin:16px 0 20px;padding:16px 20px;background:#fff;border:1px solid #dcdcde;border-left:4px solid #b88a2b;border-radius:4px;max-width:1100px}.rss-prism-live-test-guide h2{margin-top:0}.rss-prism-live-test-guide ol{padding-left:1.5rem;list-style:decimal}.rss-prism-live-test-guide li{margin:.45rem 0}.rss-prism-builder-actions{flex-wrap:wrap;gap:8px}.rss-prism-builder-actions .button{margin:0}
+
+
+/* Builder 0.15.0: autosave and browser recovery history */
+.rss-prism-autosave-status{margin:10px 0;padding:10px 12px;background:#f6f7f7;border:1px solid #dcdcde;border-radius:5px;font-size:13px}.rss-prism-autosave-status .is-saved{color:#087a35}.rss-prism-autosave-status .is-error{color:#b32d2e}.rss-prism-restore-history{margin:10px 0;padding:12px;border:1px solid #dcdcde;border-radius:5px;background:#fff}.rss-prism-restore-history summary{cursor:pointer;font-weight:600}.rss-prism-restore-history ol{margin:10px 0 0;padding-left:1.5rem}.rss-prism-restore-history li{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:6px 0;border-bottom:1px solid #eee}.rss-prism-restore-history li span{font-size:12px}.rss-prism-builder-actions{flex-wrap:wrap;gap:8px}.rss-prism-builder-actions .button{margin:0}
