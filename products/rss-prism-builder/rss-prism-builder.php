@@ -282,7 +282,7 @@ function rss_prism_builder_render_admin_page() {
 		<?php endif; ?>
 		<?php if ( $selected ) : ?>
 			<div id="rss-prism-builder-app"></div>
-			<script type="application/json" id="rss-prism-builder-data"><?php echo wp_json_encode( array( 'postId' => $selected_id, 'layout' => array_values( $layout ), 'nonce' => wp_create_nonce( 'wp_rest' ), 'restUrl' => esc_url_raw( rest_url( 'rss-prism/v1/layout' ) ) ), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT ); ?></script>
+			<script type="application/json" id="rss-prism-builder-data"><?php echo wp_json_encode( array( 'postId' => $selected_id, 'layout' => array_values( $layout ), 'nonce' => wp_create_nonce( 'wp_rest' ), 'restUrl' => esc_url_raw( rest_url( 'rss-prism/v1/layout' ) ), 'copyUrl' => esc_url_raw( rest_url( 'rss-prism/v1/template-copy' ) ) ), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT ); ?></script>
 		<?php else : ?>
 			<div class="notice notice-info"><p><?php esc_html_e( 'Create a Prism Template, then select it here to start arranging content.', 'rss-prism-builder' ); ?></p></div>
 		<?php endif; ?>
