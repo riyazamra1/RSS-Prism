@@ -11,13 +11,14 @@
 		heading: { label: 'Heading', text: 'Your heading' },
 		text: { label: 'Text', text: 'Write something useful for your visitors.' },
 		button: { label: 'Button', text: 'Learn more' },
-		image: { label: 'Image', text: 'Image' }
+		image: { label: 'Image', text: 'Image' },
+		columns: { label: 'Columns', text: 'Columns' }
 	};
 	const fresh = type => {
 		const fontSize = type === 'heading' ? 32 : 16;
 		const responsive = {};
 		['desktop', 'tablet', 'mobile'].forEach(device => { responsive[device] = { font_size: fontSize, padding: 24, align: 'left' }; });
-		return { id: 'item-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7), type, text: TYPES[type].text, url: '', image_url: '', alt: '', button_bg: '#b88a2b', button_text: '#ffffff', button_radius: 6, image_width: 100, background: type === 'section' ? '#f7f6f2' : '', text_color: '#202124', font_size: fontSize, align: 'left', padding: 24, responsive };
+		return { id: 'item-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7), type, text: TYPES[type].text, url: '', image_url: '', alt: '', button_bg: '#b88a2b', button_text: '#ffffff', button_radius: 6, image_width: 100, columns_count: 2, column_contents: ['First column content', 'Second column content', 'Third column content'], background: type === 'section' ? '#f7f6f2' : '', text_color: '#202124', font_size: fontSize, align: 'left', padding: 24, responsive };
 	};
 	const clone = value => JSON.parse(JSON.stringify(value));
 	function App() {
@@ -41,6 +42,13 @@
 			return { ...entry, [key]: value };
 		}));
 		const add = type => { const next = [...items, fresh(type)]; commitItems(next); setSelected(next.length - 1); setNotice(''); };
+		const insertStarter = kind => {
+			const specs = kind === 'services' ? [['section','Our Services'],['heading','Solutions for your business'],['columns',''],['text','CCTV installation, networking, software development, system administration, and technical support.'],['button','Contact RSS']]
+				: kind === 'contact' ? [['section','Contact Razeen Secure Solution'],['heading','Let’s discuss your project'],['text','Developing Ideas. Delivering Solutions.'],['columns',''],['button','Email RSS']]
+				: [['section','Razeen Secure Solution'],['heading','Developing Ideas. Delivering Solutions.'],['text','Software development, CCTV solutions, networking, cloud services, and practical AI solutions.'],['columns',''],['heading','Our approach'],['text','Reliable implementation, clear communication, and security-conscious solutions for every project.'],['button','Contact RSS']];
+			const additions = specs.map(([type, text]) => { const entry = fresh(type); if (text) entry.text = text; if (type === 'columns') entry.column_contents = ['Software & AI solutions','CCTV & networking','Cloud & system support']; if (type === 'button') entry.url = kind === 'contact' ? 'mailto:rsscctvsolution@gmail.com' : 'https://www.rsscctvsolution.eu.cc/'; return entry; });
+			const next = [...items, ...additions]; commitItems(next); setSelected(items.length); setNotice('Starter sections added. Review the content and save the layout.');
+		};
 		const move = (from, to) => { if (to < 0 || to >= items.length || from === to) return; const next = items.slice(); const [entry] = next.splice(from, 1); next.splice(to, 0, entry); commitItems(next); setSelected(to); };
 		const remove = index => { commitItems(items.filter((_, i) => i !== index)); setSelected(Math.max(0, Math.min(selected, items.length - 2))); };
 		const undo = () => { if (!history.length) return; setFuture(old => [clone(items), ...old]); setItems(history[history.length - 1]); setHistory(old => old.slice(0, -1)); };
@@ -70,6 +78,7 @@
 			if (entry.type === 'heading') return h('h2', common, entry.text || 'Heading');
 			if (entry.type === 'text') return h('p', common, entry.text || 'Text');
 			if (entry.type === 'button') return h('div', common, h('span', { className: 'rss-prism-live-button', style: { background: entry.button_bg || '#b88a2b', color: entry.button_text || '#ffffff', borderRadius: (Number(entry.button_radius ?? 6)) + 'px' } }, entry.text || 'Button'));
+			if (entry.type === 'columns') return h('div', { ...common, className: common.className + ' rss-prism-live-columns', style: { ...style, display: 'grid', gridTemplateColumns: 'repeat(' + Math.min(3, Math.max(2, Number(entry.columns_count || 2))) + ', minmax(0, 1fr))', gap: '12px' } }, ...(entry.column_contents || []).slice(0, Number(entry.columns_count || 2)).map((content, index) => h('div', { key: index, className: 'rss-prism-live-column-cell' }, content || ('Column ' + (index + 1)))));
 			if (entry.type === 'image') return h('div', common, entry.image_url ? h('img', { src: entry.image_url, alt: entry.alt || '', className: 'rss-prism-live-image', style: { width: Math.min(100, Math.max(10, Number(entry.image_width ?? 100))) + '%' } }) : h('span', { className: 'rss-prism-image-placeholder' }, 'Choose an image in Element settings'));
 			return h('section', common, entry.text || 'Section');
 		};
@@ -82,6 +91,7 @@
 		return h('div', { className: 'rss-prism-builder-layout' },
 			h('div', { className: 'rss-prism-builder-toolbar' },
 				h('div', { className: 'rss-prism-builder-add' }, h('strong', null, 'Add element'), ...Object.keys(TYPES).map(type => h('button', { key: type, type: 'button', className: 'button', onClick: () => add(type) }, '+ ' + TYPES[type].label))),
+				h('div', { className: 'rss-prism-builder-add rss-prism-starters' }, h('strong', null, 'Insert RSS starter layout'), ...[['business','Business landing'],['services','Services'],['contact','Contact page']].map(([kind,label]) => h('button', { key: kind, type: 'button', className: 'button', onClick: () => insertStarter(kind) }, label))),
 				h('div', { className: 'rss-prism-builder-actions' }, h('button', { type: 'button', className: 'button', disabled: !history.length, onClick: undo }, 'Undo'), h('button', { type: 'button', className: 'button', disabled: !future.length, onClick: redo }, 'Redo'), h('button', { type: 'button', className: 'button button-primary', disabled: busy, onClick: save }, busy ? 'Saving…' : 'Save layout'))),
 			notice ? h('div', { className: 'notice notice-info rss-prism-builder-notice', role: 'status' }, h('p', null, notice)) : null,
 			h('div', { className: 'rss-prism-preview-toolbar' }, h('strong', null, 'Responsive preview'), ...[['desktop','Desktop'],['tablet','Tablet'],['mobile','Mobile']].map(pair => h('button', { key: pair[0], type: 'button', className: 'button ' + (preview === pair[0] ? 'button-primary' : ''), onClick: () => setPreview(pair[0]), 'aria-pressed': preview === pair[0] }, pair[1]))),
@@ -91,6 +101,7 @@
 					h('p', { className: 'rss-prism-inspector-type' }, TYPES[item.type] ? TYPES[item.type].label : item.type),
 					field('Content', 'text', item.text, 'textarea'),
 					item.type === 'button' ? h('div', { className: 'rss-prism-image-controls' }, field('Button URL', 'url', item.url, 'url'), field('Button background', 'button_bg', item.button_bg || '#b88a2b', 'color'), field('Button text color', 'button_text', item.button_text || '#ffffff', 'color'), h('label', { className: 'rss-prism-field' }, h('span', null, 'Corner radius: ' + (item.button_radius ?? 6) + ' px'), h('input', { type: 'range', min: 0, max: 40, value: item.button_radius ?? 6, onChange: e => update('button_radius', Number(e.target.value)) }))) : null,
+					item.type === 'columns' ? h('div', { className: 'rss-prism-image-controls' }, h('label', { className: 'rss-prism-field' }, h('span', null, 'Number of columns'), h('select', { value: item.columns_count || 2, onChange: e => update('columns_count', Number(e.target.value)) }, ...[2,3].map(v => h('option', { key: v, value: v }, String(v)))), ...Array.from({ length: Number(item.columns_count || 2) }, (_, i) => field('Column ' + (i + 1) + ' content', 'column_contents', item.column_contents || [], 'text').type ? h('label', { className: 'rss-prism-field', key: i }, h('span', null, 'Column ' + (i + 1) + ' content'), h('textarea', { value: (item.column_contents || [])[i] || '', rows: 3, onChange: e => { const contents = (item.column_contents || []).slice(); contents[i] = e.target.value; update('column_contents', contents); } })) : null)) : null,
 					item.type === 'image' ? h('div', { className: 'rss-prism-image-controls' }, h('button', { type: 'button', className: 'button button-primary', onClick: chooseImage }, item.image_url ? 'Replace image from Media Library' : 'Choose from Media Library'), field('Image URL', 'image_url', item.image_url, 'url'), field('Alternative text (accessibility)', 'alt', item.alt || ''), h('label', { className: 'rss-prism-field' }, h('span', null, 'Image width: ' + (item.image_width ?? 100) + '%'), h('input', { type: 'range', min: 10, max: 100, value: item.image_width ?? 100, onChange: e => update('image_width', Number(e.target.value)) })), item.image_url ? h('img', { src: item.image_url, alt: item.alt || '', className: 'rss-prism-inspector-image' }) : null) : null,
 					item.type === 'section' ? field('Background color', 'background', item.background, 'color') : null,
 					field('Text color', 'text_color', item.text_color || '#202124', 'color'),
