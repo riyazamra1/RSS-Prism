@@ -3,11 +3,11 @@ Contributors: razeen-secure-solution
 Requires at least: 6.4
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 1.2.0
+Stable tag: 1.2.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-A responsive WordPress theme for Razeen Secure Solution (RSS), with RSS-branded demo homepage content covering the business, project ecosystem, features, security principles, Free public offering, articles, and contact links. Also includes customizable colours, header and footer layouts, blog grids, widgets, comments, search, and 404 templates.
+Performance update 1.2.1: the small navigation script is deferred, and reduced-motion preferences are respected. A responsive WordPress theme for Razeen Secure Solution (RSS), with RSS-branded demo homepage content covering the business, project ecosystem, features, security principles, Free public offering, articles, and contact links. Also includes customizable colours, header and footer layouts, blog grids, widgets, comments, search, and 404 templates.
 
 == Installation ==
 1. Go to Appearance > Themes > Add New > Upload Theme.
