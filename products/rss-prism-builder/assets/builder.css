@@ -22,3 +22,7 @@
 
 /* Builder 0.12.0 template library search and status labels */
 .rss-prism-admin-wrap .rss-prism-template-select{flex-wrap:wrap;align-items:flex-end}.rss-prism-admin-wrap .rss-prism-template-select label{display:flex;flex-direction:column;gap:.35rem;font-weight:600}.rss-prism-admin-wrap .rss-prism-template-select input[type=search]{min-width:220px}.rss-prism-admin-wrap .description{margin-top:.4rem}
+
+
+/* Builder 0.13.0: recursive nested container editor and preview */
+.rss-prism-nested-editor{padding-left:.65rem;border-left:2px solid #e2e4e7}.rss-prism-nested-depth-1{margin:.5rem 0 0 .25rem}.rss-prism-nested-depth-2{margin:.5rem 0 0 .25rem;padding-left:.5rem;border-left-color:#b88a2b}.rss-prism-live-container--nested{min-width:0;overflow-wrap:anywhere}.rss-prism-live-container--nested p:first-child,.rss-prism-live-container--nested h3:first-child{margin-top:0}.rss-prism-nested-editor>.button{margin:.4rem 0 .7rem}
