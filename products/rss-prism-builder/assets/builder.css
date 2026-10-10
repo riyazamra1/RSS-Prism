@@ -19,3 +19,6 @@
 
 /* Builder 0.11.0 nested content containers */
 .rss-prism-live-container{min-width:0}.rss-prism-live-container img,.rss-prism-canvas-container img{display:block;max-width:100%;height:auto}.rss-prism-canvas-container .rss-prism-container-button,.rss-prism-live-container .rss-prism-live-button{display:inline-block;padding:.65rem 1rem;border-radius:6px;background:#b88a2b;color:#fff;text-decoration:none}.rss-prism-nested-child{padding:.65rem;margin:.6rem 0;border:1px solid #dcdcde;border-radius:8px;background:#fff}.rss-prism-nested-child[draggable=true]{cursor:grab}.rss-prism-live-container>*:first-child,.rss-prism-canvas-container>*:first-child{margin-top:0}
+
+/* Builder 0.12.0 template library search and status labels */
+.rss-prism-admin-wrap .rss-prism-template-select{flex-wrap:wrap;align-items:flex-end}.rss-prism-admin-wrap .rss-prism-template-select label{display:flex;flex-direction:column;gap:.35rem;font-weight:600}.rss-prism-admin-wrap .rss-prism-template-select input[type=search]{min-width:220px}.rss-prism-admin-wrap .description{margin-top:.4rem}
