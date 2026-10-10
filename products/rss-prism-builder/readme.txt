@@ -4,7 +4,7 @@ Tags: page-builder, layout, templates
 Requires at least: 6.4
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 0.13.0
+Stable tag: 0.14.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -26,4 +26,4 @@ An early visual layout builder for RSS Prism.
 * [rss_prism_canvas id="123"] renders a published layout; [rss_prism_pricing] displays the active catalog (Free only).
 
 == Limitations ==
-This remains an early MVP, not the complete visual builder. Preview widths are editor previews; typography, alignment, and padding are saved per device. Container nesting is supported to a bounded depth; a broader widget library, autosave, import/export, full-site editing, premium entitlements, and payment processing are not implemented.
+This remains an early MVP, not the complete visual builder. Preview widths are editor previews; typography, alignment, and padding are saved per device. Container nesting is supported to a bounded depth; a broader widget library, autosave, full-site editing, premium entitlements, and payment processing are not implemented.
