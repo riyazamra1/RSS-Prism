@@ -153,12 +153,15 @@
 			const snapshot = clone(previousItems.current);
 			const current = clone(items);
 			previousItems.current = current;
+			try {
+				const key = 'rss-prism-history-' + config.postId;
+				let stored = [];
+				try { stored = JSON.parse(localStorage.getItem(key) || '[]'); } catch (error) { stored = []; }
+				const versions = [{ id: 'v-' + Date.now() + '-' + Math.random().toString(36).slice(2,6), saved_at: new Date().toISOString(), layout: snapshot }, ...(Array.isArray(stored) ? stored : [])].slice(0, 20);
+				localStorage.setItem(key, JSON.stringify(versions));
+				setRestoreVersions(versions);
+			} catch (error) { setNotice('Browser history could not be stored. Autosave will still be attempted.'); }
 			const timer = window.setTimeout(async () => {
-				try {
-					const versions = [{ id: 'v-' + Date.now(), saved_at: new Date().toISOString(), layout: snapshot }, ...restoreVersions].slice(0, 20);
-					localStorage.setItem('rss-prism-history-' + config.postId, JSON.stringify(versions));
-					setRestoreVersions(versions);
-				} catch (error) { setNotice('Browser history could not be stored. Autosave will still be attempted.'); }
 				setAutosaveStatus('Saving…');
 				try {
 					const response = await fetch(config.restUrl, { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': config.nonce }, body: JSON.stringify({ post_id: config.postId, layout: current }) });
