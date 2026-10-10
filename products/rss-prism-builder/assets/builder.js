@@ -82,7 +82,7 @@
 		return h('div', { className: 'rss-prism-builder-layout' },
 			h('div', { className: 'rss-prism-builder-toolbar' },
 				h('div', { className: 'rss-prism-builder-add' }, h('strong', null, 'Add element'), ...Object.keys(TYPES).map(type => h('button', { key: type, type: 'button', className: 'button', onClick: () => add(type) }, '+ ' + TYPES[type].label))),
-				h('div', { className: 'rss-prism-builder-actions' }, h('button', { type: 'button', className: 'button', disabled: !history.length, onClick: undo }, 'Undo'), h('button', { type: 'button', className: 'button', disabled: !future.length, onClick: redo }, 'Redo'), h('button', { type: 'button', className: 'button button-primary', disabled: busy, onClick: save }, busy ? 'Saving…' : 'Save layout')),
+				h('div', { className: 'rss-prism-builder-actions' }, h('button', { type: 'button', className: 'button', disabled: !history.length, onClick: undo }, 'Undo'), h('button', { type: 'button', className: 'button', disabled: !future.length, onClick: redo }, 'Redo'), h('button', { type: 'button', className: 'button button-primary', disabled: busy, onClick: save }, busy ? 'Saving…' : 'Save layout'))),
 			notice ? h('div', { className: 'notice notice-info rss-prism-builder-notice', role: 'status' }, h('p', null, notice)) : null,
 			h('div', { className: 'rss-prism-preview-toolbar' }, h('strong', null, 'Responsive preview'), ...[['desktop','Desktop'],['tablet','Tablet'],['mobile','Mobile']].map(pair => h('button', { key: pair[0], type: 'button', className: 'button ' + (preview === pair[0] ? 'button-primary' : ''), onClick: () => setPreview(pair[0]), 'aria-pressed': preview === pair[0] }, pair[1]))),
 			h('div', { className: 'rss-prism-builder-workspace' },
