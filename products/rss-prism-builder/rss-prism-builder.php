@@ -3,7 +3,7 @@
  * Plugin Name: RSS Prism Builder
  * Plugin URI: https://www.rsscctvsolution.eu.cc/
  * Description: Theme-independent visual layout builder with image elements and responsive controls.
- * Version: 0.5.0
+ * Version: 0.6.0
  * Requires at least: 6.4
  * Requires PHP: 7.4
  * Author: Razeen Secure Solution
@@ -13,7 +13,7 @@
  * @package RSSPrismBuilder
  */
 defined( 'ABSPATH' ) || exit;
-define( 'RSS_PRISM_BUILDER_VERSION', '0.5.0' );
+define( 'RSS_PRISM_BUILDER_VERSION', '0.6.0' );
 
 function rss_prism_builder_register_templates() {
 	register_post_type( 'rss_prism_template', array(
@@ -81,6 +81,10 @@ function rss_prism_builder_sanitize_layout( $layout ) {
 			'url' => isset( $item['url'] ) ? esc_url_raw( $item['url'] ) : '',
 			'image_url' => isset( $item['image_url'] ) ? esc_url_raw( $item['image_url'] ) : '',
 			'alt' => isset( $item['alt'] ) ? sanitize_text_field( $item['alt'] ) : '',
+			'button_bg' => isset( $item['button_bg'] ) ? sanitize_hex_color( $item['button_bg'] ) : '#b88a2b',
+			'button_text' => isset( $item['button_text'] ) ? sanitize_hex_color( $item['button_text'] ) : '#ffffff',
+			'button_radius' => min( 40, absint( $item['button_radius'] ?? 6 ) ),
+			'image_width' => min( 100, max( 10, absint( $item['image_width'] ?? 100 ) ) ),
 			'background' => isset( $item['background'] ) ? sanitize_hex_color( $item['background'] ) : '',
 			'text_color' => isset( $item['text_color'] ) ? sanitize_hex_color( $item['text_color'] ) : '',
 			'font_size' => min( 96, max( 10, absint( $item['font_size'] ?? 16 ) ) ),
@@ -165,9 +169,10 @@ function rss_prism_builder_render_canvas_shortcode( $atts ) {
 		} elseif ( 'text' === $type ) {
 			$out .= '<p class="rss-prism-canvas-text ' . esc_attr( 'rss-prism-item-' . $safe_id ) . '" style="' . esc_attr( $style ) . '">' . nl2br( esc_html( $text ) ) . '</p>';
 		} elseif ( 'button' === $type && ! empty( $item['url'] ) ) {
-			$out .= '<p class="' . esc_attr( 'rss-prism-item-' . $safe_id ) . '" style="' . esc_attr( $style ) . '"><a class="rss-prism-canvas-button" href="' . esc_url( $item['url'] ) . '">' . esc_html( $text ) . '</a></p>';
+			$button_style = 'display:inline-block;background:' . ( sanitize_hex_color( $item['button_bg'] ?? '#b88a2b' ) ?: '#b88a2b' ) . ';color:' . ( sanitize_hex_color( $item['button_text'] ?? '#ffffff' ) ?: '#ffffff' ) . ';border-radius:' . min( 40, absint( $item['button_radius'] ?? 6 ) ) . 'px;padding:.7rem 1.1rem;text-decoration:none;';
+			$out .= '<p class="' . esc_attr( 'rss-prism-item-' . $safe_id ) . '" style="' . esc_attr( $style ) . '"><a class="rss-prism-canvas-button" style="' . esc_attr( $button_style ) . '" href="' . esc_url( $item['url'] ) . '">' . esc_html( $text ) . '</a></p>';
 		} elseif ( 'image' === $type && ! empty( $item['image_url'] ) ) {
-			$out .= '<figure class="rss-prism-canvas-image ' . esc_attr( 'rss-prism-item-' . $safe_id ) . '" style="' . esc_attr( $style ) . '"><img src="' . esc_url( $item['image_url'] ) . '" alt="' . esc_attr( $item['alt'] ?? '' ) . '" loading="lazy" decoding="async" style="display:block;max-width:100%;height:auto;margin-inline:auto"></figure>';
+			$out .= '<figure class="rss-prism-canvas-image ' . esc_attr( 'rss-prism-item-' . $safe_id ) . '" style="' . esc_attr( $style ) . '"><img src="' . esc_url( $item['image_url'] ) . '" alt="' . esc_attr( $item['alt'] ?? '' ) . '" loading="lazy" decoding="async" style="display:block;width:' . min( 100, max( 10, absint( $item['image_width'] ?? 100 ) ) ) . '%;max-width:100%;height:auto;margin-inline:auto"></figure>';
 		}
 	}
 	if ( $responsive_css ) { $out .= '<style>' . $responsive_css . '</style>'; }
