@@ -5,7 +5,7 @@
 	if (!root || !dataNode || !window.wp || !wp.element) return;
 	let config;
 	try { config = JSON.parse(dataNode.textContent); } catch (e) { root.textContent = 'Could not load layout data.'; return; }
-	const { createElement: h, useState } = wp.element;
+	const { createElement: h, useState, useEffect, useRef } = wp.element;
 	const TYPES = {
 		section: { label: 'Section', text: 'New section' },
 		heading: { label: 'Heading', text: 'Your heading' },
@@ -37,6 +37,10 @@
 		const [preview, setPreview] = useState('desktop');
 		const [history, setHistory] = useState([]);
 		const [future, setFuture] = useState([]);
+		const [autosaveStatus, setAutosaveStatus] = useState('Waiting for changes');
+		const [restoreVersions, setRestoreVersions] = useState(() => { try { return JSON.parse(localStorage.getItem('rss-prism-history-' + config.postId) || '[]').slice(0, 20); } catch (error) { return []; } });
+		const previousItems = useRef(clone(Array.isArray(config.layout) ? config.layout : []));
+		const firstAutosave = useRef(true);
 		const commitItems = next => { setHistory(old => [...old.slice(-29), clone(items)]); setFuture([]); setItems(typeof next === 'function' ? next(items) : next); };
 		const item = items[selected] || null;
 		const update = (key, value) => commitItems(old => old.map((entry, i) => {
@@ -144,6 +148,34 @@
 			} catch (error) { setNotice(error.message || 'Could not save the layout.'); }
 			finally { setBusy(false); }
 		};
+		useEffect(() => {
+			if (firstAutosave.current) { firstAutosave.current = false; return undefined; }
+			const snapshot = clone(previousItems.current);
+			const current = clone(items);
+			previousItems.current = current;
+			const timer = window.setTimeout(async () => {
+				try {
+					const versions = [{ id: 'v-' + Date.now(), saved_at: new Date().toISOString(), layout: snapshot }, ...restoreVersions].slice(0, 20);
+					localStorage.setItem('rss-prism-history-' + config.postId, JSON.stringify(versions));
+					setRestoreVersions(versions);
+				} catch (error) { setNotice('Browser history could not be stored. Autosave will still be attempted.'); }
+				setAutosaveStatus('Saving…');
+				try {
+					const response = await fetch(config.restUrl, { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': config.nonce }, body: JSON.stringify({ post_id: config.postId, layout: current }) });
+					const result = await response.json();
+					if (!response.ok || !result.saved) throw new Error(result.message || 'Autosave failed.');
+					setAutosaveStatus('Autosaved at ' + new Date().toLocaleTimeString());
+				} catch (error) { setAutosaveStatus('Autosave failed — use Save layout to retry.'); }
+			}, 1200);
+			return () => window.clearTimeout(timer);
+		}, [items]);
+		const restoreVersion = version => {
+			if (!version || !Array.isArray(version.layout)) return;
+			if (!window.confirm('Restore this saved browser-history version? Current changes will be added to undo history.')) return;
+			commitItems(clone(version.layout));
+			setSelected(0);
+			setNotice('Version restored in the editor. Autosave will store it to WordPress shortly.');
+		};
 		const copyTemplate = async () => {
 			const title = copyTitle.trim();
 			if (!title) { setNotice('Enter a name for the reusable template first.'); return; }
@@ -219,6 +251,8 @@
 			h('div', { className: 'rss-prism-builder-toolbar' },
 				h('div', { className: 'rss-prism-builder-add' }, h('strong', null, 'Add element'), ...Object.keys(TYPES).map(type => h('button', { key: type, type: 'button', className: 'button', onClick: () => add(type) }, '+ ' + TYPES[type].label))),
 				h('div', { className: 'rss-prism-builder-add rss-prism-starters' }, h('strong', null, 'Insert RSS starter layout'), ...[['business','Business landing'],['services','Services'],['about','About RSS'],['projects','RSS projects'],['security','Security solutions'],['contact','Contact page']].map(([kind,label]) => h('button', { key: kind, type: 'button', className: 'button', onClick: () => insertStarter(kind) }, label))),
+				h('div', { className: 'rss-prism-autosave-status', role: 'status', 'aria-live': 'polite' }, h('span', { className: autosaveStatus.startsWith('Autosaved') ? 'is-saved' : autosaveStatus.startsWith('Autosave failed') ? 'is-error' : '' }, 'Autosave: ' + autosaveStatus)),
+				restoreVersions.length ? h('details', { className: 'rss-prism-restore-history' }, h('summary', null, 'Restore history (' + restoreVersions.length + ')'), h('p', { className: 'description' }, 'Browser-local recovery list for this template. Up to 20 prior layouts are kept in this browser; export JSON for an independent backup.'), h('ol', null, ...restoreVersions.map(version => h('li', { key: version.id }, h('span', null, new Date(version.saved_at).toLocaleString()), h('button', { type: 'button', className: 'button button-small', onClick: () => restoreVersion(version) }, 'Restore'))))) : h('p', { className: 'description rss-prism-no-history' }, 'No browser restore versions yet. Make a change to start the recovery list.'),
 				h('div', { className: 'rss-prism-builder-actions' }, h('button', { type: 'button', className: 'button', disabled: !history.length, onClick: undo }, 'Undo'), h('button', { type: 'button', className: 'button', disabled: !future.length, onClick: redo }, 'Redo'), h('button', { type: 'button', className: 'button', onClick: exportLayout }, 'Export JSON backup'), h('button', { type: 'button', className: 'button', onClick: () => { const input = root.querySelector('#rss-prism-layout-import'); if (input) input.click(); } }, 'Import JSON'), h('button', { type: 'button', className: 'button button-primary', disabled: busy, onClick: save }, busy ? 'Saving…' : 'Save layout'), h('input', { id: 'rss-prism-layout-import', type: 'file', accept: 'application/json,.json', onChange: importLayout, hidden: true, 'aria-label': 'Import RSS Prism layout JSON' })),
 				h('div', { className: 'rss-prism-template-copy' }, h('label', { htmlFor: 'rss-prism-copy-title' }, 'Reusable template name'), h('input', { id: 'rss-prism-copy-title', type: 'text', value: copyTitle, placeholder: 'e.g. RSS Services Landing', onChange: e => setCopyTitle(e.target.value), maxLength: 120 }), h('button', { type: 'button', className: 'button', disabled: busy, onClick: copyTemplate }, 'Save as new draft template'))),
 			notice ? h('div', { className: 'notice notice-info rss-prism-builder-notice', role: 'status' }, h('p', null, notice)) : null,
