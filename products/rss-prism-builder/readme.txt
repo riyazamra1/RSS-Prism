@@ -4,11 +4,11 @@ Tags: page-builder, layout, templates
 Requires at least: 6.4
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 0.17.0
+Stable tag: 0.17.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-An early visual layout builder for RSS Prism. Version 0.17.0 includes a performance regression budget in CI and retains debounced autosave so rapid editing does not send a request for every keystroke.
+An early visual layout builder for RSS Prism. Version 0.17.1 includes performance regression budgets, per-template REST permissions for save and copy operations, and bounded nested JSON import depth. Debounced autosave is retained so rapid editing does not send a request for every keystroke.
 
 == Current scope ==
 * Theme-independent Prism Template content, with title search, draft/published status labels, and a matching-template count in the builder library.
