@@ -7,7 +7,7 @@ Stable tag: 1.2.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-A responsive multipurpose WordPress theme with customizable colours, homepage content, header and footer layouts, blog grids, widgets, comments, search, and 404 templates.
+A responsive WordPress theme for Razeen Secure Solution (RSS), with RSS-branded demo homepage content covering the business, project ecosystem, features, security principles, Free public offering, articles, and contact links. Also includes customizable colours, header and footer layouts, blog grids, widgets, comments, search, and 404 templates.
 
 == Installation ==
 1. Go to Appearance > Themes > Add New > Upload Theme.
@@ -26,6 +26,8 @@ A responsive multipurpose WordPress theme with customizable colours, homepage co
 * Footer controls for logo, alignment, column count, colour, spacing, menus, widgets, description, and copyright.
 * Email signups are stored in WordPress for administrators; no external mailing service is configured automatically.
 * Editable footer copyright and responsive theme screenshot preview.
+* RSS-branded homepage demo sections for About RSS, features, RSS Prism, RSS Project Manager, RSS Core, RSS Prism Builder, RSS KIT, planned RSS APK Analyzer, security principles, Free-only public offering, articles, and contact.
+* Project descriptions distinguish planned work from released products and avoid unverified security certification claims.
 * Editable homepage hero, CTA copy, header layout, sticky header, and footer.
 * Blog grid/list layout, sidebar visibility, custom logo, featured images, widgets, comments, and pagination.
 * Keyboard-friendly mobile navigation and reduced-motion support.
