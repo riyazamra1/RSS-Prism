@@ -18,7 +18,7 @@ An early visual layout builder for RSS Prism.
 * Duplicate, undo, redo, and desktop/tablet/mobile-width preview controls.
 * Saved per-device typography, alignment, and padding with responsive frontend CSS.
 * Sanitized, permission-checked REST layout saving.
-* [rss_prism_canvas id="123"] renders a published layout; [rss_prism_pricing] displays proposed prices.
+* [rss_prism_canvas id="123"] renders a published layout; [rss_prism_pricing] displays the active catalog (Free only).
 
 == Limitations ==
 This remains an early MVP, not the complete visual builder. Preview widths are editor previews; typography, alignment, and padding are saved per device. Nested containers, columns, widget library, autosave, import/export, full-site editing, premium entitlements, and payment processing are not implemented.
