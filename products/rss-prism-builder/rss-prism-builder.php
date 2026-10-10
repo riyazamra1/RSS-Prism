@@ -3,7 +3,7 @@
  * Plugin Name: RSS Prism Builder
  * Plugin URI: https://www.rsscctvsolution.eu.cc/
  * Description: Theme-independent visual layout builder with image elements and responsive controls.
- * Version: 0.13.0
+ * Version: 0.14.0
  * Requires at least: 6.4
  * Requires PHP: 7.4
  * Author: Razeen Secure Solution
@@ -13,7 +13,7 @@
  * @package RSSPrismBuilder
  */
 defined( 'ABSPATH' ) || exit;
-define( 'RSS_PRISM_BUILDER_VERSION', '0.13.0' );
+define( 'RSS_PRISM_BUILDER_VERSION', '0.14.0' );
 
 function rss_prism_builder_register_templates() {
 	register_post_type( 'rss_prism_template', array(
@@ -320,6 +320,16 @@ function rss_prism_builder_render_admin_page() {
 	<div class="wrap rss-prism-admin-wrap">
 		<h1><?php esc_html_e( 'RSS Prism Builder', 'rss-prism-builder' ); ?></h1>
 		<p><?php esc_html_e( 'Build a starter layout with draggable elements. This is an early builder MVP, not the complete visual editor.', 'rss-prism-builder' ); ?></p>
+		<div class="rss-prism-live-test-guide">
+			<h2><?php esc_html_e( 'Live WordPress test checklist', 'rss-prism-builder' ); ?></h2>
+			<ol>
+				<li><?php esc_html_e( 'Create or load a draft template and save the layout.', 'rss-prism-builder' ); ?></li>
+				<li><?php esc_html_e( 'Open the template in Prism Templates and publish it when you are ready to test publicly.', 'rss-prism-builder' ); ?></li>
+				<li><?php esc_html_e( 'Add the shortcode shown after saving to a test WordPress page: [rss_prism_canvas id="TEMPLATE_ID"] (replace TEMPLATE_ID with the template ID).', 'rss-prism-builder' ); ?></li>
+				<li><?php esc_html_e( 'Preview the page on desktop and mobile, then test buttons, images, nested containers, and saving again.', 'rss-prism-builder' ); ?></li>
+			</ol>
+			<p><?php esc_html_e( 'Recommended: use a staging site or a private test page before publishing changes on a live business website.', 'rss-prism-builder' ); ?></p>
+		</div>
 		<p><a class="button button-primary" href="<?php echo esc_url( admin_url( 'post-new.php?post_type=rss_prism_template' ) ); ?>"><?php esc_html_e( 'Create template', 'rss-prism-builder' ); ?></a></p>
 		<form method="get" class="rss-prism-template-select">
 			<input type="hidden" name="page" value="rss-prism-builder">
