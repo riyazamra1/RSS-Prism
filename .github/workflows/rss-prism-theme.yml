@@ -36,15 +36,37 @@ jobs:
       - name: Validate builder JavaScript
         run: node --check products/rss-prism-builder/assets/builder.js
 
+      - name: Check source performance budgets
+        shell: bash
+        run: |
+          set -euo pipefail
+          check_budget() {
+            local file="$1" max_bytes="$2" actual
+            actual="$(wc -c < "$file")"
+            echo "$file: $actual bytes (limit $max_bytes)"
+            if [ "$actual" -gt "$max_bytes" ]; then
+              echo "::error file=$file::Performance budget exceeded ($actual > $max_bytes bytes)"
+              exit 1
+            fi
+          }
+          check_budget products/rss-prism-theme/style.css 24000
+          check_budget products/rss-prism-theme/assets/js/navigation.js 1500
+          check_budget products/rss-prism-builder/assets/builder.js 45000
+          check_budget products/rss-prism-builder/assets/builder.css 13000
+          check_budget products/rss-prism-builder/assets/pricing.css 2000
+          # Ensure public navigation stays deferred and motion-sensitive users are respected.
+          grep -q "wp_script_add_data( 'rss-prism-navigation', 'strategy', 'defer' )" products/rss-prism-theme/functions.php
+          grep -q "prefers-reduced-motion: reduce" products/rss-prism-theme/style.css
+
       - name: Validate package metadata
         shell: bash
         run: |
           set -euo pipefail
           grep -q '^Theme Name: RSS Prism$' products/rss-prism-theme/style.css
-          grep -q '^Version: 1.2.0$' products/rss-prism-theme/style.css
-          grep -q '^Stable tag: 1.2.0$' products/rss-prism-theme/readme.txt
-          grep -q 'Version: 0.16.0' products/rss-prism-builder/rss-prism-builder.php
-          grep -q '^Stable tag: 0.16.0$' products/rss-prism-builder/readme.txt
+          grep -q '^Version: 1.2.1$' products/rss-prism-theme/style.css
+          grep -q '^Stable tag: 1.2.1$' products/rss-prism-theme/readme.txt
+          grep -q 'Version: 0.17.0' products/rss-prism-builder/rss-prism-builder.php
+          grep -q '^Stable tag: 0.17.0$' products/rss-prism-builder/readme.txt
 
       - name: Build installable ZIP packages
         shell: bash
@@ -54,23 +76,23 @@ jobs:
           cp -a products/rss-prism-theme/. dist/rss-prism-theme/
           cp -a products/rss-prism-builder/. dist/rss-prism-builder/
           cd dist
-          zip -r rss-prism-theme-1.2.0.zip rss-prism-theme \
+          zip -r rss-prism-theme-1.2.1.zip rss-prism-theme \
             -x '*/.git/*' '*/node_modules/*' '*/vendor/*' '*/.DS_Store'
-          zip -r rss-prism-builder-0.16.0.zip rss-prism-builder \
+          zip -r rss-prism-builder-0.17.0.zip rss-prism-builder \
             -x '*/.git/*' '*/node_modules/*' '*/vendor/*' '*/.DS_Store'
 
       - name: Upload installable theme ZIP
         uses: actions/upload-artifact@v4
         with:
-          name: rss-prism-theme-1.2.0
-          path: dist/rss-prism-theme-1.2.0.zip
+          name: rss-prism-theme-1.2.1
+          path: dist/rss-prism-theme-1.2.1.zip
           if-no-files-found: error
           retention-days: 30
 
       - name: Upload installable builder ZIP
         uses: actions/upload-artifact@v4
         with:
-          name: rss-prism-builder-0.16.0
-          path: dist/rss-prism-builder-0.16.0.zip
+          name: rss-prism-builder-0.17.0
+          path: dist/rss-prism-builder-0.17.0.zip
           if-no-files-found: error
           retention-days: 30
