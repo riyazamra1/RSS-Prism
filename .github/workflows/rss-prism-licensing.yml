@@ -5,11 +5,13 @@ on:
     branches: [main, feature/email-bound-licensing-foundation]
     paths:
       - "licensing/**"
+      - "products/rss-prism-premium/**"
       - "docs/LICENSING-SECURITY.md"
       - ".github/workflows/rss-prism-licensing.yml"
   pull_request:
     paths:
       - "licensing/**"
+      - "products/rss-prism-premium/**"
       - "docs/LICENSING-SECURITY.md"
       - ".github/workflows/rss-prism-licensing.yml"
   workflow_dispatch:
@@ -39,3 +41,40 @@ jobs:
           grep -Fq "activation_limit IN (1, 5)" licensing/worker/schema.sql
           grep -Fq "PRIMARY KEY (provider, event_id)" licensing/worker/schema.sql
           grep -Fq "No public endpoint may create a license" licensing/worker/schema.sql
+
+      - name: Set up PHP for Premium plugin validation
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.2"
+          tools: none
+
+      - name: Check Premium plugin PHP syntax
+        run: php -l products/rss-prism-premium/rss-prism-premium.php
+
+      - name: Check Premium licensing guardrails
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -Fq "rss_prism_premium_remote_request( 'activate', site_url( '/' ) )" products/rss-prism-premium/rss-prism-premium.php
+          grep -Fq "current_user_can( 'manage_options' )" products/rss-prism-premium/rss-prism-premium.php
+          grep -Fq "check_admin_referer( 'rss_prism_premium_license_action'" products/rss-prism-premium/rss-prism-premium.php
+          grep -Fq "Premium remains locked" products/rss-prism-premium/rss-prism-premium.php
+          ! grep -Eiq 'demo.?mode|bypass.?licen[cs]e|always.?licensed' products/rss-prism-premium/rss-prism-premium.php
+
+      - name: Package Premium add-on for staging tests
+        run: |
+          mkdir -p dist
+          cd products
+          zip -r ../dist/rss-prism-premium-staging.zip rss-prism-premium -x '*/.gitkeep'
+          cd ..
+          sha256sum dist/rss-prism-premium-staging.zip > dist/rss-prism-premium-staging.zip.sha256
+
+      - name: Upload Premium staging ZIP
+        uses: actions/upload-artifact@v4
+        with:
+          name: rss-prism-premium-staging
+          path: |
+            dist/rss-prism-premium-staging.zip
+            dist/rss-prism-premium-staging.zip.sha256
+          if-no-files-found: error
+          retention-days: 14
