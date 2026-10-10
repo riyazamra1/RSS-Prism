@@ -3,7 +3,7 @@
  * Plugin Name: RSS Prism Builder
  * Plugin URI: https://www.rsscctvsolution.eu.cc/
  * Description: Theme-independent visual layout builder with image elements and responsive controls.
- * Version: 0.17.0
+ * Version: 0.17.1
  * Requires at least: 6.4
  * Requires PHP: 7.4
  * Author: Razeen Secure Solution
@@ -13,7 +13,7 @@
  * @package RSSPrismBuilder
  */
 defined( 'ABSPATH' ) || exit;
-define( 'RSS_PRISM_BUILDER_VERSION', '0.17.0' );
+define( 'RSS_PRISM_BUILDER_VERSION', '0.17.1' );
 
 function rss_prism_builder_register_templates() {
 	register_post_type( 'rss_prism_template', array(
@@ -239,7 +239,7 @@ function rss_prism_builder_register_rest_routes() {
 	register_rest_route( 'rss-prism/v1', '/layout', array(
 		'methods' => WP_REST_Server::CREATABLE,
 		'callback' => 'rss_prism_builder_save_layout',
-		'permission_callback' => function() { return current_user_can( 'edit_posts' ); },
+		'permission_callback' => 'rss_prism_builder_rest_can_edit_template',
 		'args' => array(
 			'post_id' => array( 'required' => true, 'type' => 'integer', 'sanitize_callback' => 'absint' ),
 			'layout' => array( 'required' => true, 'type' => 'array' ),
