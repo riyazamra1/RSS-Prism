@@ -50,11 +50,28 @@
 		}));
 		const add = type => { const next = [...items, fresh(type)]; commitItems(next); setSelected(next.length - 1); setNotice(''); };
 		const insertStarter = kind => {
-			const specs = kind === 'services' ? [['section','Our Services'],['heading','Solutions for your business'],['columns',''],['text','CCTV installation, networking, software development, system administration, and technical support.'],['button','Contact RSS']]
-				: kind === 'contact' ? [['section','Contact Razeen Secure Solution'],['heading','Let’s discuss your project'],['text','Developing Ideas. Delivering Solutions.'],['columns',''],['button','Email RSS']]
-				: [['section','Razeen Secure Solution'],['heading','Developing Ideas. Delivering Solutions.'],['text','Software development, CCTV solutions, networking, cloud services, and practical AI solutions.'],['columns',''],['heading','Our approach'],['text','Reliable implementation, clear communication, and security-conscious solutions for every project.'],['button','Contact RSS']];
-			const additions = specs.map(([type, text]) => { const entry = fresh(type); if (text) entry.text = text; if (type === 'columns') { entry.column_contents = ['Software & AI solutions','CCTV & networking','Cloud & system support']; entry.column_elements = [['heading','Software & AI solutions'],['heading','CCTV & networking'],['heading','Cloud & system support']].map(([childType, text], i) => [{ id: 'child-' + Date.now() + '-' + i, type: childType, text, url: '' }]); } if (type === 'button') entry.url = kind === 'contact' ? 'mailto:rsscctvsolution@gmail.com' : 'https://www.rsscctvsolution.eu.cc/'; return entry; });
-			const next = [...items, ...additions]; commitItems(next); setSelected(items.length); setNotice('Starter sections added. Review the content and save the layout.');
+			const library = {
+				business: [['section','Razeen Secure Solution'],['heading','Developing Ideas. Delivering Solutions.'],['text','Software development, CCTV solutions, networking, cloud services, and practical AI solutions.'],['columns',''],['heading','A practical technology partner'],['text','Reliable implementation, clear communication, and security-conscious solutions for every project.'],['button','Explore RSS']],
+				services: [['section','Our Services'],['heading','Technology that works for your business'],['columns',''],['text','CCTV installation, networking, software development, system administration, troubleshooting, and technical support.'],['button','Discuss a project']],
+				contact: [['section','Contact Razeen Secure Solution'],['heading','Let’s discuss your project'],['text','Email: rsscctvsolution@gmail.com\\nPhone: 077 115 5504 | 070 155 5504\\nWebsite: www.rsscctvsolution.eu.cc'],['button','Email RSS']],
+				about: [['section','About Razeen Secure Solution'],['heading','Developing Ideas. Delivering Solutions.'],['text','Razeen Secure Solution (RSS) has delivered technology services since 2015, helping people and businesses turn ideas into practical digital and security solutions.'],['columns',''],['heading','Our approach'],['text','Clear communication, thoughtful implementation, and dependable support.'],['button','Get in touch']],
+				projects: [['section','RSS Projects & Solutions'],['heading','A connected ecosystem of useful tools'],['text','Explore RSS software and service projects across productivity, money management, cloud tools, AI-assisted workflows, and security systems.'],['columns',''],['heading','Software & AI'],['text','Purpose-built software, automation, and practical AI solutions.'],['heading','Security & infrastructure'],['text','CCTV, networking, system administration, and troubleshooting.'],['button','View RSS website']],
+				security: [['section','Security-first solutions'],['heading','Protect systems. Improve visibility.'],['text','Security-conscious CCTV installation, network setup, system administration, and software practices designed around reliability and responsible access.'],['columns',''],['heading','Assess'],['text','Understand the site, systems, and requirements.'],['heading','Implement'],['text','Configure solutions with clear access boundaries.'],['heading','Support'],['text','Troubleshoot and maintain the result.'],['button','Contact RSS']]
+			};
+			const specs = library[kind] || library.business;
+			const additions = specs.map(([type, text]) => {
+				const entry = fresh(type);
+				if (text) entry.text = text;
+				if (type === 'columns') {
+					const titles = kind === 'about' ? ['Experience since 2015','Practical solutions','Dependable support'] : kind === 'security' ? ['Assess','Implement','Support'] : kind === 'projects' ? ['Software & AI','Productivity tools','Security & infrastructure'] : ['Software & AI solutions','CCTV & networking','Cloud & system support'];
+					entry.column_contents = titles;
+					entry.column_elements = titles.map((title, i) => [{ id: 'child-' + Date.now() + '-' + i, type: 'heading', text: title, url: '' }, { id: 'child-' + Date.now() + '-t' + i, type: 'text', text: ['Plan the right approach for your needs.','Build a reliable, maintainable solution.','Keep systems useful with ongoing support.'][i], url: '' }]);
+				}
+				if (type === 'button') entry.url = kind === 'contact' ? 'mailto:rsscctvsolution@gmail.com' : 'https://www.rsscctvsolution.eu.cc/';
+				return entry;
+			});
+			const next = [...items, ...additions];
+			commitItems(next); setSelected(items.length); setNotice('“' + ({business:'Business landing',services:'Services',contact:'Contact page',about:'About RSS',projects:'RSS projects',security:'Security solutions'}[kind] || 'Starter layout') + '” sections added. Review the content and save the layout.');
 		};
 		const move = (from, to) => { if (to < 0 || to >= items.length || from === to) return; const next = items.slice(); const [entry] = next.splice(from, 1); next.splice(to, 0, entry); commitItems(next); setSelected(to); };
 		const remove = index => { commitItems(items.filter((_, i) => i !== index)); setSelected(Math.max(0, Math.min(selected, items.length - 2))); };
@@ -109,7 +126,7 @@
 		return h('div', { className: 'rss-prism-builder-layout' },
 			h('div', { className: 'rss-prism-builder-toolbar' },
 				h('div', { className: 'rss-prism-builder-add' }, h('strong', null, 'Add element'), ...Object.keys(TYPES).map(type => h('button', { key: type, type: 'button', className: 'button', onClick: () => add(type) }, '+ ' + TYPES[type].label))),
-				h('div', { className: 'rss-prism-builder-add rss-prism-starters' }, h('strong', null, 'Insert RSS starter layout'), ...[['business','Business landing'],['services','Services'],['contact','Contact page']].map(([kind,label]) => h('button', { key: kind, type: 'button', className: 'button', onClick: () => insertStarter(kind) }, label))),
+				h('div', { className: 'rss-prism-builder-add rss-prism-starters' }, h('strong', null, 'Insert RSS starter layout'), ...[['business','Business landing'],['services','Services'],['about','About RSS'],['projects','RSS projects'],['security','Security solutions'],['contact','Contact page']].map(([kind,label]) => h('button', { key: kind, type: 'button', className: 'button', onClick: () => insertStarter(kind) }, label))),
 				h('div', { className: 'rss-prism-builder-actions' }, h('button', { type: 'button', className: 'button', disabled: !history.length, onClick: undo }, 'Undo'), h('button', { type: 'button', className: 'button', disabled: !future.length, onClick: redo }, 'Redo'), h('button', { type: 'button', className: 'button button-primary', disabled: busy, onClick: save }, busy ? 'Saving…' : 'Save layout')),
 				h('div', { className: 'rss-prism-template-copy' }, h('label', { htmlFor: 'rss-prism-copy-title' }, 'Reusable template name'), h('input', { id: 'rss-prism-copy-title', type: 'text', value: copyTitle, placeholder: 'e.g. RSS Services Landing', onChange: e => setCopyTitle(e.target.value), maxLength: 120 }), h('button', { type: 'button', className: 'button', disabled: busy, onClick: copyTemplate }, 'Save as new draft template'))),
 			notice ? h('div', { className: 'notice notice-info rss-prism-builder-notice', role: 'status' }, h('p', null, notice)) : null,
