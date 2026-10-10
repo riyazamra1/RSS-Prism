@@ -13,6 +13,7 @@ RSS Prism is the WordPress design platform from Razeen Secure Solution (RSS).
 - **RSS Prism Theme** — free, installable multipurpose WordPress theme.
 - **RSS Prism Builder 0.17.2** — a separate visual layout-builder plugin with draggable section, heading, text, button, image, content-container, and 2/3-column layout elements; six RSS business, services, about, projects, security, and contact starter layouts; searchable template library with draft/published status labels; Media Library selection; adjustable image width; configurable CTA button colours/corner radius; responsive typography/spacing; editable and reorderable nested heading/text/button elements within columns; recursively editable containers (bounded to two nested levels); reusable draft-template copies; undo/redo; and live preview. It includes an activation welcome screen, a free-feature overview, a clearly marked premium roadmap, automatic saving, browser recovery history, and REST endpoint hardening. Premium licensing and checkout are not implemented; no premium features are currently being sold. It remains an early MVP, not a complete Elementor-equivalent builder.
 - **RSS Prism Studio** — planned template library.
+- **RSS Prism Licensing API (foundation)** — Cloudflare Worker and D1 schema for email-bound key verification, validity checks, and one-site/five-site activation tracking. This is not yet deployed and does not issue licences or process payments.
 
 Only the Free plan is currently offered. Paid prices and plans are not active and are not displayed by the public pricing shortcode. Historical proposed prices are kept separately in `pricing/archived-proposals.json` for internal reference only; they are not offers or checkout prices.
 
@@ -23,6 +24,7 @@ Only the Free plan is currently offered. Paid prices and plans are not active an
 - `pricing/plans.json` — current public plan catalog (Free only).
 - `pricing/archived-proposals.json` — inactive historical pricing proposals, not used by the public shortcode.
 - `config/pricing.php` — canonical catalog loader.
+- `licensing/worker/` — licensing API foundation, D1 schema, configuration, and automated tests.
 - `docs/` — product, pricing, licensing, and release notes.
 
 ## Principles
@@ -36,4 +38,4 @@ Only the Free plan is currently offered. Paid prices and plans are not active an
 
 ## Status
 
-The theme includes deferred navigation execution and reduced-motion support; CI checks syntax, metadata, package creation, and source-size budgets. A live WordPress installation test remains outstanding. The Builder now enforces the same per-template REST permission check on save and copy, bounds nested JSON import depth, and supports draggable section, heading, text, button, and image blocks, Media Library image selection (with a fix ensuring selected image URLs and alt text save together), responsive typography/spacing, undo/redo, and preview widths. Recursive nested containers, full-site editing, a broad stock template library, licensing backend, and checkout are not yet complete. A live WordPress installation and interaction test remains outstanding.
+The theme includes deferred navigation execution and reduced-motion support; CI checks syntax, metadata, package creation, and source-size budgets. A live WordPress installation test remains outstanding. The Builder now enforces the same per-template REST permission check on save and copy, bounds nested JSON import depth, and supports draggable section, heading, text, button, and image blocks, Media Library image selection (with a fix ensuring selected image URLs and alt text save together), responsive typography/spacing, undo/redo, and preview widths. Recursive nested containers, full-site editing, and a broad stock template library are not yet complete. The licensing API foundation has automated CI checks, but it is not deployed; verified payment webhooks, secure licence issuance, checkout, email delivery, Premium add-on integration, and live security tests are still outstanding. A live WordPress installation and interaction test remains outstanding.
