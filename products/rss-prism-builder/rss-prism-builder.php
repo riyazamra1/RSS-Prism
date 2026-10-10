@@ -2,8 +2,8 @@
 /**
  * Plugin Name: RSS Prism Builder
  * Plugin URI: https://www.rsscctvsolution.eu.cc/
- * Description: Theme-independent visual layout builder and template foundation.
- * Version: 0.4.0
+ * Description: Theme-independent visual layout builder with image elements and responsive controls.
+ * Version: 0.5.0
  * Requires at least: 6.4
  * Requires PHP: 7.4
  * Author: Razeen Secure Solution
@@ -13,7 +13,7 @@
  * @package RSSPrismBuilder
  */
 defined( 'ABSPATH' ) || exit;
-define( 'RSS_PRISM_BUILDER_VERSION', '0.4.0' );
+define( 'RSS_PRISM_BUILDER_VERSION', '0.5.0' );
 
 function rss_prism_builder_register_templates() {
 	register_post_type( 'rss_prism_template', array(
@@ -70,7 +70,7 @@ function rss_prism_builder_sanitize_layout( $layout ) {
 	if ( ! is_array( $layout ) ) { return new WP_Error( 'invalid_layout', __( 'Layout must be a list of elements.', 'rss-prism-builder' ), array( 'status' => 400 ) ); }
 	if ( count( $layout ) > 100 ) { return new WP_Error( 'layout_too_large', __( 'A layout may contain at most 100 elements.', 'rss-prism-builder' ), array( 'status' => 400 ) ); }
 	$clean = array();
-	$allowed = array( 'section', 'heading', 'text', 'button' );
+	$allowed = array( 'section', 'heading', 'text', 'button', 'image' );
 	foreach ( $layout as $item ) {
 		if ( ! is_array( $item ) || empty( $item['type'] ) || ! in_array( $item['type'], $allowed, true ) ) { continue; }
 		$padding = isset( $item['padding'] ) ? absint( $item['padding'] ) : 24;
@@ -79,6 +79,8 @@ function rss_prism_builder_sanitize_layout( $layout ) {
 			'type' => sanitize_key( $item['type'] ),
 			'text' => isset( $item['text'] ) ? sanitize_textarea_field( $item['text'] ) : '',
 			'url' => isset( $item['url'] ) ? esc_url_raw( $item['url'] ) : '',
+			'image_url' => isset( $item['image_url'] ) ? esc_url_raw( $item['image_url'] ) : '',
+			'alt' => isset( $item['alt'] ) ? sanitize_text_field( $item['alt'] ) : '',
 			'background' => isset( $item['background'] ) ? sanitize_hex_color( $item['background'] ) : '',
 			'text_color' => isset( $item['text_color'] ) ? sanitize_hex_color( $item['text_color'] ) : '',
 			'font_size' => min( 96, max( 10, absint( $item['font_size'] ?? 16 ) ) ),
@@ -164,6 +166,8 @@ function rss_prism_builder_render_canvas_shortcode( $atts ) {
 			$out .= '<p class="rss-prism-canvas-text ' . esc_attr( 'rss-prism-item-' . $safe_id ) . '" style="' . esc_attr( $style ) . '">' . nl2br( esc_html( $text ) ) . '</p>';
 		} elseif ( 'button' === $type && ! empty( $item['url'] ) ) {
 			$out .= '<p class="' . esc_attr( 'rss-prism-item-' . $safe_id ) . '" style="' . esc_attr( $style ) . '"><a class="rss-prism-canvas-button" href="' . esc_url( $item['url'] ) . '">' . esc_html( $text ) . '</a></p>';
+		} elseif ( 'image' === $type && ! empty( $item['image_url'] ) ) {
+			$out .= '<figure class="rss-prism-canvas-image ' . esc_attr( 'rss-prism-item-' . $safe_id ) . '" style="' . esc_attr( $style ) . '"><img src="' . esc_url( $item['image_url'] ) . '" alt="' . esc_attr( $item['alt'] ?? '' ) . '" loading="lazy" decoding="async" style="display:block;max-width:100%;height:auto;margin-inline:auto"></figure>';
 		}
 	}
 	if ( $responsive_css ) { $out .= '<style>' . $responsive_css . '</style>'; }
@@ -212,6 +216,7 @@ function rss_prism_builder_render_admin_page() {
 
 function rss_prism_builder_admin_assets( $hook ) {
 	if ( 'toplevel_page_rss-prism-builder' !== $hook ) { return; }
+	wp_enqueue_media();
 	wp_enqueue_style( 'rss-prism-builder-admin', plugins_url( 'assets/builder.css', __FILE__ ), array(), RSS_PRISM_BUILDER_VERSION );
 	wp_enqueue_script( 'rss-prism-builder-admin', plugins_url( 'assets/builder.js', __FILE__ ), array( 'wp-element', 'wp-components', 'wp-api-fetch' ), RSS_PRISM_BUILDER_VERSION, true );
 }
