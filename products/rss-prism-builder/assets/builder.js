@@ -85,6 +85,55 @@
 			frame.on('select', () => { const attachment = frame.state().get('selection').first().toJSON(); update('image_url', attachment.url || ''); if (!item.alt && attachment.alt) update('alt', attachment.alt); });
 			frame.open();
 		};
+		const exportLayout = () => {
+			try {
+				const payload = { format: 'rss-prism-layout', version: 1, exported_at: new Date().toISOString(), source_template_id: config.postId, layout: items };
+				const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+				const url = URL.createObjectURL(blob);
+				const link = document.createElement('a');
+				link.href = url; link.download = 'rss-prism-layout-' + config.postId + '.json';
+				document.body.appendChild(link); link.click(); link.remove(); URL.revokeObjectURL(url);
+				setNotice('Layout JSON exported. Keep this file as a backup before experimenting.');
+			} catch (error) { setNotice('Could not export the layout in this browser.'); }
+		};
+		const normalizeImported = (entries, depth = 0) => {
+			if (!Array.isArray(entries) || entries.length > (depth === 0 ? 100 : 20)) throw new Error('The layout contains too many elements.');
+			const allowed = depth === 0 ? ['section','heading','text','button','image','columns','container'] : ['heading','text','button','image'].concat(depth < 2 ? ['container'] : []);
+			return entries.map((entry, index) => {
+				if (!entry || typeof entry !== 'object' || !allowed.includes(entry.type)) throw new Error('Unsupported element found in the JSON file.');
+				const clean = { ...entry, id: 'import-' + Date.now() + '-' + depth + '-' + index + '-' + Math.random().toString(36).slice(2,6) };
+				if (entry.type === 'container') clean.container_elements = normalizeImported(entry.container_elements || [], depth + 1);
+				if (entry.type === 'columns') {
+					clean.columns_count = Math.min(3, Math.max(2, Number(entry.columns_count || 2)));
+					clean.column_elements = Array.from({ length: clean.columns_count }, (_, column) => {
+						const children = entry.column_elements && entry.column_elements[column];
+						if (!Array.isArray(children)) return [];
+						if (children.length > 12 || children.some(child => !child || !['heading','text','button'].includes(child.type))) throw new Error('Invalid column content in the JSON file.');
+						return children.map((child, childIndex) => ({ ...child, id: 'import-column-' + Date.now() + '-' + column + '-' + childIndex }));
+					});
+				}
+				return clean;
+			});
+		};
+		const importLayout = event => {
+			const file = event.target.files && event.target.files[0];
+			event.target.value = '';
+			if (!file) return;
+			if (file.size > 1024 * 1024) { setNotice('Import rejected: layout JSON must be smaller than 1 MB.'); return; }
+			const reader = new FileReader();
+			reader.onload = () => {
+				try {
+					const parsed = JSON.parse(String(reader.result || ''));
+					const entries = Array.isArray(parsed) ? parsed : parsed && parsed.format === 'rss-prism-layout' && parsed.version === 1 ? parsed.layout : null;
+					if (!Array.isArray(entries)) throw new Error('This is not a supported RSS Prism layout JSON file.');
+					const next = normalizeImported(entries);
+					if (!window.confirm('Replace the current unsaved layout with ' + next.length + ' imported elements? Export a backup first if needed.')) return;
+					commitItems(next); setSelected(0); setNotice('Imported ' + next.length + ' top-level elements. Review the layout and save it to WordPress.');
+				} catch (error) { setNotice(error.message || 'Could not read this layout JSON file.'); }
+			};
+			reader.onerror = () => setNotice('Could not read the selected file.');
+			reader.readAsText(file);
+		};
 		const save = async () => {
 			setBusy(true); setNotice('');
 			try {
@@ -170,7 +219,7 @@
 			h('div', { className: 'rss-prism-builder-toolbar' },
 				h('div', { className: 'rss-prism-builder-add' }, h('strong', null, 'Add element'), ...Object.keys(TYPES).map(type => h('button', { key: type, type: 'button', className: 'button', onClick: () => add(type) }, '+ ' + TYPES[type].label))),
 				h('div', { className: 'rss-prism-builder-add rss-prism-starters' }, h('strong', null, 'Insert RSS starter layout'), ...[['business','Business landing'],['services','Services'],['about','About RSS'],['projects','RSS projects'],['security','Security solutions'],['contact','Contact page']].map(([kind,label]) => h('button', { key: kind, type: 'button', className: 'button', onClick: () => insertStarter(kind) }, label))),
-				h('div', { className: 'rss-prism-builder-actions' }, h('button', { type: 'button', className: 'button', disabled: !history.length, onClick: undo }, 'Undo'), h('button', { type: 'button', className: 'button', disabled: !future.length, onClick: redo }, 'Redo'), h('button', { type: 'button', className: 'button button-primary', disabled: busy, onClick: save }, busy ? 'Saving…' : 'Save layout')),
+				h('div', { className: 'rss-prism-builder-actions' }, h('button', { type: 'button', className: 'button', disabled: !history.length, onClick: undo }, 'Undo'), h('button', { type: 'button', className: 'button', disabled: !future.length, onClick: redo }, 'Redo'), h('button', { type: 'button', className: 'button', onClick: exportLayout }, 'Export JSON backup'), h('button', { type: 'button', className: 'button', onClick: () => { const input = root.querySelector('#rss-prism-layout-import'); if (input) input.click(); } }, 'Import JSON'), h('button', { type: 'button', className: 'button button-primary', disabled: busy, onClick: save }, busy ? 'Saving…' : 'Save layout'), h('input', { id: 'rss-prism-layout-import', type: 'file', accept: 'application/json,.json', onChange: importLayout, hidden: true, 'aria-label': 'Import RSS Prism layout JSON' })),
 				h('div', { className: 'rss-prism-template-copy' }, h('label', { htmlFor: 'rss-prism-copy-title' }, 'Reusable template name'), h('input', { id: 'rss-prism-copy-title', type: 'text', value: copyTitle, placeholder: 'e.g. RSS Services Landing', onChange: e => setCopyTitle(e.target.value), maxLength: 120 }), h('button', { type: 'button', className: 'button', disabled: busy, onClick: copyTemplate }, 'Save as new draft template'))),
 			notice ? h('div', { className: 'notice notice-info rss-prism-builder-notice', role: 'status' }, h('p', null, notice)) : null,
 			h('div', { className: 'rss-prism-preview-toolbar' }, h('strong', null, 'Responsive preview'), ...[['desktop','Desktop'],['tablet','Tablet'],['mobile','Mobile']].map(pair => h('button', { key: pair[0], type: 'button', className: 'button ' + (preview === pair[0] ? 'button-primary' : ''), onClick: () => setPreview(pair[0]), 'aria-pressed': preview === pair[0] }, pair[1]))),
