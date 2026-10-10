@@ -16,3 +16,6 @@
 
 /* Builder 0.10.0: expanded RSS starter library */
 .rss-prism-starters{display:flex;align-items:center;gap:.45rem;flex-wrap:wrap}.rss-prism-starters strong{margin-right:.25rem}.rss-prism-starters .button{white-space:nowrap}
+
+/* Builder 0.11.0 nested content containers */
+.rss-prism-live-container{min-width:0}.rss-prism-live-container img,.rss-prism-canvas-container img{display:block;max-width:100%;height:auto}.rss-prism-canvas-container .rss-prism-container-button,.rss-prism-live-container .rss-prism-live-button{display:inline-block;padding:.65rem 1rem;border-radius:6px;background:#b88a2b;color:#fff;text-decoration:none}.rss-prism-nested-child{padding:.65rem;margin:.6rem 0;border:1px solid #dcdcde;border-radius:8px;background:#fff}.rss-prism-nested-child[draggable=true]{cursor:grab}.rss-prism-live-container>*:first-child,.rss-prism-canvas-container>*:first-child{margin-top:0}
