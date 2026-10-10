@@ -10,13 +10,14 @@
 		section: { label: 'Section', text: 'New section' },
 		heading: { label: 'Heading', text: 'Your heading' },
 		text: { label: 'Text', text: 'Write something useful for your visitors.' },
-		button: { label: 'Button', text: 'Learn more' }
+		button: { label: 'Button', text: 'Learn more' },
+		image: { label: 'Image', text: 'Image' }
 	};
 	const fresh = type => {
 		const fontSize = type === 'heading' ? 32 : 16;
 		const responsive = {};
 		['desktop', 'tablet', 'mobile'].forEach(device => { responsive[device] = { font_size: fontSize, padding: 24, align: 'left' }; });
-		return { id: 'item-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7), type, text: TYPES[type].text, url: '', background: type === 'section' ? '#f7f6f2' : '', text_color: '#202124', font_size: fontSize, align: 'left', padding: 24, responsive };
+		return { id: 'item-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7), type, text: TYPES[type].text, url: '', image_url: '', alt: '', background: type === 'section' ? '#f7f6f2' : '', text_color: '#202124', font_size: fontSize, align: 'left', padding: 24, responsive };
 	};
 	const clone = value => JSON.parse(JSON.stringify(value));
 	function App() {
@@ -45,6 +46,12 @@
 		const undo = () => { if (!history.length) return; setFuture(old => [clone(items), ...old]); setItems(history[history.length - 1]); setHistory(old => old.slice(0, -1)); };
 		const redo = () => { if (!future.length) return; setHistory(old => [...old, clone(items)]); setItems(future[0]); setFuture(old => old.slice(1)); };
 		const duplicate = index => { const next = items.slice(); const copy = clone(next[index]); copy.id = 'item-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7); next.splice(index + 1, 0, copy); commitItems(next); setSelected(index + 1); };
+		const chooseImage = () => {
+			if (!window.wp || !wp.media) { setNotice('The WordPress media library is not available on this screen.'); return; }
+			const frame = wp.media({ title: 'Choose an image', button: { text: 'Use image' }, library: { type: 'image' }, multiple: false });
+			frame.on('select', () => { const attachment = frame.state().get('selection').first().toJSON(); update('image_url', attachment.url || ''); if (!item.alt && attachment.alt) update('alt', attachment.alt); });
+			frame.open();
+		};
 		const save = async () => {
 			setBusy(true); setNotice('');
 			try {
@@ -63,6 +70,7 @@
 			if (entry.type === 'heading') return h('h2', common, entry.text || 'Heading');
 			if (entry.type === 'text') return h('p', common, entry.text || 'Text');
 			if (entry.type === 'button') return h('div', common, h('span', { className: 'rss-prism-live-button' }, entry.text || 'Button'));
+			if (entry.type === 'image') return h('div', common, entry.image_url ? h('img', { src: entry.image_url, alt: entry.alt || '', className: 'rss-prism-live-image' }) : h('span', { className: 'rss-prism-image-placeholder' }, 'Choose an image in Element settings'));
 			return h('section', common, entry.text || 'Section');
 		};
 		const canvasItem = (entry, i) => h('div', { key: entry.id || i, className: 'rss-prism-canvas-item' + (i === selected ? ' is-selected' : ''), draggable: true, onDragStart: e => { e.dataTransfer.setData('text/plain', String(i)); e.dataTransfer.effectAllowed = 'move'; }, onDragOver: e => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; }, onDrop: e => { e.preventDefault(); move(Number(e.dataTransfer.getData('text/plain')), i); }, onClick: () => setSelected(i) },
@@ -83,6 +91,7 @@
 					h('p', { className: 'rss-prism-inspector-type' }, TYPES[item.type] ? TYPES[item.type].label : item.type),
 					field('Content', 'text', item.text, 'textarea'),
 					item.type === 'button' ? field('Button URL', 'url', item.url, 'url') : null,
+					item.type === 'image' ? h('div', { className: 'rss-prism-image-controls' }, h('button', { type: 'button', className: 'button button-primary', onClick: chooseImage }, item.image_url ? 'Replace image from Media Library' : 'Choose from Media Library'), field('Image URL', 'image_url', item.image_url, 'url'), field('Alternative text (accessibility)', 'alt', item.alt || ''), item.image_url ? h('img', { src: item.image_url, alt: item.alt || '', className: 'rss-prism-inspector-image' }) : null) : null,
 					item.type === 'section' ? field('Background color', 'background', item.background, 'color') : null,
 					field('Text color', 'text_color', item.text_color || '#202124', 'color'),
 					field('Font size (' + preview + '): ' + ((((item.responsive || {})[preview] || item).font_size) || item.font_size || 16) + 'px', 'font_size', (((item.responsive || {})[preview] || item).font_size || item.font_size || 16), 'range'),
