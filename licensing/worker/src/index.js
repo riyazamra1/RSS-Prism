@@ -52,11 +52,12 @@ async function findLicence(db, key, email, product) {
   const keyHash = await sha256(key.toUpperCase());
   const emailHash = await sha256(email);
   return await db.prepare(
-    "SELECT id, product_id, status, activation_limit, expires_at FROM licenses WHERE license_key_hash = ? AND customer_email_hash = ? AND product_id = ? LIMIT 1"
+    "SELECT id, product_id, status, activation_limit, starts_at, expires_at FROM licenses WHERE license_key_hash = ? AND customer_email_hash = ? AND product_id = ? LIMIT 1"
   ).bind(keyHash, emailHash, product).first() || null;
 }
 function licenceUsable(licence) {
   return Boolean(licence && licence.status === "active" &&
+    (!licence.starts_at || Date.parse(licence.starts_at) <= Date.now()) &&
     (!licence.expires_at || Date.parse(licence.expires_at) > Date.now()));
 }
 async function activationCount(db, licenceId) {
