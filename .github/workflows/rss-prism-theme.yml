@@ -44,8 +44,10 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p dist
-          zip -r dist/rss-prism-theme-1.2.0.zip products/rss-prism-theme \
+          mkdir -p dist/rss-prism-theme
+          cp -a products/rss-prism-theme/. dist/rss-prism-theme/
+          cd dist
+          zip -r rss-prism-theme-1.2.0.zip rss-prism-theme \
             -x '*/.git/*' '*/node_modules/*' '*/vendor/*' '*/.DS_Store'
 
       - name: Upload installable ZIP
