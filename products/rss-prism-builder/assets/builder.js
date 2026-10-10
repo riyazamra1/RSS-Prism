@@ -18,7 +18,7 @@
 		const fontSize = type === 'heading' ? 32 : 16;
 		const responsive = {};
 		['desktop', 'tablet', 'mobile'].forEach(device => { responsive[device] = { font_size: fontSize, padding: 24, align: 'left' }; });
-		return { id: 'item-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7), type, text: TYPES[type].text, url: '', image_url: '', alt: '', button_bg: '#b88a2b', button_text: '#ffffff', button_radius: 6, image_width: 100, columns_count: 2, column_contents: ['First column content', 'Second column content', 'Third column content'], background: type === 'section' ? '#f7f6f2' : '', text_color: '#202124', font_size: fontSize, align: 'left', padding: 24, responsive };
+		return { id: 'item-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7), type, text: TYPES[type].text, url: '', image_url: '', alt: '', button_bg: '#b88a2b', button_text: '#ffffff', button_radius: 6, image_width: 100, columns_count: 2, column_contents: ['First column content', 'Second column content', 'Third column content'], column_elements: [[{ id: 'child-' + Date.now() + '-a', type: 'text', text: 'First column content', url: '' }], [{ id: 'child-' + Date.now() + '-b', type: 'text', text: 'Second column content', url: '' }], [{ id: 'child-' + Date.now() + '-c', type: 'text', text: 'Third column content', url: '' }]], background: type === 'section' ? '#f7f6f2' : '', text_color: '#202124', font_size: fontSize, align: 'left', padding: 24, responsive };
 	};
 	const clone = value => JSON.parse(JSON.stringify(value));
 	function App() {
@@ -46,7 +46,7 @@
 			const specs = kind === 'services' ? [['section','Our Services'],['heading','Solutions for your business'],['columns',''],['text','CCTV installation, networking, software development, system administration, and technical support.'],['button','Contact RSS']]
 				: kind === 'contact' ? [['section','Contact Razeen Secure Solution'],['heading','Let’s discuss your project'],['text','Developing Ideas. Delivering Solutions.'],['columns',''],['button','Email RSS']]
 				: [['section','Razeen Secure Solution'],['heading','Developing Ideas. Delivering Solutions.'],['text','Software development, CCTV solutions, networking, cloud services, and practical AI solutions.'],['columns',''],['heading','Our approach'],['text','Reliable implementation, clear communication, and security-conscious solutions for every project.'],['button','Contact RSS']];
-			const additions = specs.map(([type, text]) => { const entry = fresh(type); if (text) entry.text = text; if (type === 'columns') entry.column_contents = ['Software & AI solutions','CCTV & networking','Cloud & system support']; if (type === 'button') entry.url = kind === 'contact' ? 'mailto:rsscctvsolution@gmail.com' : 'https://www.rsscctvsolution.eu.cc/'; return entry; });
+			const additions = specs.map(([type, text]) => { const entry = fresh(type); if (text) entry.text = text; if (type === 'columns') { entry.column_contents = ['Software & AI solutions','CCTV & networking','Cloud & system support']; entry.column_elements = [['heading','Software & AI solutions'],['heading','CCTV & networking'],['heading','Cloud & system support']].map(([childType, text], i) => [{ id: 'child-' + Date.now() + '-' + i, type: childType, text, url: '' }]); } if (type === 'button') entry.url = kind === 'contact' ? 'mailto:rsscctvsolution@gmail.com' : 'https://www.rsscctvsolution.eu.cc/'; return entry; });
 			const next = [...items, ...additions]; commitItems(next); setSelected(items.length); setNotice('Starter sections added. Review the content and save the layout.');
 		};
 		const move = (from, to) => { if (to < 0 || to >= items.length || from === to) return; const next = items.slice(); const [entry] = next.splice(from, 1); next.splice(to, 0, entry); commitItems(next); setSelected(to); };
@@ -78,7 +78,7 @@
 			if (entry.type === 'heading') return h('h2', common, entry.text || 'Heading');
 			if (entry.type === 'text') return h('p', common, entry.text || 'Text');
 			if (entry.type === 'button') return h('div', common, h('span', { className: 'rss-prism-live-button', style: { background: entry.button_bg || '#b88a2b', color: entry.button_text || '#ffffff', borderRadius: (Number(entry.button_radius ?? 6)) + 'px' } }, entry.text || 'Button'));
-			if (entry.type === 'columns') return h('div', { ...common, className: common.className + ' rss-prism-live-columns', style: { ...style, display: 'grid', gridTemplateColumns: 'repeat(' + Math.min(3, Math.max(2, Number(entry.columns_count || 2))) + ', minmax(0, 1fr))', gap: '12px' } }, ...(entry.column_contents || []).slice(0, Number(entry.columns_count || 2)).map((content, index) => h('div', { key: index, className: 'rss-prism-live-column-cell' }, content || ('Column ' + (index + 1)))));
+			if (entry.type === 'columns') return h('div', { ...common, className: common.className + ' rss-prism-live-columns', style: { ...style, display: 'grid', gridTemplateColumns: 'repeat(' + Math.min(3, Math.max(2, Number(entry.columns_count || 2))) + ', minmax(0, 1fr))', gap: '12px' } }, ...Array.from({ length: Number(entry.columns_count || 2) }, (_, index) => { const children = (entry.column_elements || [])[index] || [{ type: 'text', text: ((entry.column_contents || [])[index] || ('Column ' + (index + 1))) }]; return h('div', { key: index, className: 'rss-prism-live-column-cell' }, ...children.map((child, childIndex) => child.type === 'heading' ? h('h3', { key: child.id || childIndex }, child.text || 'Heading') : child.type === 'button' ? h('p', { key: child.id || childIndex }, h('span', { className: 'rss-prism-live-button' }, child.text || 'Button')) : h('p', { key: child.id || childIndex }, child.text || 'Text'))); }));
 			if (entry.type === 'image') return h('div', common, entry.image_url ? h('img', { src: entry.image_url, alt: entry.alt || '', className: 'rss-prism-live-image', style: { width: Math.min(100, Math.max(10, Number(entry.image_width ?? 100))) + '%' } }) : h('span', { className: 'rss-prism-image-placeholder' }, 'Choose an image in Element settings'));
 			return h('section', common, entry.text || 'Section');
 		};
@@ -104,7 +104,24 @@
 					item.type === 'columns' ? h('div', { className: 'rss-prism-image-controls' },
 						h('p', null, h('strong', null, 'Number of columns')),
 						h('select', { value: item.columns_count || 2, onChange: e => update('columns_count', Number(e.target.value)) }, ...[2, 3].map(v => h('option', { key: v, value: v }, String(v)))),
-						...Array.from({ length: Number(item.columns_count || 2) }, (_, i) => h('label', { className: 'rss-prism-field', key: i }, h('span', null, 'Column ' + (i + 1) + ' content'), h('textarea', { value: (item.column_contents || [])[i] || '', rows: 3, onChange: e => { const contents = (item.column_contents || []).slice(); contents[i] = e.target.value; update('column_contents', contents); } })))
+						...Array.from({ length: Number(item.columns_count || 2) }, (_, columnIndex) => {
+							const columns = clone(item.column_elements || []);
+							if (!columns[columnIndex]) columns[columnIndex] = [{ type: 'text', text: (item.column_contents || [])[columnIndex] || '', url: '' }];
+							const children = columns[columnIndex];
+							const updateChild = (childIndex, key, value) => { const next = clone(item.column_elements || []); while (next.length < Number(item.columns_count || 2)) next.push([]); next[columnIndex] = (next[columnIndex] || []).slice(); next[columnIndex][childIndex] = { ...(next[columnIndex][childIndex] || { id: 'child-' + Date.now(), type: 'text', text: '', url: '' }), [key]: value }; update('column_elements', next); };
+							const addChild = () => { const next = clone(item.column_elements || []); while (next.length < Number(item.columns_count || 2)) next.push([]); next[columnIndex] = (next[columnIndex] || []).concat([{ id: 'child-' + Date.now() + '-' + Math.random().toString(36).slice(2,6), type: 'text', text: 'New column content', url: '' }]); update('column_elements', next); };
+							const removeChild = childIndex => { const next = clone(item.column_elements || []); while (next.length < Number(item.columns_count || 2)) next.push([]); next[columnIndex] = (next[columnIndex] || []).filter((_, index) => index !== childIndex); update('column_elements', next); };
+							return h('div', { className: 'rss-prism-nested-column-editor', key: columnIndex },
+								h('h4', null, 'Column ' + (columnIndex + 1)),
+								...children.map((child, childIndex) => h('div', { className: 'rss-prism-nested-child', key: child.id || childIndex },
+									h('label', { className: 'rss-prism-field' }, h('span', null, 'Element type'), h('select', { value: child.type || 'text', onChange: e => updateChild(childIndex, 'type', e.target.value) }, ...[['heading','Heading'],['text','Text'],['button','Button']].map(([value,label]) => h('option', { key: value, value }, label)))),
+									h('label', { className: 'rss-prism-field' }, h('span', null, 'Content'), h('textarea', { value: child.text || '', rows: 2, onChange: e => updateChild(childIndex, 'text', e.target.value) })),
+									child.type === 'button' ? h('label', { className: 'rss-prism-field' }, h('span', null, 'Button URL'), h('input', { type: 'url', value: child.url || '', onChange: e => updateChild(childIndex, 'url', e.target.value) })) : null,
+									h('button', { type: 'button', className: 'button-link-delete', onClick: () => removeChild(childIndex) }, 'Remove element')
+								)),
+								h('button', { type: 'button', className: 'button', onClick: addChild }, '+ Add element to column')
+							);
+						})
 					) : null,
 					item.type === 'image' ? h('div', { className: 'rss-prism-image-controls' }, h('button', { type: 'button', className: 'button button-primary', onClick: chooseImage }, item.image_url ? 'Replace image from Media Library' : 'Choose from Media Library'), field('Image URL', 'image_url', item.image_url, 'url'), field('Alternative text (accessibility)', 'alt', item.alt || ''), h('label', { className: 'rss-prism-field' }, h('span', null, 'Image width: ' + (item.image_width ?? 100) + '%'), h('input', { type: 'range', min: 10, max: 100, value: item.image_width ?? 100, onChange: e => update('image_width', Number(e.target.value)) })), item.image_url ? h('img', { src: item.image_url, alt: item.alt || '', className: 'rss-prism-inspector-image' }) : null) : null,
 					item.type === 'section' ? field('Background color', 'background', item.background, 'color') : null,

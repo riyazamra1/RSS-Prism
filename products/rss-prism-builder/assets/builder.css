@@ -7,3 +7,6 @@
 
 /* Builder 0.7.0: columns and RSS starter layouts */
 .rss-prism-starters{flex-basis:100%;padding-top:.5rem;border-top:1px solid #e2e4e7}.rss-prism-live-columns{width:100%}.rss-prism-live-column-cell{min-width:0;padding:1rem;border:1px solid #e2e4e7;border-radius:6px;overflow-wrap:anywhere;white-space:pre-wrap}.rss-prism-canvas-columns{max-width:100%}.rss-prism-columns-grid{max-width:100%}@media(max-width:640px){.rss-prism-live-columns{grid-template-columns:1fr!important}}
+
+/* Builder 0.8.0: editable nested column elements */
+.rss-prism-nested-column-editor{padding:.75rem 0;border-top:1px solid #dcdcde}.rss-prism-nested-column-editor h4{margin:.35rem 0}.rss-prism-nested-child{padding:.65rem;margin:.5rem 0;background:#fff;border:1px solid #dcdcde;border-radius:6px}.rss-prism-live-column-cell p{margin:.4rem 0}.rss-prism-live-column-cell h3{margin:.4rem 0;font-size:1.15em}.rss-prism-column-button{display:inline-block;padding:.55rem .85rem;background:#b88a2b;color:#fff;border-radius:6px;text-decoration:none}
