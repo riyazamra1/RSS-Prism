@@ -3,7 +3,7 @@
  * Plugin Name: RSS Prism Builder
  * Plugin URI: https://www.rsscctvsolution.eu.cc/
  * Description: Theme-independent visual layout builder with image elements and responsive controls.
- * Version: 0.15.0
+ * Version: 0.16.0
  * Requires at least: 6.4
  * Requires PHP: 7.4
  * Author: Razeen Secure Solution
@@ -13,7 +13,7 @@
  * @package RSSPrismBuilder
  */
 defined( 'ABSPATH' ) || exit;
-define( 'RSS_PRISM_BUILDER_VERSION', '0.15.0' );
+define( 'RSS_PRISM_BUILDER_VERSION', '0.16.0' );
 
 function rss_prism_builder_register_templates() {
 	register_post_type( 'rss_prism_template', array(
@@ -187,11 +187,45 @@ function rss_prism_builder_sanitize_responsive( $responsive, $item ) {
 	return $clean;
 }
 
+function rss_prism_builder_rest_can_edit_template( $request ) {
+	if ( ! is_user_logged_in() || ! current_user_can( 'edit_posts' ) ) {
+		return new WP_Error( 'rest_forbidden', __( 'You do not have permission to use RSS Prism Builder.', 'rss-prism-builder' ), array( 'status' => 403 ) );
+	}
+	$post_id = absint( $request->get_param( 'post_id' ) );
+	$post = $post_id ? get_post( $post_id ) : null;
+	if ( ! $post || 'rss_prism_template' !== $post->post_type || ! current_user_can( 'edit_post', $post_id ) ) {
+		return new WP_Error( 'rest_forbidden_template', __( 'You cannot edit this Prism template.', 'rss-prism-builder' ), array( 'status' => 403 ) );
+	}
+	$body = $request->get_body();
+	if ( strlen( $body ) > 1048576 ) {
+		return new WP_Error( 'rss_prism_payload_too_large', __( 'The layout request exceeds the 1 MB safety limit.', 'rss-prism-builder' ), array( 'status' => 413 ) );
+	}
+	$rate_key = 'rss_prism_builder_rate_' . get_current_user_id();
+	$rate_count = (int) get_transient( $rate_key );
+	if ( $rate_count >= 120 ) {
+		return new WP_Error( 'rss_prism_rate_limited', __( 'Too many builder requests. Wait a minute and try again.', 'rss-prism-builder' ), array( 'status' => 429 ) );
+	}
+	set_transient( $rate_key, $rate_count + 1, MINUTE_IN_SECONDS );
+	return true;
+}
+
+/**
+ * Server-side feature allowlist. Unknown and future premium features stay disabled
+ * until a verified licensing service is implemented; browser flags are never trusted.
+ */
+function rss_prism_builder_feature_is_available( $feature ) {
+	$free_features = array(
+		'visual_builder', 'starter_layouts', 'media_library_images', 'responsive_preview',
+		'undo_redo', 'json_import_export', 'autosave', 'restore_history', 'nested_containers',
+	);
+	return in_array( sanitize_key( $feature ), $free_features, true );
+}
+
 function rss_prism_builder_register_rest_routes() {
 	register_rest_route( 'rss-prism/v1', '/template-copy', array(
 		'methods' => WP_REST_Server::CREATABLE,
 		'callback' => 'rss_prism_builder_copy_template',
-		'permission_callback' => function() { return current_user_can( 'edit_posts' ); },
+		'permission_callback' => 'rss_prism_builder_rest_can_edit_template',
 		'args' => array(
 			'post_id' => array( 'required' => true, 'type' => 'integer', 'sanitize_callback' => 'absint' ),
 			'title' => array( 'required' => true, 'type' => 'string', 'sanitize_callback' => 'sanitize_text_field' ),
@@ -300,10 +334,94 @@ function rss_prism_builder_render_canvas_shortcode( $atts ) {
 }
 add_shortcode( 'rss_prism_canvas', 'rss_prism_builder_render_canvas_shortcode' );
 
+function rss_prism_builder_activate() {
+	set_transient( 'rss_prism_builder_welcome_redirect_' . get_current_user_id(), 1, 90 );
+}
+register_activation_hook( __FILE__, 'rss_prism_builder_activate' );
+
+function rss_prism_builder_welcome_redirect() {
+	if ( ! is_admin() || wp_doing_ajax() || ! current_user_can( 'edit_posts' ) ) { return; }
+	$key = 'rss_prism_builder_welcome_redirect_' . get_current_user_id();
+	if ( ! get_transient( $key ) ) { return; }
+	delete_transient( $key );
+	$page = isset( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : '';
+	if ( 'rss-prism-builder-welcome' !== $page ) {
+		wp_safe_redirect( admin_url( 'admin.php?page=rss-prism-builder-welcome' ) );
+		exit;
+	}
+}
+add_action( 'admin_init', 'rss_prism_builder_welcome_redirect', 20 );
+
+function rss_prism_builder_render_welcome_page() {
+	if ( ! current_user_can( 'edit_posts' ) ) { return; }
+	$free_features = array(
+		__( 'Visual drag-and-drop layout editor', 'rss-prism-builder' ),
+		__( 'Sections, headings, text, buttons, images, columns and nested containers', 'rss-prism-builder' ),
+		__( 'Six RSS starter layouts: business, services, about, projects, security and contact', 'rss-prism-builder' ),
+		__( 'WordPress Media Library image picker and accessible alt text', 'rss-prism-builder' ),
+		__( 'Desktop, tablet and mobile-width preview controls', 'rss-prism-builder' ),
+		__( 'Automatic saving with visible save status', 'rss-prism-builder' ),
+		__( 'Undo, redo, JSON import/export and browser recovery history', 'rss-prism-builder' ),
+		__( 'Reusable draft templates and searchable template library', 'rss-prism-builder' ),
+		__( 'Free RSS Prism theme controls for colours, content width, headers, footers and archives', 'rss-prism-builder' ),
+	);
+	$planned_features = array(
+		__( 'Expanded premium widget and block library', 'rss-prism-builder' ),
+		__( 'Global design systems and reusable style presets', 'rss-prism-builder' ),
+		__( 'Advanced responsive and layout controls', 'rss-prism-builder' ),
+		__( 'Cloud template library and synced patterns', 'rss-prism-builder' ),
+		__( 'Premium template kits and advanced workflow tools', 'rss-prism-builder' ),
+	);
+	?>
+	<div class="wrap rss-prism-admin-wrap rss-prism-welcome">
+		<div class="rss-prism-welcome-hero">
+			<p class="rss-prism-welcome-eyebrow"><?php esc_html_e( 'RAZEEN SECURE SOLUTION', 'rss-prism-builder' ); ?></p>
+			<h1><?php esc_html_e( 'Welcome to RSS Prism Builder', 'rss-prism-builder' ); ?></h1>
+			<p class="rss-prism-welcome-tagline"><?php esc_html_e( 'Developing Ideas. Delivering Solutions.', 'rss-prism-builder' ); ?></p>
+			<p><?php esc_html_e( 'Build responsive business pages with RSS starter layouts, visual editing, images, nested content, autosave and recovery tools.', 'rss-prism-builder' ); ?></p>
+			<div class="rss-prism-welcome-actions">
+				<a class="button button-primary button-hero" href="<?php echo esc_url( admin_url( 'admin.php?page=rss-prism-builder' ) ); ?>"><?php esc_html_e( 'Open Visual Builder', 'rss-prism-builder' ); ?></a>
+				<a class="button button-hero" href="<?php echo esc_url( admin_url( 'post-new.php?post_type=rss_prism_template' ) ); ?>"><?php esc_html_e( 'Create a template', 'rss-prism-builder' ); ?></a>
+			</div>
+		</div>
+		<div class="rss-prism-welcome-section">
+			<h2><?php esc_html_e( 'Free features included', 'rss-prism-builder' ); ?></h2>
+			<p><?php esc_html_e( 'The current release is free. These features are available without a license key or payment.', 'rss-prism-builder' ); ?></p>
+			<ul class="rss-prism-feature-grid">
+				<?php foreach ( $free_features as $feature ) : ?><li><span aria-hidden="true">✓</span><?php echo esc_html( $feature ); ?></li><?php endforeach; ?>
+			</ul>
+		</div>
+		<div class="rss-prism-welcome-section rss-prism-premium-section">
+			<h2><?php esc_html_e( 'Premium roadmap', 'rss-prism-builder' ); ?> <span class="rss-prism-feature-label"><?php esc_html_e( 'PLANNED — NOT AVAILABLE YET', 'rss-prism-builder' ); ?></span></h2>
+			<p><?php esc_html_e( 'These are planned ideas, not active features or offers. Premium licensing and checkout are not implemented, and there is no browser-side switch to unlock them.', 'rss-prism-builder' ); ?></p>
+			<ul class="rss-prism-feature-grid">
+				<?php foreach ( $planned_features as $feature ) : ?><li><span aria-hidden="true">◷</span><?php echo esc_html( $feature ); ?></li><?php endforeach; ?>
+			</ul>
+			<p class="description"><?php esc_html_e( 'No premium price is being advertised. The current product catalog remains Free-only.', 'rss-prism-builder' ); ?></p>
+		</div>
+		<div class="rss-prism-welcome-section rss-prism-security-section">
+			<h2><?php esc_html_e( 'Security and recovery', 'rss-prism-builder' ); ?></h2>
+			<ul>
+				<li><?php esc_html_e( 'WordPress login, REST nonce validation and per-template edit permissions protect builder save actions.', 'rss-prism-builder' ); ?></li>
+				<li><?php esc_html_e( 'Layout input is sanitized on the server; oversized REST payloads and excessive requests are rejected.', 'rss-prism-builder' ); ?></li>
+				<li><?php esc_html_e( 'Unknown features default to unavailable in the server-side feature allowlist.', 'rss-prism-builder' ); ?></li>
+				<li><?php esc_html_e( 'Export JSON backups before major edits. Browser recovery history can be removed when browser data is cleared.', 'rss-prism-builder' ); ?></li>
+			</ul>
+			<p class="description"><?php esc_html_e( 'Security is layered, not absolute. Keep WordPress, PHP, plugins and backups up to date, use strong administrator authentication, and test updates on staging.', 'rss-prism-builder' ); ?></p>
+		</div>
+	</div>
+	<?php
+}
+
 function rss_prism_builder_admin_menu() {
 	add_menu_page( __( 'RSS Prism Builder', 'rss-prism-builder' ), __( 'Prism Builder', 'rss-prism-builder' ), 'edit_posts', 'rss-prism-builder', 'rss_prism_builder_render_admin_page', 'dashicons-layout', 58 );
 }
 add_action( 'admin_menu', 'rss_prism_builder_admin_menu' );
+
+function rss_prism_builder_welcome_submenu() {
+	add_submenu_page( 'rss-prism-builder', __( 'Welcome to RSS Prism', 'rss-prism-builder' ), __( 'Welcome & Features', 'rss-prism-builder' ), 'edit_posts', 'rss-prism-builder-welcome', 'rss_prism_builder_render_welcome_page' );
+}
+add_action( 'admin_menu', 'rss_prism_builder_welcome_submenu', 20 );
 
 function rss_prism_builder_render_admin_page() {
 	if ( ! current_user_can( 'edit_posts' ) ) { return; }
