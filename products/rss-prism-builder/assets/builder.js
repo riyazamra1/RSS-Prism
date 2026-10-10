@@ -86,7 +86,7 @@
 		const chooseImage = () => {
 			if (!window.wp || !wp.media) { setNotice('The WordPress media library is not available on this screen.'); return; }
 			const frame = wp.media({ title: 'Choose an image', button: { text: 'Use image' }, library: { type: 'image' }, multiple: false });
-			frame.on('select', () => { const attachment = frame.state().get('selection').first().toJSON(); update('image_url', attachment.url || ''); if (!item.alt && attachment.alt) update('alt', attachment.alt); });
+			frame.on('select', () => { const attachment = frame.state().get('selection').first().toJSON(); const fields = { image_url: attachment.url || '' }; if (!item.alt && attachment.alt) fields.alt = attachment.alt; commitItems(items.map((entry, index) => index !== selected ? entry : { ...entry, ...fields })); });
 			frame.open();
 		};
 		const exportLayout = () => {
