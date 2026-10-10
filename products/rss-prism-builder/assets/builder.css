@@ -4,3 +4,6 @@
 
 /* Builder 0.6.0: configurable CTA buttons and image sizing */
 .rss-prism-live-button{display:inline-block;padding:.7rem 1.1rem;background:#b88a2b;color:#fff;border-radius:6px;font-size:15px;overflow-wrap:anywhere}.rss-prism-live-image{height:auto;max-width:100%;object-fit:contain}
+
+/* Builder 0.7.0: columns and RSS starter layouts */
+.rss-prism-starters{flex-basis:100%;padding-top:.5rem;border-top:1px solid #e2e4e7}.rss-prism-live-columns{width:100%}.rss-prism-live-column-cell{min-width:0;padding:1rem;border:1px solid #e2e4e7;border-radius:6px;overflow-wrap:anywhere;white-space:pre-wrap}.rss-prism-canvas-columns{max-width:100%}.rss-prism-columns-grid{max-width:100%}@media(max-width:640px){.rss-prism-live-columns{grid-template-columns:1fr!important}}
