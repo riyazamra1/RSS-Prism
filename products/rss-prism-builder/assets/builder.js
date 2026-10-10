@@ -106,7 +106,7 @@
 			return entries.map((entry, index) => {
 				if (!entry || typeof entry !== 'object' || !allowed.includes(entry.type)) throw new Error('Unsupported element found in the JSON file.');
 				const clean = { ...entry, id: 'import-' + Date.now() + '-' + depth + '-' + index + '-' + Math.random().toString(36).slice(2,6) };
-				if (entry.type === 'container') clean.container_elements = normalizeImported(entry.container_elements || [], 0);
+				if (entry.type === 'container') clean.container_elements = normalizeImported(entry.container_elements || [], depth + 1);
 				if (entry.type === 'columns') {
 					clean.columns_count = Math.min(3, Math.max(2, Number(entry.columns_count || 2)));
 					clean.column_elements = Array.from({ length: clean.columns_count }, (_, column) => {
