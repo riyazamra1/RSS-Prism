@@ -70,7 +70,7 @@ jobs:
       - name: Upload installable builder ZIP
         uses: actions/upload-artifact@v4
         with:
-          name: rss-prism-builder-0.7.0
+          name: rss-prism-builder-0.8.0
           path: dist/rss-prism-builder-0.8.0.zip
           if-no-files-found: error
           retention-days: 30
