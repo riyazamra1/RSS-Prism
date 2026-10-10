@@ -4,14 +4,14 @@ Tags: page-builder, layout, templates
 Requires at least: 6.4
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 0.11.0
+Stable tag: 0.12.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 An early visual layout builder for RSS Prism.
 
 == Current scope ==
-* Theme-independent Prism Template content.
+* Theme-independent Prism Template content, with title search, draft/published status labels, and a matching-template count in the builder library.
 * Draggable/reorderable section, heading, text, button, image, content container, and 2/3-column layout elements.
 * Content containers with editable, reorderable nested heading, text, button, and image elements; nested content is sanitized and limited to 20 items per container.
 * Edit and drag-reorder nested heading, text, and button elements independently inside each column, with move-up/down controls. Existing text-only column layouts remain supported.
