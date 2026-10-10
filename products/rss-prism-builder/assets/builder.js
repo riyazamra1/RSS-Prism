@@ -21,6 +21,12 @@
 		return { id: 'item-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7), type, text: TYPES[type].text, url: '', image_url: '', alt: '', button_bg: '#b88a2b', button_text: '#ffffff', button_radius: 6, image_width: 100, columns_count: 2, column_contents: ['First column content', 'Second column content', 'Third column content'], column_elements: [[{ id: 'child-' + Date.now() + '-a', type: 'text', text: 'First column content', url: '' }], [{ id: 'child-' + Date.now() + '-b', type: 'text', text: 'Second column content', url: '' }], [{ id: 'child-' + Date.now() + '-c', type: 'text', text: 'Third column content', url: '' }]], background: type === 'section' ? '#f7f6f2' : '', text_color: '#202124', font_size: fontSize, align: 'left', padding: 24, responsive };
 	};
 	const clone = value => JSON.parse(JSON.stringify(value));
+	const normalizedColumnElements = entry => Array.from({ length: Number(entry.columns_count || 2) }, (_, index) => {
+		const children = entry.column_elements && entry.column_elements[index];
+		if (Array.isArray(children) && children.length) return clone(children);
+		const legacy = (entry.column_contents || [])[index];
+		return legacy ? [{ id: 'legacy-column-' + index, type: 'text', text: legacy, url: '' }] : [];
+	});
 	function App() {
 		const [items, setItems] = useState(Array.isArray(config.layout) ? config.layout : []);
 		const [selected, setSelected] = useState(0);
@@ -78,7 +84,7 @@
 			if (entry.type === 'heading') return h('h2', common, entry.text || 'Heading');
 			if (entry.type === 'text') return h('p', common, entry.text || 'Text');
 			if (entry.type === 'button') return h('div', common, h('span', { className: 'rss-prism-live-button', style: { background: entry.button_bg || '#b88a2b', color: entry.button_text || '#ffffff', borderRadius: (Number(entry.button_radius ?? 6)) + 'px' } }, entry.text || 'Button'));
-			if (entry.type === 'columns') return h('div', { ...common, className: common.className + ' rss-prism-live-columns', style: { ...style, display: 'grid', gridTemplateColumns: 'repeat(' + Math.min(3, Math.max(2, Number(entry.columns_count || 2))) + ', minmax(0, 1fr))', gap: '12px' } }, ...Array.from({ length: Number(entry.columns_count || 2) }, (_, index) => { const children = (entry.column_elements || [])[index] || [{ type: 'text', text: ((entry.column_contents || [])[index] || ('Column ' + (index + 1))) }]; return h('div', { key: index, className: 'rss-prism-live-column-cell' }, ...children.map((child, childIndex) => child.type === 'heading' ? h('h3', { key: child.id || childIndex }, child.text || 'Heading') : child.type === 'button' ? h('p', { key: child.id || childIndex }, h('span', { className: 'rss-prism-live-button' }, child.text || 'Button')) : h('p', { key: child.id || childIndex }, child.text || 'Text'))); }));
+			if (entry.type === 'columns') return h('div', { ...common, className: common.className + ' rss-prism-live-columns', style: { ...style, display: 'grid', gridTemplateColumns: 'repeat(' + Math.min(3, Math.max(2, Number(entry.columns_count || 2))) + ', minmax(0, 1fr))', gap: '12px' } }, ...Array.from({ length: Number(entry.columns_count || 2) }, (_, index) => { const children = normalizedColumnElements(entry)[index]; return h('div', { key: index, className: 'rss-prism-live-column-cell' }, ...children.map((child, childIndex) => child.type === 'heading' ? h('h3', { key: child.id || childIndex }, child.text || 'Heading') : child.type === 'button' ? h('p', { key: child.id || childIndex }, h('span', { className: 'rss-prism-live-button' }, child.text || 'Button')) : h('p', { key: child.id || childIndex }, child.text || 'Text'))); }));
 			if (entry.type === 'image') return h('div', common, entry.image_url ? h('img', { src: entry.image_url, alt: entry.alt || '', className: 'rss-prism-live-image', style: { width: Math.min(100, Math.max(10, Number(entry.image_width ?? 100))) + '%' } }) : h('span', { className: 'rss-prism-image-placeholder' }, 'Choose an image in Element settings'));
 			return h('section', common, entry.text || 'Section');
 		};
@@ -105,10 +111,10 @@
 						h('p', null, h('strong', null, 'Number of columns')),
 						h('select', { value: item.columns_count || 2, onChange: e => update('columns_count', Number(e.target.value)) }, ...[2, 3].map(v => h('option', { key: v, value: v }, String(v)))),
 						...Array.from({ length: Number(item.columns_count || 2) }, (_, columnIndex) => {
-							const columns = clone(item.column_elements || []);
+							const columns = normalizedColumnElements(item);
 							if (!columns[columnIndex]) columns[columnIndex] = [{ type: 'text', text: (item.column_contents || [])[columnIndex] || '', url: '' }];
 							const children = columns[columnIndex];
-							const updateChild = (childIndex, key, value) => { const next = clone(item.column_elements || []); while (next.length < Number(item.columns_count || 2)) next.push([]); next[columnIndex] = (next[columnIndex] || []).slice(); next[columnIndex][childIndex] = { ...(next[columnIndex][childIndex] || { id: 'child-' + Date.now(), type: 'text', text: '', url: '' }), [key]: value }; update('column_elements', next); };
+							const updateChild = (childIndex, key, value) => { const next = normalizedColumnElements(item); next[columnIndex] = (next[columnIndex] || []).slice(); next[columnIndex][childIndex] = { ...(next[columnIndex][childIndex] || { id: 'child-' + Date.now(), type: 'text', text: '', url: '' }), [key]: value }; update('column_elements', next); };
 							const addChild = () => { const next = clone(item.column_elements || []); while (next.length < Number(item.columns_count || 2)) next.push([]); next[columnIndex] = (next[columnIndex] || []).concat([{ id: 'child-' + Date.now() + '-' + Math.random().toString(36).slice(2,6), type: 'text', text: 'New column content', url: '' }]); update('column_elements', next); };
 							const removeChild = childIndex => { const next = clone(item.column_elements || []); while (next.length < Number(item.columns_count || 2)) next.push([]); next[columnIndex] = (next[columnIndex] || []).filter((_, index) => index !== childIndex); update('column_elements', next); };
 							return h('div', { className: 'rss-prism-nested-column-editor', key: columnIndex },
