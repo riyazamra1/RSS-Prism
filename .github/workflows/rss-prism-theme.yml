@@ -62,7 +62,6 @@ jobs:
           check_budget products/rss-prism-builder/assets/builder.js 45000
           check_budget products/rss-prism-builder/assets/builder.css 13000
           check_budget products/rss-prism-builder/assets/pricing.css 2000
-          # Ensure public navigation stays deferred and motion-sensitive users are respected.
           grep -q "wp_script_add_data( 'rss-prism-navigation', 'strategy', 'defer' )" products/rss-prism-theme/functions.php
           grep -q "prefers-reduced-motion: reduce" products/rss-prism-theme/style.css
 
@@ -70,31 +69,13 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          grep -q '^Theme Name: RSS Prism
-
-      - name: Upload installable builder ZIP
-        uses: actions/upload-artifact@v4
-        with:
-          name: rss-prism-builder-0.17.2
-          path: dist/rss-prism-builder-0.17.2.zip
-          if-no-files-found: error
-          retention-days: 30
- products/rss-prism-theme/style.css
+          grep -q '^Theme Name: RSS Prism$' products/rss-prism-theme/style.css
           THEME_VERSION="$(sed -n 's/^Version: *//p' products/rss-prism-theme/style.css | head -n1)"
           THEME_STABLE_TAG="$(sed -n 's/^Stable tag: *//p' products/rss-prism-theme/readme.txt | head -n1)"
           test -n "$THEME_VERSION"
           test "$THEME_VERSION" = "$THEME_STABLE_TAG"
           grep -q 'Version: 0.17.2' products/rss-prism-builder/rss-prism-builder.php
-          grep -q '^Stable tag: 0.17.2
-
-      - name: Upload installable builder ZIP
-        uses: actions/upload-artifact@v4
-        with:
-          name: rss-prism-builder-0.17.2
-          path: dist/rss-prism-builder-0.17.2.zip
-          if-no-files-found: error
-          retention-days: 30
- products/rss-prism-builder/readme.txt
+          grep -q '^Stable tag: 0.17.2$' products/rss-prism-builder/readme.txt
           echo "THEME_VERSION=$THEME_VERSION" >> "$GITHUB_ENV"
 
       - name: Build installable ZIP packages
@@ -109,10 +90,8 @@ jobs:
           cp -a products/rss-prism-theme/. dist/rss-prism-theme/
           cp -a products/rss-prism-builder/. dist/rss-prism-builder/
           cd dist
-          zip -r "rss-prism-theme-$THEME_VERSION.zip" rss-prism-theme \
-            -x '*/.git/*' '*/node_modules/*' '*/vendor/*' '*/.DS_Store'
-          zip -r rss-prism-builder-0.17.2.zip rss-prism-builder \
-            -x '*/.git/*' '*/node_modules/*' '*/vendor/*' '*/.DS_Store'
+          zip -r "rss-prism-theme-$THEME_VERSION.zip" rss-prism-theme -x '*/.git/*' '*/node_modules/*' '*/vendor/*' '*/.DS_Store'
+          zip -r rss-prism-builder-0.17.2.zip rss-prism-builder -x '*/.git/*' '*/node_modules/*' '*/vendor/*' '*/.DS_Store'
 
       - name: Upload installable theme ZIP
         uses: actions/upload-artifact@v4
