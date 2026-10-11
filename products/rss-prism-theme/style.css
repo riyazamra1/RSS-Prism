@@ -160,3 +160,5 @@ body{font-size:var(--rp-font-size,16px)}
     max-height: min(var(--rp-logo-height, 76px), 76px);
   }
 }
+
+body { font-family: var(--rp-font-family, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif); font-size: var(--rp-font-size, 16px); }
