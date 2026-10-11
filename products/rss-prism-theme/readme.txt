@@ -3,16 +3,16 @@ Contributors: razeen-secure-solution
 Requires at least: 6.4
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 1.2.4
+Stable tag: 1.3.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Update 1.2.4: fix persistent welcome-card Hide action, add RSS Prism welcome/update information to the WordPress Dashboard and Appearance menu, and streamline Customizer categories to reduce overlapping header controls. Native WordPress update checks show an available version and leave installation approval to the site administrator. WordPress displays the available update and the site administrator chooses when to install it. Releases must include the generated rss-prism-theme.zip asset. A responsive WordPress theme for Razeen Secure Solution (RSS), with RSS-branded demo homepage content covering the business, project ecosystem, features, security principles, Free public offering, articles, and contact links. Also includes customizable colours, header and footer layouts, blog grids, widgets, comments, search, and 404 templates.
+Update 1.3.0: strengthen native update detection, correctly read WordPress update entries in the dashboard, add a permission-checked Force Update Check action that clears only updater caches, sort eligible releases by semantic version, and increase the release metadata request timeout. Existing Customizer settings and theme options are retained; the update replaces theme files only. The administrator remains in control of installing updates. Releases must include the generated rss-prism-theme.zip asset. A responsive WordPress theme for Razeen Secure Solution (RSS), with RSS-branded demo homepage content covering the business, project ecosystem, features, security principles, Free public offering, articles, and contact links. Also includes customizable colours, header and footer layouts, blog grids, widgets, comments, search, and 404 templates.
 
 == Installation ==
 1. Go to Appearance > Themes > Add New > Upload Theme.
 2. Upload rss-prism-theme.zip and activate RSS Prism.
-3. Open Appearance > Customize > RSS Prism Settings. Use Brand & Colours, Homepage, Header Styling, Global Styles, Blog & Archives, and Footer Styling. Use RSS Prism Studio for drag-and-drop header/footer row arrangement.
+3. Open Appearance > Customize > RSS Prism Settings. Use Brand & Colours, Homepage, Header Styling, Global Styles, Blog & Archives, and Footer Styling. Use RSS Prism Studio for drag-and-drop header/footer row arrangement. Use the WordPress block editor for page content and the separate RSS Prism Builder plugin for its page-building tools.
 4. Assign menus under Appearance > Menus. Optional: assign widgets to Main Sidebar and Footer Columns.
 5. Choose a static homepage under Settings > Reading to use the customizable hero and latest-posts sections.
 

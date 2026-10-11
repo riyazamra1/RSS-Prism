@@ -1,0 +1,51 @@
+name: Validate RSS Prism theme
+
+on:
+  pull_request:
+    paths:
+      - 'products/rss-prism-theme/**'
+      - '.github/workflows/validate-rss-prism-theme.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-theme:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          tools: none
+
+      - name: PHP syntax check
+        shell: bash
+        run: |
+          set -euo pipefail
+          find products/rss-prism-theme -type f -name '*.php' -print0 | xargs -0 -n1 php -l
+
+      - name: Build installable theme ZIP
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f products/rss-prism-theme/style.css
+          grep -q '^Version: 1.3.0$' products/rss-prism-theme/style.css
+          mkdir -p dist/rss-prism-theme
+          cp -a products/rss-prism-theme/. dist/rss-prism-theme/
+          cd dist
+          zip -qr ../rss-prism-theme.zip rss-prism-theme
+          unzip -t ../rss-prism-theme.zip
+          unzip -l ../rss-prism-theme.zip | grep -q 'rss-prism-theme/style.css'
+
+      - name: Upload installable ZIP for test
+        uses: actions/upload-artifact@v4
+        with:
+          name: rss-prism-theme-1.3.0-test
+          path: rss-prism-theme.zip
+          if-no-files-found: error
+          retention-days: 14

@@ -18,12 +18,19 @@ function rss_prism_render_admin_dashboard_panel($full = false) {
 	$stylesheet = get_template();
 	$updates = get_site_transient('update_themes');
 	$available = null;
-	if (is_object($updates) && isset($updates->response[$stylesheet]) && is_object($updates->response[$stylesheet])) {
-		$available = $updates->response[$stylesheet];
+	if (is_object($updates) && isset($updates->response[$stylesheet])) {
+		$entry = $updates->response[$stylesheet];
+		if (is_array($entry)) {
+			$available = (object) $entry;
+		} elseif (is_object($entry)) {
+			$available = $entry;
+		}
 	}
 	$latest_version = $available && !empty($available->new_version) ? sanitize_text_field($available->new_version) : '';
 	$release_url = 'https://github.com/riyazamra1/RSS-Prism/releases';
 	$download_url = 'https://github.com/riyazamra1/RSS-Prism/releases/latest';
+	$refresh_url = wp_nonce_url(admin_url('admin-post.php?action=rss_prism_refresh_updates'), 'rss_prism_refresh_updates');
+	$installed_theme = wp_get_theme($stylesheet);
 	?>
 	<div class="rp-admin-dashboard">
 		<div class="rp-admin-dashboard__hero">
@@ -40,28 +47,42 @@ function rss_prism_render_admin_dashboard_panel($full = false) {
 			<section class="rp-admin-dashboard__card">
 				<h3><?php esc_html_e('Installed theme', 'rss-prism'); ?></h3>
 				<p class="rp-admin-dashboard__version"><?php echo esc_html(sprintf(__('RSS Prism %s', 'rss-prism'), $version)); ?></p>
+				<p class="description"><?php echo esc_html(sprintf(__('Theme stylesheet: %s', 'rss-prism'), $stylesheet)); ?></p>
 				<p><?php esc_html_e('Keep this theme updated to receive layout refinements, fixes and improvements.', 'rss-prism'); ?></p>
 			</section>
 			<section class="rp-admin-dashboard__card">
 				<h3><?php esc_html_e('Update status', 'rss-prism'); ?></h3>
+				<?php if (isset($_GET['rss_prism_updates_refreshed']) && '1' === sanitize_text_field(wp_unslash($_GET['rss_prism_updates_refreshed']))) : ?>
+					<p><strong><?php esc_html_e('Update check completed. Review the status below.', 'rss-prism'); ?></strong></p>
+				<?php endif; ?>
 				<?php if ($latest_version && version_compare($latest_version, $version, '>')) : ?>
 					<p><strong><?php echo esc_html(sprintf(__('Version %s is available.', 'rss-prism'), $latest_version)); ?></strong></p>
 					<p><?php esc_html_e('Review the update in Dashboard → Updates. WordPress will ask you to install it.', 'rss-prism'); ?></p>
-					<a class="button button-primary" href="<?php echo esc_url(admin_url('update-core.php')); ?>"><?php esc_html_e('Review available update', 'rss-prism'); ?></a>
+					<a class="button button-primary" href="<?php echo esc_url(admin_url('update-core.php')); ?>"><?php esc_html_e('Review available update', 'rss-prism'); ?></a> <a class="button" href="<?php echo esc_url($refresh_url); ?>"><?php esc_html_e('Check again', 'rss-prism'); ?></a>
 				<?php else : ?>
 					<p><strong><?php esc_html_e('No newer version is currently listed by WordPress.', 'rss-prism'); ?></strong></p>
 					<p><?php esc_html_e('If a release was just published, go to Dashboard → Updates and click “Check Again”. Release checks may be cached temporarily.', 'rss-prism'); ?></p>
-					<a class="button" href="<?php echo esc_url($release_url); ?>" target="_blank" rel="noopener noreferrer"><?php esc_html_e('View release notes', 'rss-prism'); ?></a>
+					<p><a class="button" href="<?php echo esc_url($refresh_url); ?>"><?php esc_html_e('Force update check', 'rss-prism'); ?></a> <a class="button" href="<?php echo esc_url($release_url); ?>" target="_blank" rel="noopener noreferrer"><?php esc_html_e('View release notes', 'rss-prism'); ?></a></p>
 				<?php endif; ?>
 				<p class="description"><?php esc_html_e('The theme does not install updates silently. You remain in control of when WordPress updates it.', 'rss-prism'); ?></p>
 			</section>
 			<section class="rp-admin-dashboard__card">
 				<h3><?php esc_html_e('Design & content', 'rss-prism'); ?></h3>
 				<ul>
-					<li><a href="<?php echo esc_url(admin_url('themes.php?page=rss-prism-studio')); ?>"><?php esc_html_e('Arrange header and footer rows', 'rss-prism'); ?></a></li>
+					<li><a href="<?php echo esc_url(admin_url('themes.php?page=rss-prism-studio')); ?>"><?php esc_html_e('Open Theme Studio — drag-and-drop header/footer', 'rss-prism'); ?></a></li>
 					<li><a href="<?php echo esc_url(admin_url('customize.php')); ?>"><?php esc_html_e('Edit colours, typography and homepage copy', 'rss-prism'); ?></a></li>
 					<li><a href="<?php echo esc_url(admin_url('nav-menus.php')); ?>"><?php esc_html_e('Manage navigation menus', 'rss-prism'); ?></a></li>
 					<li><a href="<?php echo esc_url(admin_url('widgets.php')); ?>"><?php esc_html_e('Manage widgets', 'rss-prism'); ?></a></li>
+					<?php
+					if (!function_exists('is_plugin_active')) {
+						require_once ABSPATH . 'wp-admin/includes/plugin.php';
+					}
+					if (function_exists('is_plugin_active') && is_plugin_active('rss-prism-builder/rss-prism-builder.php')) :
+					?>
+					<li><a href="<?php echo esc_url(admin_url('edit.php?post_type=rss_prism_template')); ?>"><?php esc_html_e('Open RSS Prism Builder — page layouts and templates', 'rss-prism'); ?></a></li>
+					<?php else : ?>
+					<li><a href="https://github.com/riyazamra1/RSS-Prism/tree/main/products/rss-prism-builder" target="_blank" rel="noopener noreferrer"><?php esc_html_e('Get RSS Prism Builder — advanced drag-and-drop page layouts', 'rss-prism'); ?></a></li>
+					<?php endif; ?>
 				</ul>
 			</section>
 			<section class="rp-admin-dashboard__card">
