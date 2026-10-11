@@ -204,7 +204,7 @@ function rss_prism_studio_admin_page() {
 	?>
 	<div class="wrap rp-studio-wrap">
 		<div class="rp-studio-heading">
-			<div><span class="rp-studio-kicker"><?php esc_html_e('RSS PRISM · DESIGN STUDIO', 'rss-prism'); ?></span><h1><?php esc_html_e('Theme Customizer', 'rss-prism'); ?></h1><p><?php esc_html_e('Arrange your header and footer visually, then preview your changes on the live site.', 'rss-prism'); ?></p></div>
+			<div><span class="rp-studio-kicker"><?php esc_html_e('RSS PRISM · DESIGN STUDIO', 'rss-prism'); ?></span><h1><?php esc_html_e('Theme Customizer', 'rss-prism'); ?></h1><p><?php esc_html_e('Arrange your header and footer visually, then preview your changes on the live site. Website design works locally in WordPress and never requires a licence-server URL.', 'rss-prism'); ?></p></div>
 			<div class="rp-studio-actions"><a class="button" href="<?php echo esc_url(admin_url('customize.php')); ?>"><?php esc_html_e('More theme settings', 'rss-prism'); ?></a><a class="button button-primary" href="<?php echo esc_url(home_url('/')); ?>" target="_blank" rel="noopener noreferrer"><?php esc_html_e('Open site preview', 'rss-prism'); ?> ↗</a></div>
 		</div>
 		<div class="rp-studio-plan"><strong><?php esc_html_e('FREE PLAN', 'rss-prism'); ?></strong><span><?php esc_html_e('Header/footer layout, colours, typography and responsive behaviour are available. The RSS Prism footer credit stays enabled on the free plan.', 'rss-prism'); ?></span></div>
