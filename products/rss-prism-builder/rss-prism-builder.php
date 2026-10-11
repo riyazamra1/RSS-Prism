@@ -459,6 +459,23 @@ function rss_prism_builder_render_admin_page() {
 	$template_query = array( 'post_type' => 'rss_prism_template', 'post_status' => array( 'publish', 'draft', 'pending', 'private' ), 'numberposts' => 100, 'orderby' => 'modified', 'order' => 'DESC' );
 	if ( '' !== $template_search ) { $template_query['s'] = $template_search; }
 	$templates = get_posts( $template_query );
+	// On a fresh installation, create the first draft automatically so opening
+	// Prism Builder always opens the actual editor instead of an empty screen.
+	$requested_id = isset( $_GET['post_id'] ) ? absint( $_GET['post_id'] ) : 0;
+	if ( empty( $templates ) && '' === $template_search && ! $requested_id && ! isset( $_GET['rss_prism_new_template'] ) ) {
+		$first_id = wp_insert_post( array(
+			'post_type' => 'rss_prism_template',
+			'post_status' => 'draft',
+			'post_title' => __( 'My First Prism Page', 'rss-prism-builder' ),
+			'post_content' => '',
+			'post_author' => get_current_user_id(),
+		), true );
+		if ( ! is_wp_error( $first_id ) ) {
+			update_post_meta( $first_id, '_rss_prism_layout', array() );
+			wp_safe_redirect( add_query_arg( array( 'page' => 'rss-prism-builder', 'post_id' => $first_id ), admin_url( 'admin.php' ) ) );
+			exit;
+		}
+	}
 	$selected_id = isset( $_GET['post_id'] ) ? absint( $_GET['post_id'] ) : 0;
 	$selected = $selected_id ? get_post( $selected_id ) : null;
 	if ( ! $selected || 'rss_prism_template' !== $selected->post_type || ! current_user_can( 'edit_post', $selected_id ) ) { $selected_id = 0; $selected = null; }
