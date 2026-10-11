@@ -64,6 +64,13 @@
 			document.querySelectorAll('[data-studio-editor]').forEach(function (editor) { editor.classList.toggle('is-active', editor.dataset.studioEditor === tab.dataset.studioTab); });
 		});
 	});
+	document.querySelectorAll('[data-preview-width]').forEach(function (button) {
+		button.addEventListener('click', function () {
+			document.querySelectorAll('[data-preview-width]').forEach(function (item) { item.classList.toggle('is-active', item === button); });
+			var frame = document.querySelector('.rp-studio-preview-panel iframe');
+			if (frame) { frame.style.width = button.dataset.previewWidth; frame.style.maxWidth = '100%'; frame.style.marginInline = 'auto'; frame.style.display = 'block'; }
+		});
+	});
 	form.addEventListener('submit', function () {
 		['header', 'footer'].forEach(function (type) {
 			var rows = [];
