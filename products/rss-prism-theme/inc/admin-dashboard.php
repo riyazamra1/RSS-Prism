@@ -69,10 +69,20 @@ function rss_prism_render_admin_dashboard_panel($full = false) {
 			<section class="rp-admin-dashboard__card">
 				<h3><?php esc_html_e('Design & content', 'rss-prism'); ?></h3>
 				<ul>
-					<li><a href="<?php echo esc_url(admin_url('themes.php?page=rss-prism-studio')); ?>"><?php esc_html_e('Arrange header and footer rows', 'rss-prism'); ?></a></li>
+					<li><a href="<?php echo esc_url(admin_url('themes.php?page=rss-prism-studio')); ?>"><?php esc_html_e('Open Theme Studio — drag-and-drop header/footer', 'rss-prism'); ?></a></li>
 					<li><a href="<?php echo esc_url(admin_url('customize.php')); ?>"><?php esc_html_e('Edit colours, typography and homepage copy', 'rss-prism'); ?></a></li>
 					<li><a href="<?php echo esc_url(admin_url('nav-menus.php')); ?>"><?php esc_html_e('Manage navigation menus', 'rss-prism'); ?></a></li>
 					<li><a href="<?php echo esc_url(admin_url('widgets.php')); ?>"><?php esc_html_e('Manage widgets', 'rss-prism'); ?></a></li>
+					<?php
+					if (!function_exists('is_plugin_active')) {
+						require_once ABSPATH . 'wp-admin/includes/plugin.php';
+					}
+					if (function_exists('is_plugin_active') && is_plugin_active('rss-prism-builder/rss-prism-builder.php')) :
+					?>
+					<li><a href="<?php echo esc_url(admin_url('edit.php?post_type=rss_prism_template')); ?>"><?php esc_html_e('Open RSS Prism Builder — page layouts and templates', 'rss-prism'); ?></a></li>
+					<?php else : ?>
+					<li><a href="https://github.com/riyazamra1/RSS-Prism/tree/main/products/rss-prism-builder" target="_blank" rel="noopener noreferrer"><?php esc_html_e('Get RSS Prism Builder — advanced drag-and-drop page layouts', 'rss-prism'); ?></a></li>
+					<?php endif; ?>
 				</ul>
 			</section>
 			<section class="rp-admin-dashboard__card">
