@@ -83,6 +83,18 @@ function rss_prism_customize_register( $wp_customize ) {
 	$fields=array('hero_eyebrow'=>array(__('Small heading','rss-prism'),'RAZEEN SECURE SOLUTION · RSS'),'hero_title'=>array(__('Main heading','rss-prism'),'Developing Ideas. Delivering Solutions.'),'hero_text'=>array(__('Supporting text','rss-prism'),'We build practical digital experiences, software tools, and website solutions with a focus on clarity, reliability, and security-minded design.'),'hero_primary_label'=>array(__('Primary button label','rss-prism'),'Explore RSS projects'),'hero_primary_url'=>array(__('Primary button URL','rss-prism'),'#projects'),'hero_secondary_label'=>array(__('Secondary button label','rss-prism'),'About RSS'),'hero_secondary_url'=>array(__('Secondary button URL','rss-prism'),'#about-rss'),'features_title'=>array(__('Features heading','rss-prism'),'Useful features. Clear experiences.'),'features_text'=>array(__('Features description','rss-prism'),'RSS projects aim to combine practical functionality with straightforward user experiences and security-aware engineering.'),'cta_title'=>array(__('Call-to-action heading','rss-prism'),'Have an idea to build?'),'cta_text'=>array(__('Call-to-action text','rss-prism'),'Visit Razeen Secure Solution to learn more about RSS and its digital projects.'),'cta_label'=>array(__('Call-to-action button','rss-prism'),'Visit RSS website'),'cta_url'=>array(__('Call-to-action URL','rss-prism'),'https://www.rsscctvsolution.eu.cc/'));
 	foreach($fields as $key=>$field){$id='rss_prism_'.$key;$wp_customize->add_setting($id,array('default'=>$field[1],'sanitize_callback'=>strpos($key,'url')!==false?'esc_url_raw':'sanitize_text_field'));$wp_customize->add_control($id,array('label'=>$field[0],'section'=>'rss_prism_home','type'=>strpos($key,'text')!==false?'textarea':(strpos($key,'url')!==false?'url':'text')));}
 	$wp_customize->add_section('rss_prism_layouts',array('title'=>__('Global Styles','rss-prism'),'panel'=>'rss_prism_panel','priority'=>60,'description'=>__('Set site-wide shape, typography scale, button shape and content alignment.','rss-prism')));
+	$wp_customize->add_setting( 'rss_prism_font_family', array(
+		'default' => 'system',
+		'sanitize_callback' => function( $value ) { return in_array( $value, array( 'system', 'arial', 'georgia', 'trebuchet', 'verdana' ), true ) ? $value : 'system'; },
+		'transport' => 'refresh',
+	) );
+	$wp_customize->add_control( 'rss_prism_font_family', array(
+		'label' => __( 'Website font family', 'rss-prism' ),
+		'section' => 'rss_prism_layouts',
+		'type' => 'select',
+		'choices' => array( 'system' => __( 'System default', 'rss-prism' ), 'arial' => __( 'Arial', 'rss-prism' ), 'georgia' => __( 'Georgia (serif)', 'rss-prism' ), 'trebuchet' => __( 'Trebuchet MS', 'rss-prism' ), 'verdana' => __( 'Verdana', 'rss-prism' ) ),
+	) );
+
 	$choices=array('rss_prism_corner_style'=>array('round',array('sharp'=>__('Sharp corners','rss-prism'),'round'=>__('Rounded corners','rss-prism'),'soft'=>__('Extra rounded corners','rss-prism'))),'rss_prism_shadow'=>array('yes',array('yes'=>__('Subtle shadows','rss-prism'),'no'=>__('No shadows','rss-prism'))));
 	foreach($choices as $id=>$cfg){$wp_customize->add_setting($id,array('default'=>$cfg[0],'sanitize_callback'=>function($v)use($cfg){return array_key_exists($v,$cfg[1])?$v:$cfg[0];}));$wp_customize->add_control($id,array('label'=>ucwords(str_replace(array('rss_prism_','_'),array('',' '),$id)),'section'=>'rss_prism_layouts','type'=>'select','choices'=>$cfg[1]));}
 	
@@ -103,6 +115,18 @@ function rss_prism_customize_register( $wp_customize ) {
 	$wp_customize->add_section('rss_prism_header_controls',array('title'=>__('Header Styling','rss-prism'),'panel'=>'rss_prism_panel','priority'=>50,'description'=>__('Control logo size, navigation style, menu spacing, typography, alignment and sticky-header behaviour. Arrange header elements in RSS Prism Studio.','rss-prism')));
 	$header_choices=array('rss_prism_logo_position'=>array('left',array('left'=>__('Logo left','rss-prism'),'center'=>__('Logo centered','rss-prism'),'right'=>__('Logo right','rss-prism'))),'rss_prism_menu_style'=>array('pill',array('plain'=>__('Minimal links','rss-prism'),'pill'=>__('Rounded background','rss-prism'),'underline'=>__('Underline active item','rss-prism'),'outlined'=>__('Outlined buttons','rss-prism'))),'rss_prism_menu_alignment'=>array('right',array('left'=>__('Align menu left','rss-prism'),'center'=>__('Center menu','rss-prism'),'right'=>__('Align menu right','rss-prism'))),'rss_prism_header_surface'=>array('default',array('default'=>__('Theme surface','rss-prism'),'transparent'=>__('Transparent','rss-prism'),'accent'=>__('Accent colour','rss-prism'))));
 	foreach($header_choices as $id=>$cfg){$wp_customize->add_setting($id,array('default'=>$cfg[0],'sanitize_callback'=>function($v)use($cfg){return array_key_exists($v,$cfg[1])?$v:$cfg[0];}));$wp_customize->add_control($id,array('label'=>ucwords(str_replace(array('rss_prism_','_'),array('',' '),$id)),'section'=>'rss_prism_header_controls','type'=>'select','choices'=>$cfg[1]));}
+	$wp_customize->add_setting( 'rss_prism_header_style', array(
+		'default' => 'standard',
+		'sanitize_callback' => function( $value ) { return in_array( $value, array( 'standard', 'centered', 'dark' ), true ) ? $value : 'standard'; },
+		'transport' => 'refresh',
+	) );
+	$wp_customize->add_control( 'rss_prism_header_style', array(
+		'label' => __( 'Header layout', 'rss-prism' ),
+		'description' => __( 'Choose a standard, centered, or dark header layout.', 'rss-prism' ),
+		'section' => 'rss_prism_header_controls',
+		'type' => 'select',
+		'choices' => array( 'standard' => __( 'Standard horizontal', 'rss-prism' ), 'centered' => __( 'Centered logo', 'rss-prism' ), 'dark' => __( 'Dark header', 'rss-prism' ) ),
+	) );
 	$wp_customize->add_setting('rss_prism_sticky_header',array('default'=>false,'sanitize_callback'=>'rest_sanitize_boolean'));$wp_customize->add_control('rss_prism_sticky_header',array('label'=>__('Sticky header','rss-prism'),'section'=>'rss_prism_header_controls','type'=>'checkbox'));
 	// Logo width now uses the range control above; the original setting ID and saved values remain unchanged.
 	// Fine-grained logo and navigation controls. Existing setting IDs are retained for backward compatibility.
