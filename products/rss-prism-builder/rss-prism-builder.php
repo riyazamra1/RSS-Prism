@@ -2,7 +2,7 @@
 /**
  * Plugin Name: RSS Prism Builder
  * Plugin URI: https://www.rsscctvsolution.eu.cc/
- * Description: Theme-independent visual layout builder with image elements and responsive controls.
+ * Description: Free visual page builder. Theme design tools: Dashboard → Appearance → RSS Prism Studio.
  * Version: 0.17.2
  * Requires at least: 6.4
  * Requires PHP: 7.4
@@ -387,10 +387,15 @@ function rss_prism_builder_render_welcome_page() {
 				<a class="button button-primary button-hero" href="<?php echo esc_url( admin_url( 'admin.php?page=rss-prism-builder' ) ); ?>"><?php esc_html_e( 'Open Visual Builder', 'rss-prism-builder' ); ?></a>
 				<a class="button button-hero" href="<?php echo esc_url( admin_url( 'post-new.php?post_type=rss_prism_template' ) ); ?>"><?php esc_html_e( 'Create a template', 'rss-prism-builder' ); ?></a>
 			</div>
+			<div class="notice notice-info inline" style="margin:20px 0 0;padding:10px 14px">
+				<p><strong><?php esc_html_e( 'Looking for header and footer design?', 'rss-prism-builder' ); ?></strong>
+				<?php esc_html_e( 'Open Dashboard → Appearance → RSS Prism Studio to customise your logo, header rows, navigation, footer layout and responsive preview. You do not need a licence server to design your website.', 'rss-prism-builder' ); ?>
+				<a href="<?php echo esc_url( admin_url( 'themes.php?page=rss-prism-studio' ) ); ?>"><?php esc_html_e( 'Open RSS Prism Studio', 'rss-prism-builder' ); ?></a></p>
+			</div>
 		</div>
 		<div class="rss-prism-welcome-section">
 			<h2><?php esc_html_e( 'Free features included', 'rss-prism-builder' ); ?></h2>
-			<p><?php esc_html_e( 'The current release is free. These features are available without a license key or payment.', 'rss-prism-builder' ); ?></p>
+			<p><?php esc_html_e( 'The current release is free. These features are available without a license key, payment, or licence-server configuration. Header and footer design is available at Dashboard → Appearance → RSS Prism Studio when the RSS Prism theme is active.', 'rss-prism-builder' ); ?></p>
 			<ul class="rss-prism-feature-grid">
 				<?php foreach ( $free_features as $feature ) : ?><li><span aria-hidden="true">✓</span><?php echo esc_html( $feature ); ?></li><?php endforeach; ?>
 			</ul>
