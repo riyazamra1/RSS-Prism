@@ -74,8 +74,11 @@ jobs:
           THEME_STABLE_TAG="$(sed -n 's/^Stable tag: *//p' products/rss-prism-theme/readme.txt | head -n1)"
           test -n "$THEME_VERSION"
           test "$THEME_VERSION" = "$THEME_STABLE_TAG"
-          grep -q 'Version: 0.17.2' products/rss-prism-builder/rss-prism-builder.php
-          grep -q '^Stable tag: 0.17.2$' products/rss-prism-builder/readme.txt
+          BUILDER_VERSION="$(sed -n 's/^Version: *//p' products/rss-prism-builder/rss-prism-builder.php | head -n1)"
+          BUILDER_STABLE_TAG="$(sed -n 's/^Stable tag: *//p' products/rss-prism-builder/readme.txt | head -n1)"
+          test -n "$BUILDER_VERSION"
+          test "$BUILDER_VERSION" = "$BUILDER_STABLE_TAG"
+          echo "BUILDER_VERSION=$BUILDER_VERSION" >> "$GITHUB_ENV"
           echo "THEME_VERSION=$THEME_VERSION" >> "$GITHUB_ENV"
 
       - name: Build installable ZIP packages
@@ -91,7 +94,7 @@ jobs:
           cp -a products/rss-prism-builder/. dist/rss-prism-builder/
           cd dist
           zip -r "rss-prism-theme-$THEME_VERSION.zip" rss-prism-theme -x '*/.git/*' '*/node_modules/*' '*/vendor/*' '*/.DS_Store'
-          zip -r rss-prism-builder-0.17.2.zip rss-prism-builder -x '*/.git/*' '*/node_modules/*' '*/vendor/*' '*/.DS_Store'
+          zip -r "rss-prism-builder-$BUILDER_VERSION.zip" rss-prism-builder -x '*/.git/*' '*/node_modules/*' '*/vendor/*' '*/.DS_Store'
 
       - name: Upload installable theme ZIP
         uses: actions/upload-artifact@v4
@@ -104,7 +107,7 @@ jobs:
       - name: Upload installable builder ZIP
         uses: actions/upload-artifact@v4
         with:
-          name: rss-prism-builder-0.17.2
-          path: dist/rss-prism-builder-0.17.2.zip
+          name: rss-prism-builder-${{ env.BUILDER_VERSION }}
+          path: dist/rss-prism-builder-${{ env.BUILDER_VERSION }}.zip
           if-no-files-found: error
           retention-days: 30
