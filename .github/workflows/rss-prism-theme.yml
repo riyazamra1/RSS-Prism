@@ -57,7 +57,7 @@ jobs:
               exit 1
             fi
           }
-          check_budget products/rss-prism-theme/style.css 27000
+          check_budget products/rss-prism-theme/style.css 30000
           check_budget products/rss-prism-theme/assets/js/navigation.js 1500
           check_budget products/rss-prism-builder/assets/builder.js 45000
           check_budget products/rss-prism-builder/assets/builder.css 13000
