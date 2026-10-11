@@ -185,3 +185,6 @@ function rss_prism_admin_welcome_styles($hook){
 }
 wp_add_inline_style('rss-prism-admin-welcome','.rp-welcome-notice{max-width:1500px}.rp-welcome-hero{padding:clamp(32px,5vw,56px)}.rp-welcome-notice .rp-welcome-hero h2{font-size:clamp(32px,3.4vw,44px)}.rp-welcome-lead{font-size:16px;max-width:900px}.rp-welcome-features{grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;padding:24px 28px}.rp-welcome-features>div{min-height:142px;padding:20px}.rp-welcome-features strong{font-size:14px}.rp-welcome-features p{font-size:13px}.rp-welcome-signup{padding:28px;gap:30px}@media(max-width:1100px){.rp-welcome-features{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:600px){.rp-welcome-features{grid-template-columns:1fr}.rp-welcome-hero{padding:24px}.rp-welcome-signup{padding:20px}}');
 add_action('admin_enqueue_scripts','rss_prism_admin_welcome_styles');
+
+
+require_once get_template_directory() . '/inc/theme-studio.php';
