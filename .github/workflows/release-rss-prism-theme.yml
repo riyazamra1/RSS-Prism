@@ -63,6 +63,10 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install -y librsvg2-bin
+          rsvg-convert --width=1200 --height=900 --output=products/rss-prism-theme/screenshot.png products/rss-prism-theme/screenshot.svg
+          test -s products/rss-prism-theme/screenshot.png
           mkdir -p dist/rss-prism-theme
           cp -a products/rss-prism-theme/. dist/rss-prism-theme/
           cd dist
