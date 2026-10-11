@@ -3,7 +3,7 @@
  * Plugin Name: RSS Prism Builder
  * Plugin URI: https://www.rsscctvsolution.eu.cc/
  * Description: Free visual page builder. Theme design tools: Dashboard → Appearance → RSS Prism Studio.
- * Version: 0.18.0
+ * Version: 0.18.1
  * Requires at least: 6.4
  * Requires PHP: 7.4
  * Author: Razeen Secure Solution
@@ -15,7 +15,7 @@
 defined( 'ABSPATH' ) || exit;
 
 require_once __DIR__ . '/includes/auto-updates.php';
-define( 'RSS_PRISM_BUILDER_VERSION', '0.18.0' );
+define( 'RSS_PRISM_BUILDER_VERSION', '0.18.1' );
 
 function rss_prism_builder_register_templates() {
 	register_post_type( 'rss_prism_template', array(
@@ -436,6 +436,25 @@ add_action( 'admin_menu', 'rss_prism_builder_welcome_submenu', 20 );
 
 function rss_prism_builder_render_admin_page() {
 	if ( ! current_user_can( 'edit_posts' ) ) { return; }
+
+	// Create a draft directly into the visual builder instead of sending users to
+	// the default WordPress post editor, which previously left the builder empty.
+	if ( isset( $_GET['rss_prism_new_template'] ) && '1' === $_GET['rss_prism_new_template'] ) {
+		check_admin_referer( 'rss_prism_new_template' );
+		$new_id = wp_insert_post( array(
+			'post_type' => 'rss_prism_template',
+			'post_status' => 'draft',
+			'post_title' => __( 'New Prism Page', 'rss-prism-builder' ),
+			'post_content' => '',
+			'post_author' => get_current_user_id(),
+		), true );
+		if ( ! is_wp_error( $new_id ) ) {
+			update_post_meta( $new_id, '_rss_prism_layout', array() );
+			wp_safe_redirect( add_query_arg( array( 'page' => 'rss-prism-builder', 'post_id' => $new_id ), admin_url( 'admin.php' ) ) );
+			exit;
+		}
+		echo '<div class="notice notice-error"><p>' . esc_html__( 'Could not create a new Prism page. Please try again.', 'rss-prism-builder' ) . '</p></div>';
+	}
 	$template_search = isset( $_GET['template_search'] ) ? sanitize_text_field( wp_unslash( $_GET['template_search'] ) ) : '';
 	$template_query = array( 'post_type' => 'rss_prism_template', 'post_status' => array( 'publish', 'draft', 'pending', 'private' ), 'numberposts' => 100, 'orderby' => 'modified', 'order' => 'DESC' );
 	if ( '' !== $template_search ) { $template_query['s'] = $template_search; }
@@ -459,7 +478,7 @@ function rss_prism_builder_render_admin_page() {
 			</ol>
 			<p><?php esc_html_e( 'Recommended: use a staging site or a private test page before publishing changes on a live business website.', 'rss-prism-builder' ); ?></p>
 		</div>
-		<p><a class="button button-primary" href="<?php echo esc_url( admin_url( 'post-new.php?post_type=rss_prism_template' ) ); ?>"><?php esc_html_e( 'Create template', 'rss-prism-builder' ); ?></a></p>
+		<p><a class="button button-primary button-hero" href="<?php echo esc_url( wp_nonce_url( add_query_arg( array( 'page' => 'rss-prism-builder', 'rss_prism_new_template' => '1' ), admin_url( 'admin.php' ) ), 'rss_prism_new_template' ) ); ?>"><?php esc_html_e( '＋ Create new page in Builder', 'rss-prism-builder' ); ?></a> <a class="button" href="<?php echo esc_url( admin_url( 'edit.php?post_type=rss_prism_template' ) ); ?>"><?php esc_html_e( 'Manage templates', 'rss-prism-builder' ); ?></a></p>
 		<form method="get" class="rss-prism-template-select">
 			<input type="hidden" name="page" value="rss-prism-builder">
 			<label for="rss-prism-template-search"><?php esc_html_e( 'Search templates', 'rss-prism-builder' ); ?></label>
