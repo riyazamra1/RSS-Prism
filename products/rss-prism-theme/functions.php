@@ -223,4 +223,5 @@ add_action('admin_enqueue_scripts','rss_prism_admin_welcome_script');
 
 
 require_once get_template_directory() . '/inc/theme-studio.php';
+require_once get_template_directory() . '/inc/admin-dashboard.php';
 require_once get_template_directory() . '/inc/auto-updates.php';
