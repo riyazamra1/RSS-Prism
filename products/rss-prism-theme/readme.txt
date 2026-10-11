@@ -21,7 +21,6 @@ Performance update 1.2.1: the small navigation script is deferred, and reduced-m
 * Accent/background/surface/text colours, content width, corner and shadow controls.
 * Typography scale, button shape, content alignment, archive thumbnails, breadcrumbs, hero artwork, and back-to-top controls.
 * Activation welcome notice with quick links to customization, menus, and the live site.
-* Expanded welcome card with quick-start actions and optional email signup.
 * Header controls for logo position and width, navigation style and alignment, header colour, spacing, and divider.
 * Footer controls for logo, alignment, column count, colour, spacing, menus, widgets, description, and copyright.
 * Email signups are stored in WordPress for administrators; no external mailing service is configured automatically.
