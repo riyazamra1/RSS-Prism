@@ -12,7 +12,7 @@ Update 1.2.3: group Customizer options into clear sections, add category labels 
 == Installation ==
 1. Go to Appearance > Themes > Add New > Upload Theme.
 2. Upload rss-prism-theme.zip and activate RSS Prism.
-3. Open Appearance > Customize and use RSS Prism Design / RSS Prism Theme Settings.
+3. Open Appearance > Customize > RSS Prism Settings. Use Brand & Colours, Homepage Hero, Header & Navigation, Typography & Layout, Blog, Categories & Archives, and Footer.
 4. Assign menus under Appearance > Menus. Optional: assign widgets to Main Sidebar and Footer Columns.
 5. Choose a static homepage under Settings > Reading to use the customizable hero and latest-posts sections.
 
