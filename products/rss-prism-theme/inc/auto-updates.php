@@ -1,6 +1,6 @@
 <?php
 /**
- * RSS Prism opt-in native WordPress theme updates.
+ * RSS Prism native WordPress theme updates.
  * Stable releases use tags rss-prism-theme-vX.Y.Z and attach rss-prism-theme.zip.
  * @package RSSPrism
  */
@@ -8,7 +8,7 @@ defined( 'ABSPATH' ) || exit;
 
 if ( ! class_exists( 'RSS_Prism_Auto_Updates' ) ) {
 	final class RSS_Prism_Auto_Updates {
-		const API_URL = 'https://api.github.com/repos/riyazamra1/RSS-Prism/releases?per_page=20';
+		const API_URL = 'https://api.github.com/repos/riyazamra1/RSS-Prism/releases?per_page=30';
 		const CACHE_KEY = 'rss_prism_latest_theme_release';
 		const CACHE_TTL = 15 * MINUTE_IN_SECONDS;
 		const TAG_PREFIX = 'rss-prism-theme-v';
@@ -17,15 +17,40 @@ if ( ! class_exists( 'RSS_Prism_Auto_Updates' ) ) {
 		public static function boot() {
 			add_filter( 'pre_set_site_transient_update_themes', array( __CLASS__, 'inject_update' ) );
 			add_filter( 'site_transient_update_themes', array( __CLASS__, 'inject_update' ) );
+			add_action( 'admin_post_rss_prism_refresh_updates', array( __CLASS__, 'refresh_updates' ) );
+		}
+
+		/**
+		 * Clear only updater caches, then ask WordPress to run its normal theme check.
+		 * Existing theme mods/options are intentionally not touched.
+		 */
+		public static function refresh_updates() {
+			if ( ! current_user_can( 'update_themes' ) ) {
+				wp_die( esc_html__( 'You are not allowed to check theme updates.', 'rss-prism' ) );
+			}
+			check_admin_referer( 'rss_prism_refresh_updates' );
+			delete_transient( self::CACHE_KEY );
+			delete_site_transient( 'update_themes' );
+			wp_clean_themes_cache( true );
+			wp_update_themes();
+			$redirect = add_query_arg( 'rss_prism_updates_refreshed', '1', admin_url( 'themes.php?page=rss-prism-dashboard' ) );
+			wp_safe_redirect( $redirect );
+			exit;
 		}
 
 		public static function inject_update( $transient ) {
 			if ( ! is_object( $transient ) || empty( $transient->checked ) || ! is_array( $transient->checked ) ) {
 				return $transient;
 			}
-			$stylesheet = get_stylesheet();
+			$stylesheet = get_template();
 			if ( empty( $transient->checked[ $stylesheet ] ) ) {
 				return $transient;
+			}
+			if ( ! isset( $transient->response ) || ! is_array( $transient->response ) ) {
+				$transient->response = array();
+			}
+			if ( ! isset( $transient->no_update ) || ! is_array( $transient->no_update ) ) {
+				$transient->no_update = array();
 			}
 			$release = self::latest_release();
 			if ( is_wp_error( $release ) || empty( $release['version'] ) || empty( $release['package'] ) ) {
@@ -40,6 +65,7 @@ if ( ! class_exists( 'RSS_Prism_Auto_Updates' ) ) {
 					'package' => $release['package'],
 					'requires' => $release['requires'],
 					'requires_php' => $release['requires_php'],
+					'rss_prism_managed' => true,
 				);
 				unset( $transient->no_update[ $stylesheet ] );
 			} else {
@@ -49,20 +75,23 @@ if ( ! class_exists( 'RSS_Prism_Auto_Updates' ) ) {
 				$transient->no_update[ $stylesheet ] = array(
 					'theme' => $stylesheet,
 					'new_version' => $installed,
-					'url' => 'https://github.com/riyazamra1/RSS-Prism/releases',
+					'url' => $release['html_url'],
 					'package' => '',
 				);
 			}
 			return $transient;
 		}
 
+		/**
+		 * Return only a published, stable release with a validated official ZIP asset.
+		 */
 		private static function latest_release() {
 			$cached = get_transient( self::CACHE_KEY );
 			if ( is_array( $cached ) && isset( $cached['checked_at'] ) && ( time() - (int) $cached['checked_at'] ) < self::CACHE_TTL ) {
 				return ! empty( $cached['release'] ) ? $cached['release'] : new WP_Error( 'rss_prism_release_missing', 'No eligible RSS Prism theme release found.' );
 			}
 			$response = wp_remote_get( self::API_URL, array(
-				'timeout' => 5,
+				'timeout' => 10,
 				'redirection' => 3,
 				'headers' => array(
 					'Accept' => 'application/vnd.github+json',
@@ -77,6 +106,7 @@ if ( ! class_exists( 'RSS_Prism_Auto_Updates' ) ) {
 			if ( ! is_array( $releases ) ) {
 				return new WP_Error( 'rss_prism_release_invalid', 'RSS Prism release information could not be read.' );
 			}
+			$eligible = array();
 			foreach ( $releases as $item ) {
 				if ( empty( $item['tag_name'] ) || 0 !== strpos( $item['tag_name'], self::TAG_PREFIX ) || ! empty( $item['draft'] ) || ! empty( $item['prerelease'] ) ) {
 					continue;
@@ -97,18 +127,24 @@ if ( ! class_exists( 'RSS_Prism_Auto_Updates' ) ) {
 				if ( '' === $package ) {
 					continue;
 				}
-				$release = array(
+				$eligible[] = array(
 					'version' => $version,
 					'package' => $package,
 					'html_url' => isset( $item['html_url'] ) ? esc_url_raw( $item['html_url'] ) : 'https://github.com/riyazamra1/RSS-Prism/releases',
 					'requires' => '6.4',
 					'requires_php' => '7.4',
 				);
-				set_transient( self::CACHE_KEY, array( 'checked_at' => time(), 'release' => $release ), self::CACHE_TTL );
-				return $release;
 			}
-			set_transient( self::CACHE_KEY, array( 'checked_at' => time(), 'release' => null ), 15 * MINUTE_IN_SECONDS );
-			return new WP_Error( 'rss_prism_release_missing', 'No published RSS Prism theme release with an installable ZIP was found.' );
+			if ( empty( $eligible ) ) {
+				set_transient( self::CACHE_KEY, array( 'checked_at' => time(), 'release' => null ), self::CACHE_TTL );
+				return new WP_Error( 'rss_prism_release_missing', 'No published RSS Prism theme release with an installable ZIP was found.' );
+			}
+			usort( $eligible, function( $a, $b ) {
+				return version_compare( $b['version'], $a['version'] );
+			} );
+			$release = $eligible[0];
+			set_transient( self::CACHE_KEY, array( 'checked_at' => time(), 'release' => $release ), self::CACHE_TTL );
+			return $release;
 		}
 	}
 	RSS_Prism_Auto_Updates::boot();
