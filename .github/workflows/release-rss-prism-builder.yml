@@ -1,0 +1,78 @@
+name: Build and publish RSS Prism Builder release
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'products/rss-prism-builder/**'
+      - '.github/workflows/release-rss-prism-builder.yml'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing builder release tag (for example rss-prism-builder-v0.18.0)
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  package-and-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.tag || github.ref }}
+
+      - name: Determine release version
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION="$(sed -n 's/^Version: *//p' products/rss-prism-builder/rss-prism-builder.php | head -n1)"
+          TAG="rss-prism-builder-v${VERSION}"
+          if [[ "${GITHUB_REF}" != "refs/heads/main" && -n "${{ github.event.inputs.tag }}" ]]; then
+            TAG="${{ github.event.inputs.tag }}"
+            VERSION="${TAG#rss-prism-builder-v}"
+          fi
+          [[ "$TAG" == rss-prism-builder-v* ]]
+          [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+([+-][0-9A-Za-z.-]+)?$ ]]
+          grep -q "Version: $VERSION" products/rss-prism-builder/rss-prism-builder.php
+          test -f products/rss-prism-builder/includes/auto-updates.php
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+          echo "RELEASE_TAG=$TAG" >> "$GITHUB_ENV"
+
+      - name: Check whether release already exists
+        id: existing
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view "${RELEASE_TAG}" >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Validate and build installable plugin ZIP
+        if: steps.existing.outputs.exists == 'false'
+        shell: bash
+        run: |
+          set -euo pipefail
+          find products/rss-prism-builder -type f -name '*.php' -print0 | while IFS= read -r -d '' file; do php -l "$file"; done
+          node --check products/rss-prism-builder/assets/builder.js
+          mkdir -p dist/rss-prism-builder
+          cp -a products/rss-prism-builder/. dist/rss-prism-builder/
+          cd dist
+          zip -qr ../rss-prism-builder.zip rss-prism-builder -x '*/.git/*' '*/node_modules/*' '*/vendor/*' '*/.DS_Store'
+          unzip -t ../rss-prism-builder.zip
+          unzip -l ../rss-prism-builder.zip | grep -q 'rss-prism-builder/includes/auto-updates.php'
+
+      - name: Publish release asset
+        if: steps.existing.outputs.exists == 'false'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.RELEASE_TAG }}
+          target_commitish: ${{ github.sha }}
+          name: RSS Prism Builder ${{ env.VERSION }}
+          generate_release_notes: true
+          files: rss-prism-builder.zip
