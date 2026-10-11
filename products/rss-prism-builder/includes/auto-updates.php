@@ -16,6 +16,7 @@ final class RSS_Prism_Builder_Auto_Updates {
 		add_filter( 'plugins_api', array( __CLASS__, 'plugin_information' ), 20, 3 );
 		add_action( 'admin_post_rss_prism_builder_check_updates', array( __CLASS__, 'force_check' ) );
 		add_action( 'admin_notices', array( __CLASS__, 'admin_notice' ) );
+		add_filter( 'plugin_action_links_' . self::plugin_file(), array( __CLASS__, 'action_links' ) );
 	}
 
 	private static function plugin_file() {
@@ -159,6 +160,15 @@ final class RSS_Prism_Builder_Auto_Updates {
 		wp_update_plugins();
 		wp_safe_redirect( add_query_arg( 'rss_prism_builder_checked', '1', self_admin_url( 'plugins.php' ) ) );
 		exit;
+	}
+
+	public static function action_links( $links ) {
+		if ( ! current_user_can( 'update_plugins' ) ) {
+			return $links;
+		}
+		$url = wp_nonce_url( admin_url( 'admin-post.php?action=rss_prism_builder_check_updates' ), 'rss_prism_builder_check_updates' );
+		array_unshift( $links, '<a href="' . esc_url( $url ) . '">' . esc_html__( 'Check for updates', 'rss-prism-builder' ) . '</a>' );
+		return $links;
 	}
 
 	public static function admin_notice() {
