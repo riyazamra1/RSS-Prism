@@ -144,7 +144,10 @@ function rss_prism_render_header_builder() {
 function rss_prism_render_footer_builder() {
 	$rows = rss_prism_studio_layout('footer');
 	$style = sanitize_html_class(get_theme_mod('rss_prism_footer_style', 'light'));
-	echo '<footer class="site-footer site-footer--' . esc_attr($style) . ' rp-footer-builder">';
+	$alignment = sanitize_html_class(get_theme_mod('rss_prism_footer_alignment', 'left'));
+	$columns = sanitize_html_class(get_theme_mod('rss_prism_footer_columns', 'three'));
+	$logo_position = sanitize_html_class(get_theme_mod('rss_prism_footer_logo_position', 'left'));
+	echo '<footer class="site-footer site-footer--' . esc_attr($style) . ' rp-footer-builder rp-footer-align--' . esc_attr($alignment) . ' rp-footer-columns--' . esc_attr($columns) . ' rp-footer-logo--' . esc_attr($logo_position) . '">';
 	foreach ($rows as $index => $elements) {
 		if (!$elements) {
 			continue;
