@@ -13,6 +13,8 @@ final class RSS_Prism_Builder_Auto_Updates {
 
 	public static function init() {
 		add_filter( 'pre_set_site_transient_update_plugins', array( __CLASS__, 'inject_update' ) );
+		// Repair cached update data when WordPress reads the update transient.
+		add_filter( 'site_transient_update_plugins', array( __CLASS__, 'inject_update' ) );
 		add_filter( 'plugins_api', array( __CLASS__, 'plugin_information' ), 20, 3 );
 		add_action( 'admin_post_rss_prism_builder_check_updates', array( __CLASS__, 'force_check' ) );
 		add_action( 'admin_notices', array( __CLASS__, 'admin_notice' ) );
