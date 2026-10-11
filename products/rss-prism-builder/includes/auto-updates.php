@@ -20,7 +20,7 @@ final class RSS_Prism_Builder_Auto_Updates {
 	}
 
 	private static function plugin_file() {
-		return plugin_basename( dirname( __FILE__ ) . '/rss-prism-builder.php' );
+		return plugin_basename( dirname( dirname( __FILE__ ) ) . '/rss-prism-builder.php' );
 	}
 
 	private static function current_version() {
