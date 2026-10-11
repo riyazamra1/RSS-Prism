@@ -1,0 +1,25 @@
+# RSS Prism theme updates
+
+RSS Prism uses WordPress's native theme update screen. When a newer stable release is available, WordPress shows its normal update notification and the site administrator chooses Update. Updates are not forced.
+
+## Release process
+
+1. Update the theme version in style.css and the stable tag in readme.txt.
+2. Commit and merge the tested theme changes to main.
+3. Create and push a tag such as rss-prism-theme-v1.2.2 pointing at that commit.
+4. The GitHub Actions workflow validates the version, packages products/rss-prism-theme under the correct rss-prism-theme ZIP root, tests the archive, and attaches rss-prism-theme.zip to the GitHub Release.
+5. WordPress checks public GitHub release metadata and offers the package through its standard Themes updater.
+
+The release must contain the exact asset name rss-prism-theme.zip. Releases for other RSS Prism products should use different tag prefixes and will not be offered as theme updates.
+
+## Preservation and safety
+
+WordPress replaces the theme's code directory during a theme update. Site content and properly stored Customizer/theme-mod settings live in the database and are not overwritten by the theme package. Do not store customer-specific edits in theme files; use a child theme or plugin for custom code. If a release changes the structure or meaning of stored options, add a backward-compatible migration and test it before publishing.
+
+The updater fails closed: it does not offer an update unless a stable, versioned release with the expected ZIP asset is found. A temporary GitHub/API issue leaves the currently installed theme active. Updates are initiated by the site administrator using WordPress; no automatic background installation is enabled.
+
+## Limitations
+
+This public-release updater is appropriate for the free RSS Prism theme. It is not a premium license-validation or private download system. If premium theme updates are later added, enforce entitlement and signed/authorized downloads on the server rather than trusting a client-side license check.
+
+The updater first becomes available when version 1.2.2 is installed. Sites on 1.2.1 need that one initial upgrade through their existing installation method; after version 1.2.2 is installed, later releases can be installed from WordPress without manually uploading a ZIP.
