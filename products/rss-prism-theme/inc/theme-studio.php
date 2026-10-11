@@ -8,8 +8,8 @@ defined('ABSPATH') || exit;
 function rss_prism_studio_default_layout($type) {
 	if ('header' === $type) {
 		return array(
-			array('brand'),
-			array('menu', 'button'),
+			array(),
+			array('brand', 'menu', 'button'),
 			array(),
 		);
 	}
@@ -258,7 +258,10 @@ function rss_prism_save_studio() {
 			}
 			$rows[] = $clean;
 		}
-		if ('footer' === $type && !in_array('credit', array_merge($rows[0], $rows[1], $rows[2]), true)) {
+		if ('footer' === $type) {
+			foreach ($rows as $row_index => $row_items) {
+				$rows[$row_index] = array_values(array_diff($row_items, array('credit')));
+			}
 			$rows[2][] = 'credit';
 		}
 		update_option('rss_prism_' . $type . '_builder_rows', $rows, false);
