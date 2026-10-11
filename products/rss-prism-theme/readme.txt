@@ -3,16 +3,16 @@ Contributors: razeen-secure-solution
 Requires at least: 6.4
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 1.2.2
+Stable tag: 1.2.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Update 1.2.2: add opt-in native WordPress theme update checks. WordPress displays the available update and the site administrator chooses when to install it. Releases must include the generated rss-prism-theme.zip asset. A responsive WordPress theme for Razeen Secure Solution (RSS), with RSS-branded demo homepage content covering the business, project ecosystem, features, security principles, Free public offering, articles, and contact links. Also includes customizable colours, header and footer layouts, blog grids, widgets, comments, search, and 404 templates.
+Update 1.2.3: group Customizer options into clear sections, add category labels to article cards and posts, add a WordPress theme thumbnail, and shorten release metadata caching for faster update checks. Native WordPress update checks show an available version and leave installation approval to the site administrator. WordPress displays the available update and the site administrator chooses when to install it. Releases must include the generated rss-prism-theme.zip asset. A responsive WordPress theme for Razeen Secure Solution (RSS), with RSS-branded demo homepage content covering the business, project ecosystem, features, security principles, Free public offering, articles, and contact links. Also includes customizable colours, header and footer layouts, blog grids, widgets, comments, search, and 404 templates.
 
 == Installation ==
 1. Go to Appearance > Themes > Add New > Upload Theme.
 2. Upload rss-prism-theme.zip and activate RSS Prism.
-3. Open Appearance > Customize and use RSS Prism Design / RSS Prism Theme Settings.
+3. Open Appearance > Customize > RSS Prism Settings. Use Brand & Colours, Homepage Hero, Header & Navigation, Typography & Layout, Blog, Categories & Archives, and Footer.
 4. Assign menus under Appearance > Menus. Optional: assign widgets to Main Sidebar and Footer Columns.
 5. Choose a static homepage under Settings > Reading to use the customizable hero and latest-posts sections.
 

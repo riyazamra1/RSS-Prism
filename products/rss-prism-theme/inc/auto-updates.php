@@ -10,7 +10,7 @@ if ( ! class_exists( 'RSS_Prism_Auto_Updates' ) ) {
 	final class RSS_Prism_Auto_Updates {
 		const API_URL = 'https://api.github.com/repos/riyazamra1/RSS-Prism/releases?per_page=20';
 		const CACHE_KEY = 'rss_prism_latest_theme_release';
-		const CACHE_TTL = 6 * HOUR_IN_SECONDS;
+		const CACHE_TTL = 15 * MINUTE_IN_SECONDS;
 		const TAG_PREFIX = 'rss-prism-theme-v';
 		const PACKAGE_NAME = 'rss-prism-theme.zip';
 
