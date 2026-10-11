@@ -4,7 +4,7 @@ Theme URI: https://www.rsscctvsolution.eu.cc/
 Author: Razeen Secure Solution
 Author URI: https://www.rsscctvsolution.eu.cc/
 Description: A responsive multipurpose WordPress theme with flexible layouts and visual settings.
-Version: 1.2.2
+Version: 1.2.3
 Requires at least: 6.4
 Tested up to: 6.8
 Requires PHP: 7.4
@@ -99,3 +99,6 @@ body{font-size:var(--rp-font-size,16px)}
 .rp-footer-builder .rp-container{max-width:var(--rss-prism-content-width,1120px);margin-inline:auto}
 @media(max-width:900px){.rp-header-builder__row--1{align-items:flex-start}.rp-header-builder .main-navigation ul{gap:.1rem}.rp-footer-builder__row{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:700px){.site-header>.site-header__inner{align-items:flex-start;flex-wrap:wrap}.rp-menu-toggle{display:block;order:2;margin-left:auto}.rp-header-builder{order:3;flex-basis:100%}.rp-header-builder__row{align-items:flex-start;flex-direction:column;gap:.65rem}.rp-header-builder__item--menu{width:100%;justify-content:flex-start}.rp-header-builder .main-navigation{display:none;width:100%}.rp-header-builder .main-navigation.is-open{display:block}.rp-header-builder .main-navigation ul{align-items:stretch;flex-direction:column}.rp-header-builder .main-navigation a{width:100%}.rp-footer-builder__row,.rp-footer-builder__row--bottom{grid-template-columns:1fr;display:grid;gap:1rem}.rp-footer-builder__row--bottom{justify-content:start}.rp-header-cta{max-width:100%}}
+
+/* Article category labels */
+.entry-categories{display:flex;flex-wrap:wrap;gap:.4rem;margin:.65rem 0 1rem}.entry-categories a{display:inline-flex;align-items:center;padding:.2rem .65rem;border:1px solid var(--rp-border,#e5e7eb);border-radius:999px;background:var(--rp-bg,#f5f6f8);color:var(--rp-muted,#686d76);font-size:.75rem;font-weight:700;text-decoration:none}.entry-categories a:hover{border-color:var(--rp-accent,#b88a2b);color:var(--rp-accent,#b88a2b)}
