@@ -1,5 +1,14 @@
 # RSS Prism theme updates
 
+## Version 1.3.0
+
+- Fixed dashboard update status handling for WordPress's array-based theme update entries.
+- Added a capability-checked, nonce-protected manual update refresh action for administrators.
+- Refresh clears only RSS Prism release metadata and WordPress theme-update caches; it does not delete or reset Customizer settings.
+- Release detection validates official ZIP assets and sorts all eligible stable releases by semantic version rather than trusting API list order.
+- Increased GitHub release API timeout to reduce false negatives on slower hosting.
+- Preserved existing Customizer setting IDs and stored header/footer layout options.
+
 RSS Prism uses WordPress's native theme update screen. When a newer stable release is available, WordPress shows its normal update notification and the site administrator chooses Update. Updates are not forced.
 
 ## Release process
@@ -8,7 +17,7 @@ RSS Prism uses WordPress's native theme update screen. When a newer stable relea
 2. Commit and merge the tested theme changes to main.
 3. Create and push a tag such as rss-prism-theme-v1.2.3 pointing at that commit.
 4. The GitHub Actions workflow validates the version, packages products/rss-prism-theme under the correct rss-prism-theme ZIP root, tests the archive, and attaches rss-prism-theme.zip to the GitHub Release.
-5. WordPress checks public GitHub release metadata and offers the package through its standard Themes updater. Release metadata is cached for 15 minutes in version 1.2.3.
+5. WordPress checks public GitHub release metadata and offers the package through its standard Themes updater. Release metadata is cached for 15 minutes in version 1.3.0.
 
 The release must contain the exact asset name rss-prism-theme.zip. Releases for other RSS Prism products should use different tag prefixes and will not be offered as theme updates.
 
