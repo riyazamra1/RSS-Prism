@@ -30,3 +30,10 @@ The updater first becomes available when version 1.2.2 is installed. Sites on 1.
 - Add category labels to posts and article cards, with a Customizer toggle.
 - Generate a 1200 × 900 `screenshot.png` for WordPress theme previews from the included `screenshot.svg` artwork.
 - Reduce the release metadata cache duration to 15 minutes for future update checks.
+
+## Version 1.2.4
+
+- Fix the welcome-card Hide action with an authenticated AJAX dismissal and a non-JavaScript fallback.
+- Preserve a user's Hide preference when the theme is switched again; only initialize the welcome preference on first activation for that user.
+- Add an RSS Prism dashboard widget and Appearance → RSS Prism Dashboard page with installed version, WordPress update status, links to design tools, and release notes/source links.
+- Simplify the Customizer section names and hierarchy, add guidance to use RSS Prism Studio for layout arrangement, and remove the duplicate header-style selector while retaining saved legacy settings.
