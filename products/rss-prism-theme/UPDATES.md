@@ -6,9 +6,9 @@ RSS Prism uses WordPress's native theme update screen. When a newer stable relea
 
 1. Update the theme version in style.css and the stable tag in readme.txt.
 2. Commit and merge the tested theme changes to main.
-3. Create and push a tag such as rss-prism-theme-v1.2.2 pointing at that commit.
+3. Create and push a tag such as rss-prism-theme-v1.2.3 pointing at that commit.
 4. The GitHub Actions workflow validates the version, packages products/rss-prism-theme under the correct rss-prism-theme ZIP root, tests the archive, and attaches rss-prism-theme.zip to the GitHub Release.
-5. WordPress checks public GitHub release metadata and offers the package through its standard Themes updater.
+5. WordPress checks public GitHub release metadata and offers the package through its standard Themes updater. Release metadata is cached for 15 minutes in version 1.2.3.
 
 The release must contain the exact asset name rss-prism-theme.zip. Releases for other RSS Prism products should use different tag prefixes and will not be offered as theme updates.
 
@@ -23,3 +23,10 @@ The updater fails closed: it does not offer an update unless a stable, versioned
 This public-release updater is appropriate for the free RSS Prism theme. It is not a premium license-validation or private download system. If premium theme updates are later added, enforce entitlement and signed/authorized downloads on the server rather than trusting a client-side license check.
 
 The updater first becomes available when version 1.2.2 is installed. Sites on 1.2.1 need that one initial upgrade through their existing installation method; after version 1.2.2 is installed, later releases can be installed from WordPress without manually uploading a ZIP.
+
+## Version 1.2.3
+
+- Group theme options under one RSS Prism Settings panel with clearer customization categories.
+- Add category labels to posts and article cards, with a Customizer toggle.
+- Generate a 1200 × 900 `screenshot.png` for WordPress theme previews from the included `screenshot.svg` artwork.
+- Reduce the release metadata cache duration to 15 minutes for future update checks.
