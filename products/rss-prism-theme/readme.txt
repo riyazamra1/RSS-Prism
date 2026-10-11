@@ -3,11 +3,11 @@ Contributors: razeen-secure-solution
 Requires at least: 6.4
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 1.3.0
+Stable tag: 1.3.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Update 1.3.0: strengthen native update detection, correctly read WordPress update entries in the dashboard, add a permission-checked Force Update Check action that clears only updater caches, sort eligible releases by semantic version, and increase the release metadata request timeout. Existing Customizer settings and theme options are retained; the update replaces theme files only. The administrator remains in control of installing updates. Releases must include the generated rss-prism-theme.zip asset. A responsive WordPress theme for Razeen Secure Solution (RSS), with RSS-branded demo homepage content covering the business, project ecosystem, features, security principles, Free public offering, articles, and contact links. Also includes customizable colours, header and footer layouts, blog grids, widgets, comments, search, and 404 templates.
+Update 1.3.1: adds slider controls for logo width and height, navigation text size, menu item spacing, horizontal/vertical padding and corner radius; adds menu font weight, letter style and outlined style; adds header layout and global font family choices. Existing setting IDs and saved values are preserved. The native updater/dashboard improvements from 1.3.0 remain included. Releases must include the generated rss-prism-theme.zip asset. A responsive WordPress theme for Razeen Secure Solution (RSS), with RSS-branded demo homepage content covering the business, project ecosystem, features, security principles, Free public offering, articles, and contact links. Also includes customizable colours, header and footer layouts, blog grids, widgets, comments, search, and 404 templates.
 
 == Installation ==
 1. Go to Appearance > Themes > Add New > Upload Theme.

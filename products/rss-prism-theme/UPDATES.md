@@ -1,5 +1,15 @@
 # RSS Prism theme updates
 
+## Version 1.3.1
+
+- Added adjustable logo width and height sliders.
+- Added navigation text size, font weight, capitalization, item spacing, horizontal/vertical padding, and corner-radius controls.
+- Added an outlined navigation style alongside minimal, rounded, and underline styles.
+- Added standard, centered, and dark header layout choices.
+- Added global font-family selection (system, Arial, Georgia, Trebuchet MS, Verdana).
+- Retained previous Customizer setting IDs and values, including the 1.3.0 updater fixes.
+
+
 ## Version 1.3.0
 
 - Fixed dashboard update status handling for WordPress's array-based theme update entries.

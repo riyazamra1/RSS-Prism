@@ -4,7 +4,7 @@ Theme URI: https://www.rsscctvsolution.eu.cc/
 Author: Razeen Secure Solution
 Author URI: https://www.rsscctvsolution.eu.cc/
 Description: A responsive multipurpose WordPress theme with flexible layouts and visual settings.
-Version: 1.3.0
+Version: 1.3.1
 Requires at least: 6.4
 Tested up to: 6.8
 Requires PHP: 7.4
@@ -102,3 +102,63 @@ body{font-size:var(--rp-font-size,16px)}
 
 /* Article category labels */
 .entry-categories{display:flex;flex-wrap:wrap;gap:.4rem;margin:.65rem 0 1rem}.entry-categories a{display:inline-flex;align-items:center;padding:.2rem .65rem;border:1px solid var(--rp-border,#e5e7eb);border-radius:999px;background:var(--rp-bg,#f5f6f8);color:var(--rp-muted,#686d76);font-size:.75rem;font-weight:700;text-decoration:none}.entry-categories a:hover{border-color:var(--rp-accent,#b88a2b);color:var(--rp-accent,#b88a2b)}
+
+
+/* RSS Prism 1.3.1: granular logo and navigation controls. */
+.site-branding .custom-logo,
+.rp-studio-brand .custom-logo {
+  max-width: min(100%, var(--rp-logo-width, 220px));
+  max-height: var(--rp-logo-height, 76px);
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
+.main-navigation ul,
+.rp-header-builder .main-navigation ul {
+  gap: var(--rp-menu-gap, 4px);
+}
+.main-navigation a,
+.rp-header-builder .main-navigation a {
+  padding: var(--rp-menu-padding-y, 8px) var(--rp-menu-padding-x, 12px);
+  border-radius: var(--rp-menu-radius, 10px);
+  font-size: var(--rp-menu-font-size, 15px);
+  font-weight: var(--rp-menu-font-weight, 600);
+  text-transform: var(--rp-menu-text-transform, none);
+  line-height: 1.35;
+  transition: color .18s ease, background-color .18s ease, border-color .18s ease, transform .18s ease;
+}
+.rp-header-menu--outlined .main-navigation a {
+  background: transparent;
+  border: 1px solid var(--rp-border, #e5e7eb);
+}
+.rp-header-menu--outlined .main-navigation a:hover,
+.rp-header-menu--outlined .main-navigation .current-menu-item > a {
+  border-color: var(--rp-accent);
+  background: color-mix(in srgb, var(--rp-accent) 9%, transparent);
+  color: var(--rp-accent);
+}
+.rp-header-menu--plain .main-navigation a {
+  padding-inline: max(0px, var(--rp-menu-padding-x, 12px));
+}
+.rp-header-menu--underline .main-navigation a {
+  border-radius: 0;
+  border-bottom-width: 2px;
+}
+.rp-header-surface--accent .main-navigation a:hover,
+.rp-header-surface--accent .main-navigation .current-menu-item > a {
+  background: rgb(255 255 255 / 18%);
+  color: #fff;
+}
+@media (max-width: 700px) {
+  .rp-header-builder .main-navigation ul {
+    gap: 2px;
+  }
+  .rp-header-builder .main-navigation a {
+    padding: max(8px, var(--rp-menu-padding-y, 8px)) var(--rp-menu-padding-x, 12px);
+  }
+  .rp-studio-brand .custom-logo {
+    max-height: min(var(--rp-logo-height, 76px), 76px);
+  }
+}
+
+body { font-family: var(--rp-font-family, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif); font-size: var(--rp-font-size, 16px); }

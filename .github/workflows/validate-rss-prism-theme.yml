@@ -34,7 +34,7 @@ jobs:
         run: |
           set -euo pipefail
           test -f products/rss-prism-theme/style.css
-          grep -q '^Version: 1.3.0$' products/rss-prism-theme/style.css
+          grep -q '^Version: 1.3.1$' products/rss-prism-theme/style.css
           mkdir -p dist/rss-prism-theme
           cp -a products/rss-prism-theme/. dist/rss-prism-theme/
           cd dist
@@ -45,7 +45,7 @@ jobs:
       - name: Upload installable ZIP for test
         uses: actions/upload-artifact@v4
         with:
-          name: rss-prism-theme-1.3.0-test
+          name: rss-prism-theme-1.3.1-test
           path: rss-prism-theme.zip
           if-no-files-found: error
           retention-days: 14
