@@ -3,7 +3,7 @@
  * Plugin Name: RSS Prism Builder
  * Plugin URI: https://www.rsscctvsolution.eu.cc/
  * Description: Free visual page builder. Theme design tools: Dashboard → Appearance → RSS Prism Studio.
- * Version: 0.18.2
+ * Version: 0.18.3
  * Requires at least: 6.4
  * Requires PHP: 7.4
  * Author: Razeen Secure Solution
@@ -15,7 +15,7 @@
 defined( 'ABSPATH' ) || exit;
 
 require_once __DIR__ . '/includes/auto-updates.php';
-define( 'RSS_PRISM_BUILDER_VERSION', '0.18.2' );
+define( 'RSS_PRISM_BUILDER_VERSION', '0.18.3' );
 
 function rss_prism_builder_register_templates() {
 	register_post_type( 'rss_prism_template', array(
@@ -459,9 +459,15 @@ function rss_prism_builder_render_admin_page() {
 	$template_query = array( 'post_type' => 'rss_prism_template', 'post_status' => array( 'publish', 'draft', 'pending', 'private' ), 'numberposts' => 100, 'orderby' => 'modified', 'order' => 'DESC' );
 	if ( '' !== $template_search ) { $template_query['s'] = $template_search; }
 	$templates = get_posts( $template_query );
+	// If templates already exist, load the most recently modified one by default.
+	// Without this, returning users can see only the template picker and an empty editor.
+	$requested_id = isset( $_GET['post_id'] ) ? absint( $_GET['post_id'] ) : 0;
+	if ( ! $requested_id && '' === $template_search && ! empty( $templates ) ) {
+		wp_safe_redirect( add_query_arg( array( 'page' => 'rss-prism-builder', 'post_id' => absint( $templates[0]->ID ) ), admin_url( 'admin.php' ) ) );
+		exit;
+	}
 	// On a fresh installation, create the first draft automatically so opening
 	// Prism Builder always opens the actual editor instead of an empty screen.
-	$requested_id = isset( $_GET['post_id'] ) ? absint( $_GET['post_id'] ) : 0;
 	if ( empty( $templates ) && '' === $template_search && ! $requested_id && ! isset( $_GET['rss_prism_new_template'] ) ) {
 		$first_id = wp_insert_post( array(
 			'post_type' => 'rss_prism_template',
