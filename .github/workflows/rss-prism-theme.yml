@@ -74,7 +74,7 @@ jobs:
           THEME_STABLE_TAG="$(sed -n 's/^Stable tag: *//p' products/rss-prism-theme/readme.txt | head -n1)"
           test -n "$THEME_VERSION"
           test "$THEME_VERSION" = "$THEME_STABLE_TAG"
-          BUILDER_VERSION="$(sed -n 's/^Version: *//p' products/rss-prism-builder/rss-prism-builder.php | head -n1)"
+          BUILDER_VERSION="$(sed -n 's/^[[:space:]]*\\* Version: *//p' products/rss-prism-builder/rss-prism-builder.php | head -n1)"
           BUILDER_STABLE_TAG="$(sed -n 's/^Stable tag: *//p' products/rss-prism-builder/readme.txt | head -n1)"
           test -n "$BUILDER_VERSION"
           test "$BUILDER_VERSION" = "$BUILDER_STABLE_TAG"
