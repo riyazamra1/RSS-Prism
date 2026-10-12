@@ -41,3 +41,9 @@
 
 /* Builder 0.18.7: direct insertion controls and nested Media Library support. */
 .rss-prism-nested-add-actions{display:flex;flex-wrap:wrap;gap:6px;margin:.55rem 0 .8rem}.rss-prism-nested-add-actions .button{margin:0;white-space:nowrap}.rss-prism-nested-child .rss-prism-image-controls{margin:.6rem 0}.rss-prism-nested-child .rss-prism-image-controls .button{margin:0 0 .4rem}.rss-prism-nested-child .rss-prism-field{margin:.55rem 0}.rss-prism-nested-child .rss-prism-field input{max-width:100%}
+
+
+/* Builder 0.18.8: responsive previews simulate the selected canvas width. */
+.rss-prism-preview-tablet .rss-prism-live-columns{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+.rss-prism-preview-mobile .rss-prism-live-columns{grid-template-columns:1fr!important}
+@media(max-width:420px){.rss-prism-preview-frame{padding:.65rem}.rss-prism-preview-caption{margin:-.65rem -.65rem .65rem}}
