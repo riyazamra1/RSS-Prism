@@ -36,6 +36,22 @@ jobs:
       - name: Validate builder JavaScript
         run: node --check products/rss-prism-builder/assets/builder.js
 
+      - name: Check responsive previews, published output, and updater safeguards
+        shell: bash
+        run: |
+          set -euo pipefail
+          CSS=products/rss-prism-builder/assets/builder.css
+          PHP=products/rss-prism-builder/rss-prism-builder.php
+          UPDATER=products/rss-prism-builder/includes/auto-updates.php
+          grep -Fq '.rss-prism-preview-tablet .rss-prism-live-columns' "$CSS"
+          grep -Fq '.rss-prism-preview-mobile .rss-prism-live-columns' "$CSS"
+          grep -Fq "add_shortcode( 'rss_prism_canvas', 'rss_prism_builder_render_canvas_shortcode' );" "$PHP"
+          grep -Fq 'rss-prism-canvas-columns .rss-prism-columns-grid{grid-template-columns:1fr!important}' "$PHP"
+          grep -Fq 'version_compare( self::current_version(), $release['"'version'"'], '<' )' "$UPDATER"
+          grep -Fq "https://github.com/riyazamra1/RSS-Prism/releases/download/" "$UPDATER"
+          grep -Fq "current_user_can( 'update_plugins' )" "$UPDATER"
+          grep -Fq "check_admin_referer( 'rss_prism_builder_check_updates' )" "$UPDATER"
+
       - name: Guard Media Library selection against stale-state overwrites
         shell: bash
         run: |
