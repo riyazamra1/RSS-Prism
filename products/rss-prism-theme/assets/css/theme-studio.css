@@ -3,3 +3,40 @@
 
 .rp-footer-align--center .rp-footer-builder__row{text-align:center;justify-items:center}.rp-footer-align--right .rp-footer-builder__row{text-align:right;justify-items:end}.rp-footer-columns--one .rp-footer-builder__row{grid-template-columns:1fr}.rp-footer-columns--two .rp-footer-builder__row{grid-template-columns:repeat(2,minmax(0,1fr))}.rp-footer-logo--right .rp-footer-builder__row--0 .rp-footer-builder__item--brand{order:2}
 @media(max-width:760px){.rp-menu-toggle{display:block}.rp-header-builder{order:3;flex-basis:100%}.rp-header-builder .main-navigation{display:none}.rp-header-builder .main-navigation.is-open{display:block}}
+
+
+/* RSS Prism Studio refinement: clearer hierarchy, consistent controls and mobile-safe workspace. */
+.rp-studio-wrap{max-width:1680px;margin:20px 24px 40px 0;color:#202124;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+.rp-studio-heading{position:relative;overflow:hidden;background:linear-gradient(115deg,#fff 0%,#fbfaf7 65%,#f4ead5 100%);border:1px solid #e7e2d8;border-radius:18px;box-shadow:0 8px 30px rgba(25,27,32,.045)}
+.rp-studio-kicker{color:#8b681f;letter-spacing:.14em}
+.rp-studio-heading h1{font-size:clamp(26px,2.2vw,34px);letter-spacing:-.035em;color:#191b20}
+.rp-studio-heading p{max-width:720px;font-size:14px;line-height:1.7}
+.rp-studio-actions .button{min-height:38px;display:inline-flex;align-items:center;justify-content:center;border-radius:8px;padding-inline:14px}
+.rp-studio-actions .button-primary,.rp-studio-savebar .button-primary{background:#202124;border-color:#202124;color:#fff;box-shadow:none}
+.rp-studio-actions .button-primary:hover,.rp-studio-savebar .button-primary:hover{background:#383a40;border-color:#383a40}
+.rp-studio-plan{background:#faf8f2;border-color:#e9dfc8;border-radius:10px;color:#55524b}
+.rp-studio-plan strong{background:#292a2d;border-radius:5px}
+.rp-studio-workspace{grid-template-columns:minmax(0,1.05fr) minmax(320px,.95fr);gap:16px}
+.rp-studio-panel,.rp-studio-preview-panel{border-color:#e5e3de;border-radius:14px;box-shadow:0 8px 28px rgba(25,27,32,.045)}
+.rp-studio-tabs{background:#f7f7f5;border-color:#e8e6e0}
+.rp-studio-tabs button{min-height:52px;color:#62646a}
+.rp-studio-tabs button.is-active{color:#202124;border-bottom-color:#b88a2b;background:#fff}
+.rp-studio-editor h2,.rp-studio-controls h2{font-size:16px;letter-spacing:-.015em;color:#202124}
+.rp-studio-available{background:#fafaf8;border-color:#e7e5df}
+.rp-studio-chip{min-height:38px;border-color:#deded9;border-radius:8px;color:#303238;box-shadow:0 1px 2px rgba(0,0,0,.025);transition:border-color .15s,background .15s,transform .15s}
+.rp-studio-chip:hover{border-color:#b88a2b;background:#fffdf8}
+.rp-studio-chip:focus-visible,.rp-studio-device-icons button:focus-visible{outline:2px solid #b88a2b;outline-offset:2px}
+.rp-studio-row{border-color:#e5e3de;border-radius:10px}
+.rp-studio-row-head{background:#f7f7f5;border-bottom:1px solid #e9e7e1;padding:12px 14px}
+.rp-studio-dropzone{min-height:72px;gap:8px}
+.rp-studio-dropzone.is-over{background:#fbf6e9;outline-color:#b88a2b}
+.rp-studio-controls{background:#fafaf8;border-color:#e8e6e0}
+.rp-studio-fields input{min-height:42px;border-color:#d9d9d4;border-radius:8px;box-shadow:none}
+.rp-studio-fields input:focus{border-color:#b88a2b;box-shadow:0 0 0 1px #b88a2b;outline:0}
+.rp-studio-preview-head{background:#fff;border-color:#e8e6e0}
+.rp-studio-device-icons button.is-active{border-color:#d8c28d;background:#faf5e8;color:#6f5318}
+.rp-studio-preview-panel iframe{background:#f7f7f5}
+.rp-studio-savebar{position:sticky;bottom:12px;z-index:5;border-color:#e5e3de;border-radius:12px;box-shadow:0 8px 26px rgba(25,27,32,.09)}
+.rp-studio-premium-note{background:#fafaf8;border-color:#e8e6e0;border-radius:10px}
+@media(max-width:1100px){.rp-studio-workspace{grid-template-columns:1fr}.rp-studio-preview-panel iframe{height:520px}}
+@media(max-width:782px){.rp-studio-wrap{margin:12px 10px 28px 0}.rp-studio-heading{padding:20px}.rp-studio-heading h1{font-size:26px}.rp-studio-actions{gap:8px}.rp-studio-savebar{position:static}.rp-studio-preview-panel iframe{height:430px}.rp-studio-chip{white-space:normal;text-align:left}}
