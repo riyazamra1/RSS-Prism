@@ -198,6 +198,19 @@
 			callback(target);
 			update('container_elements', rootChildren);
 		};
+		const chooseNestedImage = (parentPath, childIndex) => {
+			if (!window.wp || !wp.media) { setNotice('The WordPress Media Library is not available on this screen.'); return; }
+			const frame = wp.media({ title: 'Choose an image for this element', button: { text: 'Use image' }, library: { type: 'image' }, multiple: false });
+			frame.on('select', () => {
+				const attachment = frame.state().get('selection').first().toJSON();
+				mutateNested(parentPath, list => {
+					if (!list[childIndex]) return;
+					list[childIndex].image_url = attachment.url || '';
+					if (!list[childIndex].alt && attachment.alt) list[childIndex].alt = attachment.alt;
+				});
+			});
+			frame.open();
+		};
 		const nestedEditor = (children, parentPath, depth) => h('div', { className: 'rss-prism-nested-editor rss-prism-nested-depth-' + depth },
 			...(children || []).map((child, index) => h('div', { className: 'rss-prism-nested-child', key: child.id || index, draggable: true,
 				onDragStart: e => { e.dataTransfer.setData('text/plain', JSON.stringify({ path: parentPath, index })); e.dataTransfer.effectAllowed = 'move'; },
@@ -218,11 +231,11 @@
 				) : null,
 				child.type !== 'container' ? h('label', { className: 'rss-prism-field' }, h('span', null, 'Content'), h('textarea', { rows: 2, value: child.text || '', onChange: e => mutateNested(parentPath, list => { list[index].text = e.target.value; }) })) : null,
 				child.type === 'button' ? h('label', { className: 'rss-prism-field' }, h('span', null, 'Button URL'), h('input', { type: 'url', value: child.url || '', onChange: e => mutateNested(parentPath, list => { list[index].url = e.target.value; }) })) : null,
-				child.type === 'image' ? h('div', { className: 'rss-prism-field' }, h('span', null, 'Image URL'), h('input', { type: 'url', value: child.image_url || '', onChange: e => mutateNested(parentPath, list => { list[index].image_url = e.target.value; }) }), h('input', { type: 'text', value: child.alt || '', placeholder: 'Alternative text', onChange: e => mutateNested(parentPath, list => { list[index].alt = e.target.value; }) })) : null,
+				child.type === 'image' ? h('div', { className: 'rss-prism-image-controls' }, h('button', { type: 'button', className: 'button', onClick: () => chooseNestedImage(parentPath, index) }, child.image_url ? 'Choose replacement image' : 'Choose from Media Library'), h('label', { className: 'rss-prism-field' }, h('span', null, 'Image URL'), h('input', { type: 'url', value: child.image_url || '', onChange: e => mutateNested(parentPath, list => { list[index].image_url = e.target.value; }) })), h('label', { className: 'rss-prism-field' }, h('span', null, 'Alternative text'), h('input', { type: 'text', value: child.alt || '', placeholder: 'Describe the image', onChange: e => mutateNested(parentPath, list => { list[index].alt = e.target.value; }) }))) : null,
 				child.type === 'container' ? h('p', { className: 'description' }, depth >= 1 ? 'Maximum nested depth reached for child containers.' : 'This container can include another container.') : null,
 				h('button', { type: 'button', className: 'button-link-delete', onClick: () => mutateNested(parentPath, list => list.splice(index, 1)) }, 'Remove element')
 			)),
-			h('button', { type: 'button', className: 'button', disabled: (children || []).length >= 20, onClick: () => mutateNested(parentPath, list => list.push({ id: 'nested-' + Date.now() + '-' + Math.random().toString(36).slice(2,6), type: 'text', text: 'New nested content', url: '' })) }, '+ Add nested element')
+			h('div', { className: 'rss-prism-nested-add-actions', role: 'group', 'aria-label': 'Add nested content' }, ...([['heading','+ Heading'],['text','+ Text'],['button','+ Button'],['image','+ Image']].concat(depth < 2 ? [['container','+ Container']] : []).map(([type, label]) => h('button', { key: type, type: 'button', className: 'button button-small', disabled: (children || []).length >= 20, onClick: () => mutateNested(parentPath, list => list.push({ id: 'nested-' + Date.now() + '-' + Math.random().toString(36).slice(2,6), type, text: type === 'heading' ? 'New heading' : type === 'button' ? 'Learn more' : type === 'image' ? 'Image description' : type === 'container' ? '' : 'New nested content', url: '', image_url: '', alt: '', container_background: '#f7f6f2', container_elements: type === 'container' ? [{ id: 'nested-child-' + Date.now(), type: 'text', text: 'Nested content', url: '' }] : undefined })) }, label))))
 		);
 		const previewElement = (entry, i) => {
 			const deviceStyle = (entry.responsive && entry.responsive[preview]) || entry;
