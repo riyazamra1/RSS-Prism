@@ -40,3 +40,6 @@
 .rp-studio-premium-note{background:#fafaf8;border-color:#e8e6e0;border-radius:10px}
 @media(max-width:1100px){.rp-studio-workspace{grid-template-columns:1fr}.rp-studio-preview-panel iframe{height:520px}}
 @media(max-width:782px){.rp-studio-wrap{margin:12px 10px 28px 0}.rp-studio-heading{padding:20px}.rp-studio-heading h1{font-size:26px}.rp-studio-actions{gap:8px}.rp-studio-savebar{position:static}.rp-studio-preview-panel iframe{height:430px}.rp-studio-chip{white-space:normal;text-align:left}}
+
+/* Categorised element palette */
+.rp-studio-palette-group{padding-top:12px;margin-top:12px;border-top:1px solid #e8e6e0}.rp-studio-palette-group:first-child{padding-top:0;margin-top:0;border-top:0}.rp-studio-palette-group>strong{display:block;margin-bottom:8px;color:#686b70;font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}.rp-studio-palette-group .rp-studio-palette{display:flex;flex-wrap:wrap;gap:7px}.rp-studio-palette-group .rp-studio-chip{background:#fff}@media(max-width:600px){.rp-studio-palette-group .rp-studio-chip{flex:1 1 100%;justify-content:space-between}}

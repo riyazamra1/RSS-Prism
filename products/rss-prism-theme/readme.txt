@@ -1,12 +1,13 @@
 === RSS Prism ===
 
+Update 1.3.4: groups Studio header and footer palette items into clearly labelled categories (identity/navigation, actions/utilities, content, and copyright/credits), making available elements easier to find on desktop and mobile while preserving saved layouts and drag-and-drop behavior.
 Update 1.3.3: fixes the welcome-card Hide action by using the direct nonce-protected WordPress admin action without a fragile JavaScript interception; prevents duplicate header/footer elements across rows in both the Studio UI and server-side save normalization. Existing saved layouts are preserved and cleaned when loaded/saved.
 Update 1.3.2: refines the RSS Prism Studio workspace with consistent neutral/gold styling, clearer control hierarchy, accessible focus states, improved preview responsiveness, and a sticky save bar on desktop. Existing theme settings and saved layouts are preserved.
 Contributors: razeen-secure-solution
 Requires at least: 6.4
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 1.3.3
+Stable tag: 1.3.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 

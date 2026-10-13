@@ -97,6 +97,9 @@ jobs:
           grep -Fq "Each header/footer element can appear only once across all rows." products/rss-prism-theme/inc/theme-studio.php
           grep -Fq "De-duplicate across rows as well as within each row before saving." products/rss-prism-theme/inc/theme-studio.php
           grep -Fq "function hasElement(type, element)" products/rss-prism-theme/assets/js/theme-studio.js
+          grep -Fq 'function rss_prism_studio_render_palette($elements, $type)' products/rss-prism-theme/inc/theme-studio.php
+          grep -Fq 'Add elements by category' products/rss-prism-theme/inc/theme-studio.php
+          grep -Fq '.rp-studio-palette-group' products/rss-prism-theme/assets/css/theme-studio.css
 
       - name: Check source performance budgets
         shell: bash

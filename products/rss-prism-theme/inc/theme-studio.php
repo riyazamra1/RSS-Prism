@@ -69,6 +69,28 @@ function rss_prism_studio_element_label($element) {
 	return isset($labels[$element]) ? $labels[$element] : ucfirst($element);
 }
 
+function rss_prism_studio_render_palette($elements, $type) {
+	$groups = 'header' === $type
+		? array(
+			__('Identity & navigation', 'rss-prism') => array('brand', 'menu'),
+			__('Actions & utilities', 'rss-prism') => array('button', 'search', 'social'),
+		)
+		: array(
+			__('Identity & content', 'rss-prism') => array('brand', 'description', 'widgets'),
+			__('Navigation & links', 'rss-prism') => array('menu', 'social'),
+			__('Copyright & credits', 'rss-prism') => array('copyright', 'credit'),
+		);
+	foreach ($groups as $group_label => $group_elements) {
+		$available = array_values(array_intersect($group_elements, $elements));
+		if (!$available) { continue; }
+		echo '<div class="rp-studio-palette-group"><strong>' . esc_html($group_label) . '</strong><div class="rp-studio-palette">';
+		foreach ($available as $element) {
+			echo '<button type="button" class="rp-studio-chip" draggable="true" data-element="' . esc_attr($element) . '" data-source="palette">' . esc_html(rss_prism_studio_element_label($element)) . ' <span>+</span></button>';
+		}
+		echo '</div></div>';
+	}
+}
+
 function rss_prism_studio_render_element($element, $type) {
 	switch ($element) {
 		case 'brand':
@@ -229,12 +251,12 @@ function rss_prism_studio_admin_page() {
 					<div class="rp-studio-tabs" role="tablist"><button type="button" class="is-active" data-studio-tab="header"><?php esc_html_e('Header Builder', 'rss-prism'); ?></button><button type="button" data-studio-tab="footer"><?php esc_html_e('Footer Builder', 'rss-prism'); ?></button></div>
 					<div class="rp-studio-editor is-active" data-studio-editor="header">
 						<h2><?php esc_html_e('Build your header', 'rss-prism'); ?></h2><p><?php esc_html_e('Drag elements between rows to change their order. Empty rows are hidden on your website.', 'rss-prism'); ?></p>
-						<div class="rp-studio-available"><strong><?php esc_html_e('Add elements', 'rss-prism'); ?></strong><div class="rp-studio-palette"><?php foreach ($header_elements as $element): ?><button type="button" class="rp-studio-chip" draggable="true" data-element="<?php echo esc_attr($element); ?>" data-source="palette"><?php echo esc_html(rss_prism_studio_element_label($element)); ?> <span>+</span></button><?php endforeach; ?></div></div>
+						<div class="rp-studio-available"><strong><?php esc_html_e('Add elements by category', 'rss-prism'); ?></strong><?php rss_prism_studio_render_palette($header_elements, 'header'); ?></div>
 						<div class="rp-studio-rows" data-builder-rows="header"><?php foreach ($header as $index => $elements): ?><div class="rp-studio-row" data-row="<?php echo esc_attr((string) $index); ?>"><div class="rp-studio-row-head"><strong><?php echo esc_html(sprintf(__('Header row %d', 'rss-prism'), $index + 1)); ?></strong><span><?php echo esc_html(0 === $index ? __('Brand area', 'rss-prism') : (1 === $index ? __('Main navigation', 'rss-prism') : __('Utility row', 'rss-prism'))); ?></span></div><div class="rp-studio-dropzone" data-dropzone="header" aria-label="<?php echo esc_attr(sprintf(__('Drop header elements into row %d', 'rss-prism'), $index + 1)); ?>"><?php foreach ($elements as $element): ?><button type="button" class="rp-studio-chip" draggable="true" data-element="<?php echo esc_attr($element); ?>"><?php echo esc_html(rss_prism_studio_element_label($element)); ?><span class="rp-studio-remove" aria-label="<?php esc_attr_e('Remove element', 'rss-prism'); ?>">×</span></button><?php endforeach; ?><span class="rp-studio-empty"><?php esc_html_e('Drop elements here', 'rss-prism'); ?></span></div></div><?php endforeach; ?></div>
 					</div>
 					<div class="rp-studio-editor" data-studio-editor="footer">
 						<h2><?php esc_html_e('Build your footer', 'rss-prism'); ?></h2><p><?php esc_html_e('Organise identity, navigation, widgets, copyright and the required free-theme credit.', 'rss-prism'); ?></p>
-						<div class="rp-studio-available"><strong><?php esc_html_e('Add elements', 'rss-prism'); ?></strong><div class="rp-studio-palette"><?php foreach ($footer_elements as $element): ?><button type="button" class="rp-studio-chip" draggable="true" data-element="<?php echo esc_attr($element); ?>" data-source="palette"><?php echo esc_html(rss_prism_studio_element_label($element)); ?> <span>+</span></button><?php endforeach; ?></div></div>
+						<div class="rp-studio-available"><strong><?php esc_html_e('Add elements by category', 'rss-prism'); ?></strong><?php rss_prism_studio_render_palette($footer_elements, 'footer'); ?></div>
 						<div class="rp-studio-rows" data-builder-rows="footer"><?php foreach ($footer as $index => $elements): ?><div class="rp-studio-row" data-row="<?php echo esc_attr((string) $index); ?>"><div class="rp-studio-row-head"><strong><?php echo esc_html(sprintf(__('Footer row %d', 'rss-prism'), $index + 1)); ?></strong><span><?php echo esc_html(2 === $index ? __('Bottom bar', 'rss-prism') : (0 === $index ? __('Top row', 'rss-prism') : __('Content row', 'rss-prism'))); ?></span></div><div class="rp-studio-dropzone" data-dropzone="footer" aria-label="<?php echo esc_attr(sprintf(__('Drop footer elements into row %d', 'rss-prism'), $index + 1)); ?>"><?php foreach ($elements as $element): ?><button type="button" class="rp-studio-chip" draggable="true" data-element="<?php echo esc_attr($element); ?>"><?php echo esc_html(rss_prism_studio_element_label($element)); ?><?php if ('credit' === $element): ?><span class="rp-studio-lock" title="<?php esc_attr_e('Required for free users', 'rss-prism'); ?>">●</span><?php else: ?><span class="rp-studio-remove" aria-label="<?php esc_attr_e('Remove element', 'rss-prism'); ?>">×</span><?php endif; ?></button><?php endforeach; ?><span class="rp-studio-empty"><?php esc_html_e('Drop elements here', 'rss-prism'); ?></span></div></div><?php endforeach; ?></div>
 					</div>
 					<div class="rp-studio-controls">
