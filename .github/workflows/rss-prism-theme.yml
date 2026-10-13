@@ -52,6 +52,18 @@ jobs:
           grep -Fq "current_user_can( 'update_plugins' )" "$UPDATER"
           grep -Fq "check_admin_referer( 'rss_prism_builder_check_updates' )" "$UPDATER"
 
+      - name: Guard the welcome-screen create-template shortcut
+        shell: bash
+        run: |
+          set -euo pipefail
+          PHP=products/rss-prism-builder/rss-prism-builder.php
+          grep -Fq "rss_prism_new_template' => '1'" "$PHP"
+          grep -Fq "wp_nonce_url( add_query_arg" "$PHP"
+          if grep -Fq "post-new.php?post_type=rss_prism_template" "$PHP"; then
+            echo "::error::The welcome shortcut must open the visual builder, not the default post editor."
+            exit 1
+          fi
+
       - name: Guard Media Library selection against stale-state overwrites
         shell: bash
         run: |

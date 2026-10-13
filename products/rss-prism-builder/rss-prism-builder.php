@@ -3,7 +3,7 @@
  * Plugin Name: RSS Prism Builder
  * Plugin URI: https://www.rsscctvsolution.eu.cc/
  * Description: Free visual page builder. Theme design tools: Dashboard → Appearance → RSS Prism Studio.
- * Version: 0.18.8
+ * Version: 0.18.9
  * Requires at least: 6.4
  * Requires PHP: 7.4
  * Author: Razeen Secure Solution
@@ -15,7 +15,7 @@
 defined( 'ABSPATH' ) || exit;
 
 require_once __DIR__ . '/includes/auto-updates.php';
-define( 'RSS_PRISM_BUILDER_VERSION', '0.18.8' );
+define( 'RSS_PRISM_BUILDER_VERSION', '0.18.9' );
 
 function rss_prism_builder_register_templates() {
 	register_post_type( 'rss_prism_template', array(
@@ -387,7 +387,7 @@ function rss_prism_builder_render_welcome_page() {
 			<p><?php esc_html_e( 'Build responsive business pages with RSS starter layouts, visual editing, images, nested content, autosave and recovery tools.', 'rss-prism-builder' ); ?></p>
 			<div class="rss-prism-welcome-actions">
 				<a class="button button-primary button-hero" href="<?php echo esc_url( admin_url( 'admin.php?page=rss-prism-builder' ) ); ?>"><?php esc_html_e( 'Open Visual Builder', 'rss-prism-builder' ); ?></a>
-				<a class="button button-hero" href="<?php echo esc_url( admin_url( 'post-new.php?post_type=rss_prism_template' ) ); ?>"><?php esc_html_e( 'Create a template', 'rss-prism-builder' ); ?></a>
+				<a class="button button-hero" href="<?php echo esc_url( wp_nonce_url( add_query_arg( array( 'page' => 'rss-prism-builder', 'rss_prism_new_template' => '1' ), admin_url( 'admin.php' ) ), 'rss_prism_new_template' ) ); ?>"><?php esc_html_e( 'Create a template', 'rss-prism-builder' ); ?></a>
 			</div>
 			<div class="notice notice-info inline" style="margin:20px 0 0;padding:10px 14px">
 				<p><strong><?php esc_html_e( 'Looking for header and footer design?', 'rss-prism-builder' ); ?></strong>
