@@ -113,8 +113,17 @@ function rss_prism_customize_register( $wp_customize ) {
 
 
 	$wp_customize->add_section('rss_prism_header_controls',array('title'=>__('Header Styling','rss-prism'),'panel'=>'rss_prism_panel','priority'=>50,'description'=>__('Control logo size, navigation style, menu spacing, typography, alignment and sticky-header behaviour. Arrange header elements in RSS Prism Studio.','rss-prism')));
-	$header_choices=array('rss_prism_logo_position'=>array('left',array('left'=>__('Logo left','rss-prism'),'center'=>__('Logo centered','rss-prism'),'right'=>__('Logo right','rss-prism'))),'rss_prism_menu_style'=>array('pill',array('plain'=>__('Minimal links','rss-prism'),'pill'=>__('Rounded background','rss-prism'),'underline'=>__('Underline active item','rss-prism'),'outlined'=>__('Outlined buttons','rss-prism'))),'rss_prism_menu_alignment'=>array('right',array('left'=>__('Align menu left','rss-prism'),'center'=>__('Center menu','rss-prism'),'right'=>__('Align menu right','rss-prism'))),'rss_prism_header_surface'=>array('default',array('default'=>__('Theme surface','rss-prism'),'transparent'=>__('Transparent','rss-prism'),'accent'=>__('Accent colour','rss-prism'))));
+	$header_choices=array('rss_prism_logo_position'=>array('left',array('left'=>__('Logo left','rss-prism'),'center'=>__('Logo centered','rss-prism'),'right'=>__('Logo right','rss-prism'))),'rss_prism_header_surface'=>array('default',array('default'=>__('Theme surface','rss-prism'),'transparent'=>__('Transparent','rss-prism'),'accent'=>__('Accent colour','rss-prism'))));
 	foreach($header_choices as $id=>$cfg){$wp_customize->add_setting($id,array('default'=>$cfg[0],'sanitize_callback'=>function($v)use($cfg){return array_key_exists($v,$cfg[1])?$v:$cfg[0];}));$wp_customize->add_control($id,array('label'=>ucwords(str_replace(array('rss_prism_','_'),array('',' '),$id)),'section'=>'rss_prism_header_controls','type'=>'select','choices'=>$cfg[1]));}
+	$navigation_choices=array('rss_prism_menu_style'=>array('pill',array('plain'=>__('Minimal links','rss-prism'),'pill'=>__('Rounded background','rss-prism'),'underline'=>__('Underline active item','rss-prism'),'outlined'=>__('Outlined buttons','rss-prism'))),'rss_prism_menu_alignment'=>array('right',array('left'=>__('Align menu left','rss-prism'),'center'=>__('Center menu','rss-prism'),'right'=>__('Align menu right','rss-prism'))));
+	foreach($navigation_choices as $id=>$cfg){$wp_customize->add_setting($id,array('default'=>$cfg[0],'sanitize_callback'=>function($v)use($cfg){return array_key_exists($v,$cfg[1])?$v:$cfg[0];}));$wp_customize->add_control($id,array('label'=>ucwords(str_replace(array('rss_prism_','_'),array('',' '),$id)),'section'=>'rss_prism_navigation_controls','type'=>'select','choices'=>$cfg[1]));}
+
+	$wp_customize->add_section( 'rss_prism_navigation_controls', array(
+		'title' => __( 'Navigation & Menu Typography', 'rss-prism' ),
+		'panel' => 'rss_prism_panel',
+		'priority' => 55,
+		'description' => __( 'Menu appearance, alignment, spacing, font size, weight and letter style.', 'rss-prism' ),
+	) );
 	$wp_customize->add_setting( 'rss_prism_header_style', array(
 		'default' => 'standard',
 		'sanitize_callback' => function( $value ) { return in_array( $value, array( 'standard', 'centered', 'dark' ), true ) ? $value : 'standard'; },
@@ -147,10 +156,11 @@ function rss_prism_customize_register( $wp_customize ) {
 			},
 			'transport' => 'refresh',
 		) );
+		$control_section = in_array( $id, array( 'rss_prism_logo_width', 'rss_prism_logo_height' ), true ) ? 'rss_prism_header_controls' : 'rss_prism_navigation_controls';
 		$wp_customize->add_control( $id, array(
 			'label' => $cfg[4],
 			'description' => $cfg[5],
-			'section' => 'rss_prism_header_controls',
+			'section' => $control_section,
 			'type' => 'range',
 			'input_attrs' => array( 'min' => $cfg[1], 'max' => $cfg[2], 'step' => $cfg[3] ),
 		) );
@@ -162,7 +172,7 @@ function rss_prism_customize_register( $wp_customize ) {
 	) );
 	$wp_customize->add_control( 'rss_prism_menu_font_weight', array(
 		'label' => __( 'Menu text weight', 'rss-prism' ),
-		'section' => 'rss_prism_header_controls',
+		'section' => 'rss_prism_navigation_controls',
 		'type' => 'select',
 		'choices' => array( '400' => __( 'Regular', 'rss-prism' ), '500' => __( 'Medium', 'rss-prism' ), '600' => __( 'Semi-bold', 'rss-prism' ), '700' => __( 'Bold', 'rss-prism' ), '800' => __( 'Extra bold', 'rss-prism' ) ),
 	) );
@@ -173,15 +183,22 @@ function rss_prism_customize_register( $wp_customize ) {
 	) );
 	$wp_customize->add_control( 'rss_prism_menu_text_transform', array(
 		'label' => __( 'Menu letter style', 'rss-prism' ),
-		'section' => 'rss_prism_header_controls',
+		'section' => 'rss_prism_navigation_controls',
 		'type' => 'select',
 		'choices' => array( 'none' => __( 'Normal', 'rss-prism' ), 'uppercase' => __( 'UPPERCASE', 'rss-prism' ), 'capitalize' => __( 'Capitalize Words', 'rss-prism' ) ),
 	) );
 	$wp_customize->add_setting('rss_prism_header_border',array('default'=>true,'sanitize_callback'=>'rest_sanitize_boolean'));$wp_customize->add_control('rss_prism_header_border',array('label'=>__('Show header divider','rss-prism'),'section'=>'rss_prism_header_controls','type'=>'checkbox'));
 	$wp_customize->add_setting('rss_prism_header_padding',array('default'=>'normal','sanitize_callback'=>function($v){return in_array($v,array('compact','normal','spacious'),true)?$v:'normal';}));$wp_customize->add_control('rss_prism_header_padding',array('label'=>__('Header spacing','rss-prism'),'section'=>'rss_prism_header_controls','type'=>'select','choices'=>array('compact'=>__('Compact','rss-prism'),'normal'=>__('Comfortable','rss-prism'),'spacious'=>__('Spacious','rss-prism'))));
+
+	$wp_customize->add_section( 'rss_prism_footer_layout', array(
+		'title' => __( 'Footer Layout & Visibility', 'rss-prism' ),
+		'panel' => 'rss_prism_panel',
+		'priority' => 85,
+		'description' => __( 'Control footer alignment, columns, logo placement, spacing and which elements appear.', 'rss-prism' ),
+	) );
 	$footer_choices=array('rss_prism_footer_alignment'=>array('left',array('left'=>__('Left aligned','rss-prism'),'center'=>__('Centered','rss-prism'),'right'=>__('Right aligned','rss-prism'))),'rss_prism_footer_columns'=>array('three',array('one'=>__('One column','rss-prism'),'two'=>__('Two columns','rss-prism'),'three'=>__('Three columns','rss-prism'))),'rss_prism_footer_logo_position'=>array('left',array('left'=>__('Logo above text','rss-prism'),'right'=>__('Logo beside text','rss-prism'))),'rss_prism_footer_spacing'=>array('normal',array('compact'=>__('Compact','rss-prism'),'normal'=>__('Comfortable','rss-prism'),'spacious'=>__('Spacious','rss-prism'))));
-	foreach($footer_choices as $id=>$cfg){$wp_customize->add_setting($id,array('default'=>$cfg[0],'sanitize_callback'=>function($v)use($cfg){return array_key_exists($v,$cfg[1])?$v:$cfg[0];}));$wp_customize->add_control($id,array('label'=>ucwords(str_replace(array('rss_prism_','_'),array('',' '),$id)),'section'=>'rss_prism_footer','type'=>'select','choices'=>$cfg[1]));}
-	foreach(array('rss_prism_footer_show_logo'=>__('Show site logo in footer','rss-prism'),'rss_prism_footer_show_menu'=>__('Show footer navigation','rss-prism'),'rss_prism_footer_show_widgets'=>__('Show footer widget columns','rss-prism')) as $id=>$label){$wp_customize->add_setting($id,array('default'=>true,'sanitize_callback'=>'rest_sanitize_boolean'));$wp_customize->add_control($id,array('label'=>$label,'section'=>'rss_prism_footer','type'=>'checkbox'));}
+	foreach($footer_choices as $id=>$cfg){$wp_customize->add_setting($id,array('default'=>$cfg[0],'sanitize_callback'=>function($v)use($cfg){return array_key_exists($v,$cfg[1])?$v:$cfg[0];}));$wp_customize->add_control($id,array('label'=>ucwords(str_replace(array('rss_prism_','_'),array('',' '),$id)),'section'=>'rss_prism_footer_layout','type'=>'select','choices'=>$cfg[1]));}
+	foreach(array('rss_prism_footer_show_logo'=>__('Show site logo in footer','rss-prism'),'rss_prism_footer_show_menu'=>__('Show footer navigation','rss-prism'),'rss_prism_footer_show_widgets'=>__('Show footer widget columns','rss-prism')) as $id=>$label){$wp_customize->add_setting($id,array('default'=>true,'sanitize_callback'=>'rest_sanitize_boolean'));$wp_customize->add_control($id,array('label'=>$label,'section'=>'rss_prism_footer_layout','type'=>'checkbox'));}
 
 }
 add_action( 'customize_register', 'rss_prism_customize_register' );

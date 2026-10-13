@@ -99,6 +99,9 @@ jobs:
           grep -Fq "function hasElement(type, element)" products/rss-prism-theme/assets/js/theme-studio.js
           grep -Fq 'function rss_prism_studio_render_palette($elements, $type)' products/rss-prism-theme/inc/theme-studio.php
           grep -Fq 'Add elements by category' products/rss-prism-theme/inc/theme-studio.php
+          grep -Fq "rss_prism_navigation_controls" products/rss-prism-theme/functions.php
+          grep -Fq "rss_prism_footer_layout" products/rss-prism-theme/functions.php
+          grep -Fq "Navigation & Menu Typography" products/rss-prism-theme/functions.php
           grep -Fq '.rp-studio-palette-group' products/rss-prism-theme/assets/css/theme-studio.css
 
       - name: Check source performance budgets
