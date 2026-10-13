@@ -39,6 +39,18 @@ function rss_prism_studio_layout($type) {
 			return in_array($item, $allowed, true);
 		})));
 	}
+	// Each header/footer element can appear only once across all rows.
+	// This also cleans up duplicate items saved by older Studio versions.
+	$seen = array();
+	foreach ($rows as $row_index => $items) {
+		$rows[$row_index] = array_values(array_filter($items, function($item) use (&$seen) {
+			if (isset($seen[$item])) {
+				return false;
+			}
+			$seen[$item] = true;
+			return true;
+		}));
+	}
 	return $rows;
 }
 
@@ -260,6 +272,17 @@ function rss_prism_save_studio() {
 				}
 			}
 			$rows[] = $clean;
+		}
+		// De-duplicate across rows as well as within each row before saving.
+		$seen = array();
+		foreach ($rows as $row_index => $items) {
+			$rows[$row_index] = array_values(array_filter($items, function($item) use (&$seen) {
+				if (isset($seen[$item])) {
+					return false;
+				}
+				$seen[$item] = true;
+				return true;
+			}));
 		}
 		if ('footer' === $type) {
 			foreach ($rows as $row_index => $row_items) {

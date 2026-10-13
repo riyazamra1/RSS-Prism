@@ -85,6 +85,19 @@ jobs:
           grep -Fq "if (!item.alt && attachment.alt) fields.alt = attachment.alt;" products/rss-prism-builder/assets/builder.js
           grep -Fq "commitItems(items.map((entry, index) => index !== selected ? entry : { ...entry, ...fields }))" products/rss-prism-builder/assets/builder.js
 
+      - name: Guard welcome dismissal and Studio duplicate prevention
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -Fq "admin_post_rss_prism_dismiss_welcome" products/rss-prism-theme/functions.php
+          if grep -Fq "rss_prism_admin_welcome_script" products/rss-prism-theme/functions.php; then
+            echo "::error::Welcome dismissal must use the native nonce-protected admin action."
+            exit 1
+          fi
+          grep -Fq "Each header/footer element can appear only once across all rows." products/rss-prism-theme/inc/theme-studio.php
+          grep -Fq "De-duplicate across rows as well as within each row before saving." products/rss-prism-theme/inc/theme-studio.php
+          grep -Fq "function hasElement(type, element)" products/rss-prism-theme/assets/js/theme-studio.js
+
       - name: Check source performance budgets
         shell: bash
         run: |

@@ -285,13 +285,7 @@ function rss_prism_admin_welcome_styles($hook){
 }
 add_action('admin_enqueue_scripts','rss_prism_admin_welcome_styles');
 
-function rss_prism_admin_welcome_script($hook){
-	if('themes.php'!==$hook) return;
-	wp_register_script('rss-prism-welcome-actions',false,array(),wp_get_theme()->get('Version'),true);
-	wp_enqueue_script('rss-prism-welcome-actions');
-	wp_add_inline_script('rss-prism-welcome-actions',"(function(){document.addEventListener('click',function(e){var link=e.target.closest('.rp-welcome-hide');if(!link||!window.fetch||!window.FormData)return;e.preventDefault();var card=link.closest('.rp-welcome-notice');var data=new FormData();data.append('action','rss_prism_dismiss_welcome');data.append('nonce',link.getAttribute('data-nonce')||'');link.setAttribute('aria-disabled','true');fetch(ajaxurl,{method:'POST',credentials:'same-origin',body:data}).then(function(r){if(!r.ok)throw new Error('Dismiss failed');return r.json();}).then(function(result){if(!result||!result.success)throw new Error('Dismiss failed');if(card)card.remove();}).catch(function(){window.location.href=link.href;});});})();");
-}
-add_action('admin_enqueue_scripts','rss_prism_admin_welcome_script');
+
 
 
 require_once get_template_directory() . '/inc/theme-studio.php';
