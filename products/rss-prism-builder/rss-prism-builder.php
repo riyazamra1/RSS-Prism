@@ -3,7 +3,7 @@
  * Plugin Name: RSS Prism Builder
  * Plugin URI: https://www.rsscctvsolution.eu.cc/
  * Description: Free visual page builder. Theme design tools: Dashboard → Appearance → RSS Prism Studio.
- * Version: 0.19.0
+ * Version: 0.19.1
  * Requires at least: 6.4
  * Requires PHP: 7.4
  * Author: Razeen Secure Solution
@@ -15,7 +15,7 @@
 defined( 'ABSPATH' ) || exit;
 
 require_once __DIR__ . '/includes/auto-updates.php';
-define( 'RSS_PRISM_BUILDER_VERSION', '0.19.0' );
+define( 'RSS_PRISM_BUILDER_VERSION', '0.19.1' );
 
 function rss_prism_builder_register_templates() {
 	register_post_type( 'rss_prism_template', array(
@@ -434,6 +434,27 @@ function rss_prism_builder_welcome_submenu() {
 }
 add_action( 'admin_menu', 'rss_prism_builder_welcome_submenu', 20 );
 
+function rss_prism_builder_default_starter_layout() {
+	$layout = array(
+		array( 'id' => 'starter-section', 'type' => 'section', 'text' => 'Razeen Secure Solution' ),
+		array( 'id' => 'starter-heading', 'type' => 'heading', 'text' => 'Developing Ideas. Delivering Solutions.', 'font_size' => 36, 'align' => 'left' ),
+		array( 'id' => 'starter-intro', 'type' => 'text', 'text' => 'Software development, CCTV solutions, networking, cloud services, and practical AI solutions.' ),
+		array(
+			'id' => 'starter-columns',
+			'type' => 'columns',
+			'columns_count' => 3,
+			'column_contents' => array( 'Software & AI solutions', 'CCTV & networking', 'Cloud & system support' ),
+			'column_elements' => array(
+				array( array( 'id' => 'starter-col1-title', 'type' => 'heading', 'text' => 'Software & AI solutions' ), array( 'id' => 'starter-col1-text', 'type' => 'text', 'text' => 'Build practical digital tools for everyday work.' ) ),
+				array( array( 'id' => 'starter-col2-title', 'type' => 'heading', 'text' => 'CCTV & networking' ), array( 'id' => 'starter-col2-text', 'type' => 'text', 'text' => 'Connect sites and improve security visibility.' ) ),
+				array( array( 'id' => 'starter-col3-title', 'type' => 'heading', 'text' => 'Cloud & system support' ), array( 'id' => 'starter-col3-text', 'type' => 'text', 'text' => 'Keep systems connected, useful, and maintainable.' ) ),
+			),
+		),
+		array( 'id' => 'starter-cta', 'type' => 'button', 'text' => 'Explore RSS', 'url' => 'https://www.rsscctvsolution.eu.cc/', 'button_bg' => '#b88a2b', 'button_text' => '#ffffff' ),
+	);
+	return rss_prism_builder_sanitize_layout( $layout );
+}
+
 function rss_prism_builder_render_admin_page() {
 	if ( ! current_user_can( 'edit_posts' ) ) { return; }
 
@@ -449,24 +470,7 @@ function rss_prism_builder_render_admin_page() {
 			'post_author' => get_current_user_id(),
 		), true );
 		if ( ! is_wp_error( $new_id ) ) {
-			$starter_layout = array(
-				array( 'id' => 'starter-section', 'type' => 'section', 'text' => 'Razeen Secure Solution' ),
-				array( 'id' => 'starter-heading', 'type' => 'heading', 'text' => 'Developing Ideas. Delivering Solutions.', 'font_size' => 36, 'align' => 'left' ),
-				array( 'id' => 'starter-intro', 'type' => 'text', 'text' => 'Software development, CCTV solutions, networking, cloud services, and practical AI solutions.' ),
-				array(
-					'id' => 'starter-columns',
-					'type' => 'columns',
-					'columns_count' => 3,
-					'column_contents' => array( 'Software & AI solutions', 'CCTV & networking', 'Cloud & system support' ),
-					'column_elements' => array(
-						array( array( 'id' => 'starter-col1-title', 'type' => 'heading', 'text' => 'Software & AI solutions' ), array( 'id' => 'starter-col1-text', 'type' => 'text', 'text' => 'Build practical digital tools for everyday work.' ) ),
-						array( array( 'id' => 'starter-col2-title', 'type' => 'heading', 'text' => 'CCTV & networking' ), array( 'id' => 'starter-col2-text', 'type' => 'text', 'text' => 'Connect sites and improve security visibility.' ) ),
-						array( array( 'id' => 'starter-col3-title', 'type' => 'heading', 'text' => 'Cloud & system support' ), array( 'id' => 'starter-col3-text', 'type' => 'text', 'text' => 'Keep systems connected, useful, and maintainable.' ) ),
-					),
-				),
-				array( 'id' => 'starter-cta', 'type' => 'button', 'text' => 'Explore RSS', 'url' => 'https://www.rsscctvsolution.eu.cc/', 'button_bg' => '#b88a2b', 'button_text' => '#ffffff' ),
-			);
-			$clean_layout = rss_prism_builder_sanitize_layout( $starter_layout );
+			$clean_layout = rss_prism_builder_default_starter_layout();
 			update_post_meta( $new_id, '_rss_prism_layout', is_wp_error( $clean_layout ) ? array() : $clean_layout );
 			wp_safe_redirect( add_query_arg( array( 'page' => 'rss-prism-builder', 'post_id' => $new_id ), admin_url( 'admin.php' ) ) );
 			exit;
@@ -495,7 +499,8 @@ function rss_prism_builder_render_admin_page() {
 			'post_author' => get_current_user_id(),
 		), true );
 		if ( ! is_wp_error( $first_id ) ) {
-			update_post_meta( $first_id, '_rss_prism_layout', array() );
+			$starter_layout = rss_prism_builder_default_starter_layout();
+			update_post_meta( $first_id, '_rss_prism_layout', is_wp_error( $starter_layout ) ? array() : $starter_layout );
 			wp_safe_redirect( add_query_arg( array( 'page' => 'rss-prism-builder', 'post_id' => $first_id ), admin_url( 'admin.php' ) ) );
 			exit;
 		}

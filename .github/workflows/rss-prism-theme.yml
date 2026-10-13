@@ -61,6 +61,9 @@ jobs:
           grep -Fq "'type' => 'columns'" "$PHP"
           grep -Fq "'type' => 'button'" "$PHP"
           grep -Fq "update_post_meta( \$new_id, '_rss_prism_layout'" "$PHP"
+          grep -Fq "function rss_prism_builder_default_starter_layout()" "$PHP"
+          grep -Fq "rss_prism_builder_default_starter_layout()" "$PHP"
+          grep -Fq "update_post_meta( \$first_id, '_rss_prism_layout'" "$PHP"
 
       - name: Guard the welcome-screen create-template shortcut
         shell: bash
