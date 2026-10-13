@@ -52,6 +52,16 @@ jobs:
           grep -Fq "current_user_can( 'update_plugins' )" "$UPDATER"
           grep -Fq "check_admin_referer( 'rss_prism_builder_check_updates' )" "$UPDATER"
 
+      - name: Guard new-template starter content
+        shell: bash
+        run: |
+          set -euo pipefail
+          PHP=products/rss-prism-builder/rss-prism-builder.php
+          grep -Fq "rss_prism_builder_sanitize_layout( \$starter_layout )" "$PHP"
+          grep -Fq "'type' => 'columns'" "$PHP"
+          grep -Fq "'type' => 'button'" "$PHP"
+          grep -Fq "update_post_meta( \$new_id, '_rss_prism_layout'" "$PHP"
+
       - name: Guard the welcome-screen create-template shortcut
         shell: bash
         run: |
