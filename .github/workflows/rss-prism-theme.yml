@@ -57,7 +57,7 @@ jobs:
         run: |
           set -euo pipefail
           PHP=products/rss-prism-builder/rss-prism-builder.php
-          grep -Fq "rss_prism_builder_sanitize_layout( \$starter_layout )" "$PHP"
+          grep -Fq "return rss_prism_builder_sanitize_layout( \$layout )" "$PHP"
           grep -Fq "'type' => 'columns'" "$PHP"
           grep -Fq "'type' => 'button'" "$PHP"
           grep -Fq "update_post_meta( \$new_id, '_rss_prism_layout'" "$PHP"
