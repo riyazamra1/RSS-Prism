@@ -1,12 +1,12 @@
 === RSS Prism Builder ===
 
-Version 0.22.4 corrects the runtime version constant so WordPress update comparisons match the plugin header. Version 0.22.3 hardens GitHub release asset validation, prevents empty release lookups from being cached, reconciles stale WordPress update/no-update metadata, and declares a unique Update URI so WordPress can route this plugin away from WordPress.org. Version 0.22.2 restores explicit tablet/mobile preview-width and column-layout guards. Version 0.22.1 keeps the visual workspace within the plugin's CSS performance budget while preserving the new editor layout and responsive controls. Version 0.22.0 redesigns the editor into a focused visual workspace: live page canvas in the center, layer list on the left, contextual element settings on the right, responsive preview controls, a compact design toolbar, and drag-from-palette/drop-on-canvas element insertion. Click an element in the live canvas to select it for editing. This is an original RSS Prism interface inspired by common visual-builder workflows; it is not a copy of proprietary Divi, Elementor, or Themify code.
+Version 0.22.5 fixes the expired-link issue when opening existing pages: clicking “Edit with RSS Prism Builder” now opens a fresh confirmation screen and performs page conversion through a nonce-protected POST, with a clear recovery message if the confirmation expires. Version 0.22.4 corrects the runtime version constant so WordPress update comparisons match the plugin header. Version 0.22.3 hardens GitHub release asset validation, prevents empty release lookups from being cached, reconciles stale WordPress update/no-update metadata, and declares a unique Update URI so WordPress can route this plugin away from WordPress.org. Version 0.22.2 restores explicit tablet/mobile preview-width and column-layout guards. Version 0.22.1 keeps the visual workspace within the plugin's CSS performance budget while preserving the new editor layout and responsive controls. Version 0.22.0 redesigns the editor into a focused visual workspace: live page canvas in the center, layer list on the left, contextual element settings on the right, responsive preview controls, a compact design toolbar, and drag-from-palette/drop-on-canvas element insertion. Click an element in the live canvas to select it for editing. This is an original RSS Prism interface inspired by common visual-builder workflows; it is not a copy of proprietary Divi, Elementor, or Themify code.
 Contributors: riyazamra1
 Tags: page-builder, layout, templates
 Requires at least: 6.4
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 0.22.4
+Stable tag: 0.22.5
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
