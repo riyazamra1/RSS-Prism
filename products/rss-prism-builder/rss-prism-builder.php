@@ -2,8 +2,9 @@
 /**
  * Plugin Name: RSS Prism Builder
  * Plugin URI: https://www.rsscctvsolution.eu.cc/
+ * Update URI: https://github.com/riyazamra1/RSS-Prism/
  * Description: Free visual page builder. Theme design tools: Dashboard → Appearance → RSS Prism Studio.
- * Version: 0.22.2
+ * Version: 0.22.3
  * Requires at least: 6.4
  * Requires PHP: 7.4
  * Author: Razeen Secure Solution
