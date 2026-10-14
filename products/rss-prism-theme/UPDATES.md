@@ -1,5 +1,12 @@
 # RSS Prism theme updates
 
+## Version 1.3.6
+
+- Refined Customizer section ordering and descriptions so design controls are easier to locate.
+- Kept the existing setting IDs and saved theme options intact for upgrade compatibility.
+- Published the matching stable tag and installable ZIP so WordPress can discover this version through the native theme updater.
+
+
 ## Version 1.3.1
 
 - Added adjustable logo width and height sliders.
