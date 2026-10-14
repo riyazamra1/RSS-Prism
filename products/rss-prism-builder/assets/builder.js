@@ -34,6 +34,7 @@
 		const [notice, setNotice] = useState('');
 		const [busy, setBusy] = useState(false);
 		const [copyTitle, setCopyTitle] = useState('');
+		const [pageTitle, setPageTitle] = useState('');
 		const [preview, setPreview] = useState('desktop');
 		const [history, setHistory] = useState([]);
 		const [future, setFuture] = useState([]);
@@ -144,7 +145,7 @@
 				const response = await fetch(config.restUrl, { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': config.nonce }, body: JSON.stringify({ post_id: config.postId, layout: items }) });
 				const result = await response.json();
 				if (!response.ok || !result.saved) throw new Error(result.message || 'Save failed.');
-				setNotice('Saved. Publish the Prism Template and place [rss_prism_canvas id="' + config.postId + '"] on a page to display it.');
+				setNotice('Layout saved to WordPress. You can now create a real WordPress page from this design.');
 			} catch (error) { setNotice(error.message || 'Could not save the layout.'); }
 			finally { setBusy(false); }
 		};
@@ -178,6 +179,18 @@
 			commitItems(clone(version.layout));
 			setSelected(0);
 			setNotice('Version restored in the editor. Autosave will store it to WordPress shortly.');
+		};
+		const createWordPressPage = async () => {
+			const title = pageTitle.trim();
+			if (!title) { setNotice('Enter a title for the WordPress page first.'); return; }
+			setBusy(true); setNotice('Saving the layout and creating your WordPress draft page…');
+			try {
+				const response = await fetch(config.publishUrl, { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': config.nonce }, body: JSON.stringify({ post_id: config.postId, page_title: title, layout: items }) });
+				const result = await response.json();
+				if (!response.ok || !result.created || !result.edit_url) throw new Error(result.message || 'Could not create the WordPress page.');
+				setNotice('WordPress draft page created successfully. Opening its WordPress editor…');
+				window.location.href = result.edit_url;
+			} catch (error) { setNotice(error.message || 'Could not create the WordPress page.'); setBusy(false); }
 		};
 		const copyTemplate = async () => {
 			const title = copyTitle.trim();
@@ -270,7 +283,7 @@
 				h('div', { className: 'rss-prism-autosave-status', role: 'status', 'aria-live': 'polite' }, h('span', { className: autosaveStatus.startsWith('Autosaved') ? 'is-saved' : autosaveStatus.startsWith('Autosave failed') ? 'is-error' : '' }, 'Autosave: ' + autosaveStatus)),
 				restoreVersions.length ? h('details', { className: 'rss-prism-restore-history' }, h('summary', null, 'Restore history (' + restoreVersions.length + ')'), h('p', { className: 'description' }, 'Browser-local recovery list for this template. Up to 20 prior layouts are kept in this browser; export JSON for an independent backup.'), h('ol', null, ...restoreVersions.map(version => h('li', { key: version.id }, h('span', null, new Date(version.saved_at).toLocaleString()), h('button', { type: 'button', className: 'button button-small', onClick: () => restoreVersion(version) }, 'Restore'))))) : h('p', { className: 'description rss-prism-no-history' }, 'No browser restore versions yet. Make a change to start the recovery list.'),
 				h('div', { className: 'rss-prism-builder-actions' }, h('button', { type: 'button', className: 'button', disabled: !history.length, onClick: undo }, 'Undo'), h('button', { type: 'button', className: 'button', disabled: !future.length, onClick: redo }, 'Redo'), h('button', { type: 'button', className: 'button', onClick: exportLayout }, 'Export JSON backup'), h('button', { type: 'button', className: 'button', onClick: () => { const input = root.querySelector('#rss-prism-layout-import'); if (input) input.click(); } }, 'Import JSON'), h('button', { type: 'button', className: 'button button-primary', disabled: busy, onClick: save }, busy ? 'Saving…' : 'Save layout'), h('input', { id: 'rss-prism-layout-import', type: 'file', accept: 'application/json,.json', onChange: importLayout, hidden: true, 'aria-label': 'Import RSS Prism layout JSON' })),
-				h('div', { className: 'rss-prism-template-copy' }, h('label', { htmlFor: 'rss-prism-copy-title' }, 'Reusable template name'), h('input', { id: 'rss-prism-copy-title', type: 'text', value: copyTitle, placeholder: 'e.g. RSS Services Landing', onChange: e => setCopyTitle(e.target.value), maxLength: 120 }), h('button', { type: 'button', className: 'button', disabled: busy, onClick: copyTemplate }, 'Save as new draft template'))),
+				h('div', { className: 'rss-prism-template-copy' }, h('label', { htmlFor: 'rss-prism-page-title' }, 'WordPress page title'), h('input', { id: 'rss-prism-page-title', type: 'text', value: pageTitle, placeholder: 'e.g. Services', onChange: e => setPageTitle(e.target.value), maxLength: 120 }), h('button', { type: 'button', className: 'button button-primary', disabled: busy, onClick: createWordPressPage }, busy ? 'Creating page…' : 'Create WordPress draft page'), h('label', { htmlFor: 'rss-prism-copy-title' }, 'Reusable template name'), h('input', { id: 'rss-prism-copy-title', type: 'text', value: copyTitle, placeholder: 'e.g. RSS Services Landing', onChange: e => setCopyTitle(e.target.value), maxLength: 120 }), h('button', { type: 'button', className: 'button', disabled: busy, onClick: copyTemplate }, 'Save as new draft template'))),
 			notice ? h('div', { className: 'notice notice-info rss-prism-builder-notice', role: 'status' }, h('p', null, notice)) : null,
 			h('div', { className: 'rss-prism-preview-toolbar' }, h('strong', null, 'Responsive preview'), ...[['desktop','Desktop'],['tablet','Tablet'],['mobile','Mobile']].map(pair => h('button', { key: pair[0], type: 'button', className: 'button ' + (preview === pair[0] ? 'button-primary' : ''), onClick: () => setPreview(pair[0]), 'aria-pressed': preview === pair[0] }, pair[1]))),
 			h('div', { className: 'rss-prism-builder-workspace' },
