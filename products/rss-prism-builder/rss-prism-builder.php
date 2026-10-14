@@ -3,7 +3,7 @@
  * Plugin Name: RSS Prism Builder
  * Plugin URI: https://www.rsscctvsolution.eu.cc/
  * Description: Free visual page builder. Theme design tools: Dashboard → Appearance → RSS Prism Studio.
- * Version: 0.19.1
+ * Version: 0.20.0
  * Requires at least: 6.4
  * Requires PHP: 7.4
  * Author: Razeen Secure Solution
@@ -15,7 +15,7 @@
 defined( 'ABSPATH' ) || exit;
 
 require_once __DIR__ . '/includes/auto-updates.php';
-define( 'RSS_PRISM_BUILDER_VERSION', '0.19.1' );
+define( 'RSS_PRISM_BUILDER_VERSION', '0.20.0' );
 
 function rss_prism_builder_register_templates() {
 	register_post_type( 'rss_prism_template', array(
@@ -238,6 +238,16 @@ function rss_prism_builder_register_rest_routes() {
 			'layout' => array( 'required' => true, 'type' => 'array' ),
 		),
 	) );
+	register_rest_route( 'rss-prism/v1', '/publish-page', array(
+		'methods' => WP_REST_Server::CREATABLE,
+		'callback' => 'rss_prism_builder_create_wordpress_page',
+		'permission_callback' => 'rss_prism_builder_rest_can_edit_template',
+		'args' => array(
+			'post_id' => array( 'required' => true, 'type' => 'integer', 'sanitize_callback' => 'absint' ),
+			'page_title' => array( 'required' => true, 'type' => 'string', 'sanitize_callback' => 'sanitize_text_field' ),
+			'layout' => array( 'required' => true, 'type' => 'array' ),
+		),
+	) );
 	register_rest_route( 'rss-prism/v1', '/layout', array(
 		'methods' => WP_REST_Server::CREATABLE,
 		'callback' => 'rss_prism_builder_save_layout',
@@ -264,6 +274,42 @@ function rss_prism_builder_copy_template( WP_REST_Request $request ) {
 	if ( is_wp_error( $new_id ) ) { return $new_id; }
 	update_post_meta( $new_id, '_rss_prism_layout', $layout );
 	return rest_ensure_response( array( 'created' => true, 'post_id' => $new_id, 'edit_url' => add_query_arg( array( 'page' => 'rss-prism-builder', 'post_id' => $new_id ), admin_url( 'admin.php' ) ) ) );
+}
+
+function rss_prism_builder_create_wordpress_page( WP_REST_Request $request ) {
+	$template_id = absint( $request->get_param( 'post_id' ) );
+	$template = get_post( $template_id );
+	if ( ! $template || 'rss_prism_template' !== $template->post_type || ! current_user_can( 'edit_post', $template_id ) ) {
+		return new WP_Error( 'invalid_template', __( 'Choose a valid Prism template first.', 'rss-prism-builder' ), array( 'status' => 404 ) );
+	}
+	$page_title = sanitize_text_field( $request->get_param( 'page_title' ) );
+	if ( '' === $page_title ) {
+		return new WP_Error( 'missing_page_title', __( 'Enter a title for the WordPress page.', 'rss-prism-builder' ), array( 'status' => 400 ) );
+	}
+	$layout = rss_prism_builder_sanitize_layout( $request->get_param( 'layout' ) );
+	if ( is_wp_error( $layout ) ) { return $layout; }
+	update_post_meta( $template_id, '_rss_prism_layout', $layout );
+	// The template is an internal content source. Publishing it enables the
+	// shortcode renderer; the actual WordPress page remains a draft for review.
+	$published_template = wp_update_post( array( 'ID' => $template_id, 'post_status' => 'publish' ), true );
+	if ( is_wp_error( $published_template ) ) { return $published_template; }
+	$page_id = wp_insert_post( array(
+		'post_type' => 'page',
+		'post_status' => 'draft',
+		'post_title' => $page_title,
+		'post_content' => '[rss_prism_canvas id="' . $template_id . '"]',
+		'post_author' => get_current_user_id(),
+	), true );
+	if ( is_wp_error( $page_id ) ) { return $page_id; }
+	update_post_meta( $page_id, '_rss_prism_builder_source_template', $template_id );
+	return rest_ensure_response( array(
+		'created' => true,
+		'page_id' => $page_id,
+		'page_title' => get_the_title( $page_id ),
+		'edit_url' => get_edit_post_link( $page_id, 'raw' ),
+		'preview_url' => get_preview_post_link( $page_id ),
+		'message' => __( 'WordPress draft page created. Review it and publish it when ready.', 'rss-prism-builder' ),
+	) );
 }
 
 function rss_prism_builder_save_layout( WP_REST_Request $request ) {
@@ -513,7 +559,7 @@ function rss_prism_builder_render_admin_page() {
 	?>
 	<div class="wrap rss-prism-admin-wrap">
 		<h1><?php esc_html_e( 'RSS Prism Builder', 'rss-prism-builder' ); ?></h1>
-		<p><?php esc_html_e( 'Build a starter layout with draggable elements. This is an early builder MVP, not the complete visual editor.', 'rss-prism-builder' ); ?></p>
+		<p><?php esc_html_e( 'Build and save layouts, then create real WordPress draft pages directly from the visual builder.', 'rss-prism-builder' ); ?></p>
 		<div class="rss-prism-live-test-guide">
 			<h2><?php esc_html_e( 'Live WordPress test checklist', 'rss-prism-builder' ); ?></h2>
 			<ol>
@@ -544,7 +590,7 @@ function rss_prism_builder_render_admin_page() {
 		<?php if ( '' !== $template_search && ! $templates ) : ?><div class="notice notice-warning inline"><p><?php esc_html_e( 'No templates matched that search. Try another title or clear the search.', 'rss-prism-builder' ); ?></p></div><?php endif; ?>
 		<?php if ( $selected ) : ?>
 			<div id="rss-prism-builder-app"></div>
-			<script type="application/json" id="rss-prism-builder-data"><?php echo wp_json_encode( array( 'postId' => $selected_id, 'layout' => array_values( $layout ), 'nonce' => wp_create_nonce( 'wp_rest' ), 'restUrl' => esc_url_raw( rest_url( 'rss-prism/v1/layout' ) ), 'copyUrl' => esc_url_raw( rest_url( 'rss-prism/v1/template-copy' ) ) ), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT ); ?></script>
+			<script type="application/json" id="rss-prism-builder-data"><?php echo wp_json_encode( array( 'postId' => $selected_id, 'layout' => array_values( $layout ), 'nonce' => wp_create_nonce( 'wp_rest' ), 'restUrl' => esc_url_raw( rest_url( 'rss-prism/v1/layout' ) ), 'copyUrl' => esc_url_raw( rest_url( 'rss-prism/v1/template-copy' ) ), 'publishUrl' => esc_url_raw( rest_url( 'rss-prism/v1/publish-page' ) ) ), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT ); ?></script>
 		<?php else : ?>
 			<div class="notice notice-info"><p><?php esc_html_e( 'Create a Prism Template, then select it here to start arranging content.', 'rss-prism-builder' ); ?></p></div>
 		<?php endif; ?>
