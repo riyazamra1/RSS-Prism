@@ -3,7 +3,7 @@
  * Plugin Name: RSS Prism Builder
  * Plugin URI: https://www.rsscctvsolution.eu.cc/
  * Description: Free visual page builder. Theme design tools: Dashboard → Appearance → RSS Prism Studio.
- * Version: 0.20.0
+ * Version: 0.21.0
  * Requires at least: 6.4
  * Requires PHP: 7.4
  * Author: Razeen Secure Solution
@@ -15,7 +15,7 @@
 defined( 'ABSPATH' ) || exit;
 
 require_once __DIR__ . '/includes/auto-updates.php';
-define( 'RSS_PRISM_BUILDER_VERSION', '0.20.0' );
+define( 'RSS_PRISM_BUILDER_VERSION', '0.21.0' );
 
 function rss_prism_builder_register_templates() {
 	register_post_type( 'rss_prism_template', array(
@@ -501,8 +501,121 @@ function rss_prism_builder_default_starter_layout() {
 	return rss_prism_builder_sanitize_layout( $layout );
 }
 
+
+/**
+ * Convert common WordPress blocks into the builder's supported layout format.
+ * The full original content is backed up before the page is connected.
+ */
+function rss_prism_builder_blocks_to_layout( $blocks ) {
+	$layout = array();
+	foreach ( $blocks as $block ) {
+		$name = $block['blockName'] ?? '';
+		$attrs = is_array( $block['attrs'] ?? null ) ? $block['attrs'] : array();
+		$inner = is_array( $block['innerBlocks'] ?? null ) ? $block['innerBlocks'] : array();
+		$text = trim( wp_strip_all_tags( $block['innerHTML'] ?? '' ) );
+		if ( 'core/heading' === $name && '' !== $text ) {
+			$layout[] = array( 'id' => wp_generate_uuid4(), 'type' => 'heading', 'text' => $text, 'font_size' => 32 );
+		} elseif ( 'core/paragraph' === $name && '' !== $text ) {
+			$layout[] = array( 'id' => wp_generate_uuid4(), 'type' => 'text', 'text' => $text );
+		} elseif ( 'core/image' === $name ) {
+			$url = '';
+			if ( ! empty( $attrs['id'] ) ) { $url = wp_get_attachment_image_url( absint( $attrs['id'] ), 'full' ) ?: ''; }
+			if ( ! $url && ! empty( $attrs['url'] ) ) { $url = esc_url_raw( $attrs['url'] ); }
+			if ( $url ) { $layout[] = array( 'id' => wp_generate_uuid4(), 'type' => 'image', 'text' => '', 'image_url' => $url, 'alt' => sanitize_text_field( $attrs['alt'] ?? '' ) ); }
+		} elseif ( 'core/button' === $name ) {
+			$url = esc_url_raw( $attrs['url'] ?? '' );
+			if ( '' !== $text && $url ) { $layout[] = array( 'id' => wp_generate_uuid4(), 'type' => 'button', 'text' => $text, 'url' => $url ); }
+		} elseif ( 'core/columns' === $name ) {
+			$columns = array();
+			foreach ( $inner as $column_index => $column_block ) {
+				$children = array();
+				$column_blocks = is_array( $column_block['innerBlocks'] ?? null ) ? $column_block['innerBlocks'] : array();
+				foreach ( $column_blocks as $child_block ) {
+					$child_name = $child_block['blockName'] ?? '';
+					$child_text = trim( wp_strip_all_tags( $child_block['innerHTML'] ?? '' ) );
+					if ( '' === $child_text ) { continue; }
+					if ( 'core/heading' === $child_name ) {
+						$children[] = array( 'id' => wp_generate_uuid4(), 'type' => 'heading', 'text' => $child_text );
+					} elseif ( 'core/paragraph' === $child_name ) {
+						$children[] = array( 'id' => wp_generate_uuid4(), 'type' => 'text', 'text' => $child_text );
+					} elseif ( 'core/button' === $child_name && ! empty( $child_block['attrs']['url'] ) ) {
+						$children[] = array( 'id' => wp_generate_uuid4(), 'type' => 'button', 'text' => $child_text, 'url' => esc_url_raw( $child_block['attrs']['url'] ) );
+					}
+				}
+				$columns[] = $children;
+			}
+			if ( count( $columns ) >= 2 ) {
+				$count = min( 3, count( $columns ) );
+				$layout[] = array( 'id' => wp_generate_uuid4(), 'type' => 'columns', 'columns_count' => $count, 'column_elements' => array_slice( $columns, 0, $count ) );
+			}
+		} elseif ( ! empty( $inner ) ) {
+			$layout = array_merge( $layout, rss_prism_builder_blocks_to_layout( $inner ) );
+		} elseif ( '' !== $text ) {
+			// Preserve visible text from unsupported block types in the editable layout.
+			$layout[] = array( 'id' => wp_generate_uuid4(), 'type' => 'text', 'text' => $text );
+		}
+	}
+	return $layout;
+}
+
+function rss_prism_builder_add_page_editor_box() {
+	if ( ! current_user_can( 'edit_pages' ) ) { return; }
+	add_meta_box( 'rss-prism-builder-page-box', __( 'RSS Prism Builder', 'rss-prism-builder' ), 'rss_prism_builder_render_page_editor_box', 'page', 'side', 'high' );
+}
+add_action( 'add_meta_boxes_page', 'rss_prism_builder_add_page_editor_box' );
+
+function rss_prism_builder_render_page_editor_box( $post ) {
+	if ( ! current_user_can( 'edit_post', $post->ID ) ) { return; }
+	$url = wp_nonce_url( add_query_arg( array( 'page' => 'rss-prism-builder', 'edit_page_id' => $post->ID ), admin_url( 'admin.php' ) ), 'rss_prism_edit_page_' . $post->ID );
+	$template_id = absint( get_post_meta( $post->ID, '_rss_prism_builder_source_template', true ) );
+	echo '<p>' . esc_html__( 'Open this page in the visual builder. The original page content is backed up before conversion.', 'rss-prism-builder' ) . '</p>';
+	if ( $template_id ) {
+		echo '<p>' . esc_html__( 'This page is already connected to a Prism layout.', 'rss-prism-builder' ) . '</p>';
+	}
+	echo '<p><a class="button button-primary" href="' . esc_url( $url ) . '">' . esc_html__( 'Edit with RSS Prism Builder', 'rss-prism-builder' ) . '</a></p>';
+	if ( metadata_exists( 'post', $post->ID, '_rss_prism_builder_original_content' ) ) {
+		echo '<p class="description">' . esc_html__( 'A backup of the original page content is stored in page metadata.', 'rss-prism-builder' ) . '</p>';
+	}
+}
+
+function rss_prism_builder_handle_existing_page( $page_id ) {
+	$page_id = absint( $page_id );
+	$page = $page_id ? get_post( $page_id ) : null;
+	if ( ! $page || 'page' !== $page->post_type || ! current_user_can( 'edit_post', $page_id ) ) {
+		wp_die( esc_html__( 'You cannot edit this WordPress page with RSS Prism Builder.', 'rss-prism-builder' ), '', array( 'response' => 403 ) );
+	}
+	check_admin_referer( 'rss_prism_edit_page_' . $page_id );
+	$template_id = absint( get_post_meta( $page_id, '_rss_prism_builder_source_template', true ) );
+	$template = $template_id ? get_post( $template_id ) : null;
+	if ( ! $template || 'rss_prism_template' !== $template->post_type ) {
+		$original = $page->post_content;
+		$blocks = function_exists( 'parse_blocks' ) ? parse_blocks( $original ) : array();
+		$layout = rss_prism_builder_blocks_to_layout( $blocks );
+		if ( empty( $layout ) ) {
+			$plain = trim( wp_strip_all_tags( $original ) );
+			$layout = $plain ? array( array( 'id' => wp_generate_uuid4(), 'type' => 'text', 'text' => $plain ) ) : rss_prism_builder_default_starter_layout();
+		}
+		$new_id = wp_insert_post( array(
+			'post_type' => 'rss_prism_template',
+			'post_status' => 'publish',
+			'post_title' => sprintf( __( '%s — Prism Layout', 'rss-prism-builder' ), $page->post_title ),
+			'post_content' => '',
+			'post_author' => get_current_user_id(),
+		), true );
+		if ( is_wp_error( $new_id ) ) { wp_die( esc_html( $new_id->get_error_message() ), '', array( 'response' => 500 ) ); }
+		update_post_meta( $new_id, '_rss_prism_layout', rss_prism_builder_sanitize_layout( $layout ) );
+		update_post_meta( $page_id, '_rss_prism_builder_original_content', $original );
+		update_post_meta( $page_id, '_rss_prism_builder_source_template', $new_id );
+		$template_id = $new_id;
+		wp_update_post( array( 'ID' => $page_id, 'post_content' => '[rss_prism_canvas id="' . $template_id . '"]' ) );
+	}
+	wp_safe_redirect( add_query_arg( array( 'page' => 'rss-prism-builder', 'post_id' => $template_id, 'edit_page_id' => $page_id ), admin_url( 'admin.php' ) ) );
+	exit;
+}
+
 function rss_prism_builder_render_admin_page() {
 	if ( ! current_user_can( 'edit_posts' ) ) { return; }
+	if ( isset( $_GET['edit_page_id'] ) ) { rss_prism_builder_handle_existing_page( absint( $_GET['edit_page_id'] ) ); }
 
 	// Create a draft directly into the visual builder instead of sending users to
 	// the default WordPress post editor, which previously left the builder empty.
