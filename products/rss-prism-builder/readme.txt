@@ -4,13 +4,13 @@ Tags: page-builder, layout, templates
 Requires at least: 6.4
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 0.20.0
+Stable tag: 0.21.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 An early visual layout builder for RSS Prism. Version 0.19.1 ensures the automatic first-run template opens with the same editable starter content as manually created templates, preventing a blank first canvas. Version 0.19.0 makes “Create a template” start with editable RSS business-landing content, including a hero, three service columns and a call-to-action, so the new template is visibly populated when the builder opens. Version 0.18.9 fixes the welcome-screen “Create a template” shortcut so it creates a draft and opens the visual builder instead of sending users to the empty/default WordPress editor. Version 0.18.8 fixes responsive preview fidelity so columns collapse in mobile preview and use a two-column layout in tablet preview, matching the intended canvas width. Version 0.18.7 adds direct nested-element insertion controls and WordPress Media Library selection for images inside nested containers. Version 0.18.6 aligns release package metadata and repairs cached update detection; Version 0.18.5 repairs WordPress update package metadata and cached update detection; Version 0.18.0 added native WordPress plugin update detection and installation from official GitHub releases, with version validation, release notes, and a permission-protected manual update check. Version 0.17.2 fixed Media Library selection so the image URL and attachment alt text are applied together without one update overwriting the other. It retains performance regression budgets, per-template REST permissions for save and copy operations, and bounded nested JSON import depth. Debounced autosave is retained so rapid editing does not send a request for every keystroke.
 
-Version 0.20.0 adds a direct WordPress page workflow: enter a page title in the visual builder, save the current layout, and create a real WordPress draft page that renders the saved design. The page opens in the standard WordPress editor for review and publishing; no manual shortcode copying is required.
+Version 0.21.0 adds an “Edit with RSS Prism Builder” box to existing WordPress pages. It backs up the page’s original content in page metadata, converts common WordPress heading, paragraph, image, button, and columns blocks into builder elements, then connects the page to the saved Prism layout. Unsupported block text is retained where possible; the original content backup remains available for recovery. Version 0.20.0 adds a direct WordPress page workflow: enter a page title in the visual builder, save the current layout, and create a real WordPress draft page that renders the saved design. The page opens in the standard WordPress editor for review and publishing; no manual shortcode copying is required.
 
 == Current scope ==
 * Theme-independent Prism Template content, with title search, draft/published status labels, and a matching-template count in the builder library.
