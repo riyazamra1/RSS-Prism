@@ -101,6 +101,8 @@ jobs:
           grep -Fq 'Add elements by category' products/rss-prism-theme/inc/theme-studio.php
           grep -Fq "rss_prism_navigation_controls" products/rss-prism-theme/functions.php
           grep -Fq "rss_prism_footer_layout" products/rss-prism-theme/functions.php
+          grep -Fq "Set logo placement and size, header layout and surface" products/rss-prism-theme/functions.php
+          grep -Fq "Footer Layout & Visibility" products/rss-prism-theme/functions.php
           grep -Fq "Navigation & Menu Typography" products/rss-prism-theme/functions.php
           grep -Fq '.rp-studio-palette-group' products/rss-prism-theme/assets/css/theme-studio.css
 
