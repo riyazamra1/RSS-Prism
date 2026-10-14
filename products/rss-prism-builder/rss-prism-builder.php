@@ -567,7 +567,8 @@ add_action( 'add_meta_boxes_page', 'rss_prism_builder_add_page_editor_box' );
 
 function rss_prism_builder_render_page_editor_box( $post ) {
 	if ( ! current_user_can( 'edit_post', $post->ID ) ) { return; }
-	$url = wp_nonce_url( add_query_arg( array( 'page' => 'rss-prism-builder', 'edit_page_id' => $post->ID ), admin_url( 'admin.php' ) ), 'rss_prism_edit_page_' . $post->ID );
+	// Open a fresh confirmation screen first; this avoids stale editor-page nonces.
+	$url = add_query_arg( array( 'page' => 'rss-prism-builder', 'prepare_edit_page_id' => $post->ID ), admin_url( 'admin.php' ) );
 	$template_id = absint( get_post_meta( $post->ID, '_rss_prism_builder_source_template', true ) );
 	echo '<p>' . esc_html__( 'Open this page in the visual builder. The original page content is backed up before conversion.', 'rss-prism-builder' ) . '</p>';
 	if ( $template_id ) {
@@ -585,7 +586,6 @@ function rss_prism_builder_handle_existing_page( $page_id ) {
 	if ( ! $page || 'page' !== $page->post_type || ! current_user_can( 'edit_post', $page_id ) ) {
 		wp_die( esc_html__( 'You cannot edit this WordPress page with RSS Prism Builder.', 'rss-prism-builder' ), '', array( 'response' => 403 ) );
 	}
-	check_admin_referer( 'rss_prism_edit_page_' . $page_id );
 	$template_id = absint( get_post_meta( $page_id, '_rss_prism_builder_source_template', true ) );
 	$template = $template_id ? get_post( $template_id ) : null;
 	if ( ! $template || 'rss_prism_template' !== $template->post_type ) {
@@ -616,7 +616,36 @@ function rss_prism_builder_handle_existing_page( $page_id ) {
 
 function rss_prism_builder_render_admin_page() {
 	if ( ! current_user_can( 'edit_posts' ) ) { return; }
-	if ( isset( $_GET['edit_page_id'] ) ) { rss_prism_builder_handle_existing_page( absint( $_GET['edit_page_id'] ) ); }
+
+	// Conversion changes the page content, so perform it only after an explicit
+	// POST with a freshly generated nonce, not from a potentially stale GET link.
+	if ( isset( $_POST['rss_prism_edit_page_submit'] ) ) {
+		$page_id = isset( $_POST['edit_page_id'] ) ? absint( $_POST['edit_page_id'] ) : 0;
+		if ( ! $page_id || ! current_user_can( 'edit_post', $page_id ) ) {
+			wp_die( esc_html__( 'You cannot edit this WordPress page with RSS Prism Builder.', 'rss-prism-builder' ), '', array( 'response' => 403 ) );
+		}
+		if ( ! isset( $_POST['_wpnonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['_wpnonce'] ) ), 'rss_prism_edit_page_' . $page_id ) ) {
+			echo '<div class="wrap"><div class="notice notice-error"><p>' . esc_html__( 'This confirmation expired. Please return to the WordPress page editor and click “Edit with RSS Prism Builder” again.', 'rss-prism-builder' ) . '</p></div></div>';
+			return;
+		}
+		rss_prism_builder_handle_existing_page( $page_id );
+	}
+
+	if ( isset( $_GET['prepare_edit_page_id'] ) ) {
+		$page_id = absint( $_GET['prepare_edit_page_id'] );
+		$page = $page_id ? get_post( $page_id ) : null;
+		if ( ! $page || 'page' !== $page->post_type || ! current_user_can( 'edit_post', $page_id ) ) {
+			wp_die( esc_html__( 'You cannot edit this WordPress page with RSS Prism Builder.', 'rss-prism-builder' ), '', array( 'response' => 403 ) );
+		}
+		echo '<div class="wrap"><h1>' . esc_html__( 'Edit page with RSS Prism Builder', 'rss-prism-builder' ) . '</h1>';
+		echo '<p>' . esc_html__( 'The builder will back up the current page content before connecting it to a Prism layout.', 'rss-prism-builder' ) . '</p>';
+		echo '<form method="post" action="' . esc_url( admin_url( 'admin.php?page=rss-prism-builder' ) ) . '">';
+		wp_nonce_field( 'rss_prism_edit_page_' . $page_id );
+		echo '<input type="hidden" name="edit_page_id" value="' . esc_attr( $page_id ) . '">';
+		echo '<input type="hidden" name="rss_prism_edit_page_submit" value="1">';
+		echo '<p><button type="submit" class="button button-primary">' . esc_html__( 'Continue to Builder', 'rss-prism-builder' ) . '</button> <a class="button" href="' . esc_url( get_edit_post_link( $page_id, 'raw' ) ) . '">' . esc_html__( 'Cancel', 'rss-prism-builder' ) . '</a></p></form></div>';
+		return;
+	}
 
 	// Create a draft directly into the visual builder instead of sending users to
 	// the default WordPress post editor, which previously left the builder empty.
