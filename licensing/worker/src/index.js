@@ -221,6 +221,7 @@ async function handlePaymentsWebhook(request, env) {
   const expectedMode = String(env.PAYMENTS_LK_MODE || "test").toLowerCase();
   const actualMode = String(payment?.mode || event?.mode || "").toLowerCase();
   if (!payment || actualMode !== expectedMode) return json({ error: "Payment mode mismatch." }, 400);
+  if (String(payment.status || "").toLowerCase() !== "succeeded" || !String(payment.id || "")) return json({ error: "Payment is not confirmed as succeeded." }, 400);
   const orderId = String(payment.reference || "");
   if (!/^prism_[a-f0-9]{32}$/i.test(orderId)) return json({ error: "Payment reference is invalid." }, 400);
   const order = await env.DB.prepare("SELECT id, customer_email, customer_email_hash, product_id, license_tier, activation_limit, amount_minor, currency, payment_status, provider_session_id FROM orders WHERE id = ? AND provider = 'payments_lk' LIMIT 1").bind(orderId).first();
@@ -243,7 +244,8 @@ async function handlePaymentsWebhook(request, env) {
   await env.DB.prepare(
     "INSERT INTO licenses (id, license_key_hash, customer_email_hash, product_id, license_tier, activation_limit, status, starts_at, expires_at, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, 'active', ?, ?, ?, ?) ON CONFLICT(id) DO NOTHING"
   ).bind(orderId, await sha256(licenseKey), order.customer_email_hash, PRODUCT_ID, order.license_tier, Number(order.activation_limit), now, expiresAt, now, now).run();
-  await sendPrismLicenseEmail(env, order.customer_email, licenseKey, order.license_tier, expiresAt);
+  const savedLicense = await env.DB.prepare("SELECT expires_at FROM licenses WHERE id = ? LIMIT 1").bind(orderId).first();
+  await sendPrismLicenseEmail(env, order.customer_email, licenseKey, order.license_tier, String(savedLicense?.expires_at || expiresAt));
   await env.DB.prepare("UPDATE payment_webhook_events SET processing_status = 'processed', processed_at = ? WHERE provider = 'payments_lk' AND event_id = ?").bind(new Date().toISOString(), event.id).run();
   return json({ ok: true, processed: true, event_id: event.id, order_id: orderId });
 }
