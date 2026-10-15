@@ -115,6 +115,139 @@ async function handleDeactivate(body, env) {
   await env.DB.prepare("DELETE FROM activations WHERE license_id = ? AND site_hash = ?").bind(licence.id, siteHash).run();
   return json({ deactivated: true, active_activations: await activationCount(env.DB, licence.id) });
 }
+
+function timingSafeHexEqual(a, b) {
+  if (typeof a !== "string" || typeof b !== "string" || a.length !== b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return diff === 0;
+}
+async function verifyPaymentsSignature(secret, header, rawBody) {
+  const parts = Object.fromEntries(String(header || "").split(",").map(part => {
+    const i = part.indexOf("=");
+    return i > 0 ? [part.slice(0, i).trim(), part.slice(i + 1).trim()] : ["", ""];
+  }).filter(part => part[0]));
+  const timestamp = Number(parts.t);
+  if (!Number.isFinite(timestamp) || !parts.v1 || Math.abs(Date.now() / 1000 - timestamp) > 300) return false;
+  const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(secret), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+  const signature = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(String(parts.t) + "." + rawBody));
+  const expected = Array.from(new Uint8Array(signature), byte => byte.toString(16).padStart(2, "0")).join("");
+  return timingSafeHexEqual(expected, String(parts.v1).toLowerCase());
+}
+async function paymentsLkRequest(env, path, body, idempotencyKey) {
+  if (!env.PAYMENTS_LK_SECRET_KEY) throw new Error("Payments.lk API key is not configured");
+  const response = await fetch("https://api.payments.lk/v1" + path, {
+    method: "POST",
+    headers: {
+      authorization: "Bearer " + env.PAYMENTS_LK_SECRET_KEY,
+      "content-type": "application/json",
+      "Idempotency-Key": idempotencyKey
+    },
+    body: JSON.stringify(body)
+  });
+  const raw = await response.text();
+  let data;
+  try { data = JSON.parse(raw); } catch { data = {}; }
+  if (!response.ok) throw new Error("Payments.lk checkout request failed (" + response.status + ")");
+  return data?.data || data;
+}
+async function createPrismCheckout(body, env) {
+  if (env.PRISM_PAID_CHECKOUT_ENABLED !== "true") return json({ error: "RSS Prism paid checkout is not enabled. The Free plan remains active." }, 403);
+  if (!env.PAYMENTS_LK_SECRET_KEY || !env.PRISM_PAYMENT_SUCCESS_URL || !env.PRISM_PAYMENT_CANCEL_URL ||
+      !env.RESEND_API_KEY || !env.PRISM_LICENSE_FROM_EMAIL || !env.PRISM_LICENSE_SIGNING_SECRET || !env.PRISM_TERMS_VERSION) {
+    return json({ error: "Payments.lk checkout is not fully configured." }, 503);
+  }
+  const email = normaliseEmail(body.email);
+  if (email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return json({ error: "Enter a valid purchase email address." }, 400);
+  const tier = body.license_tier;
+  const tierConfig = tier === "single_site"
+    ? { activationLimit: 1, price: Number(env.PRISM_SINGLE_SITE_PRICE_LKR) }
+    : tier === "five_site" ? { activationLimit: 5, price: Number(env.PRISM_FIVE_SITE_PRICE_LKR) } : null;
+  if (!tierConfig || !Number.isSafeInteger(tierConfig.price) || tierConfig.price <= 0) return json({ error: "That paid licence tier is not configured." }, 400);
+  if (body.accept_terms !== true || String(body.terms_version || "") !== String(env.PRISM_TERMS_VERSION)) {
+    return json({ error: "Please accept the current RSS Prism licence terms." }, 400);
+  }
+  const orderId = "prism_" + crypto.randomUUID().replace(/-/g, "");
+  const now = new Date().toISOString();
+  const amountMinor = tierConfig.price * 100;
+  if (!Number.isSafeInteger(amountMinor)) return json({ error: "Configured price is invalid." }, 503);
+  await env.DB.prepare(
+    "INSERT INTO orders (id, customer_email, customer_email_hash, product_id, license_tier, billing_interval, activation_limit, amount_minor, currency, payment_status, provider, terms_version, created_at) VALUES (?, ?, ?, ?, ?, 'annual', ?, ?, 'LKR', 'pending', 'payments_lk', ?, ?)"
+  ).bind(orderId, email, await sha256(email), PRODUCT_ID, tier, tierConfig.activationLimit, amountMinor, String(env.PRISM_TERMS_VERSION), now).run();
+  const checkout = await paymentsLkRequest(env, "/checkouts", {
+    amountCents: amountMinor,
+    currency: "LKR",
+    description: "RSS Prism Premium — " + (tier === "single_site" ? "Single Site" : "Five Sites") + " — Annual",
+    reference: orderId,
+    successUrl: env.PRISM_PAYMENT_SUCCESS_URL,
+    cancelUrl: env.PRISM_PAYMENT_CANCEL_URL
+  }, orderId);
+  const checkoutUrl = String(checkout.url || "");
+  const checkoutId = String(checkout.id || "");
+  if (!checkoutId || !/^https:\/\//i.test(checkoutUrl)) throw new Error("Payments.lk returned an invalid checkout response");
+  await env.DB.prepare("UPDATE orders SET provider_session_id = ? WHERE id = ? AND payment_status = 'pending'").bind(checkoutId, orderId).run();
+  return json({ ok: true, provider: "payments_lk", order_id: orderId, checkout_url: checkoutUrl, currency: "LKR", amount_lkr: tierConfig.price, license_tier: tier, billing_interval: "annual" }, 201);
+}
+async function sendPrismLicenseEmail(env, email, key, tier, expiresAt) {
+  const response = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: { authorization: "Bearer " + env.RESEND_API_KEY, "content-type": "application/json" },
+    body: JSON.stringify({
+      from: env.PRISM_LICENSE_FROM_EMAIL,
+      to: [email],
+      subject: "Your RSS Prism Premium licence",
+      text: "Thank you for purchasing RSS Prism Premium.\n\nLicence key: " + key + "\nLicence tier: " + tier + "\nValid until: " + expiresAt + "\n\nUse this key and the purchase email in RSS Prism Builder → Licence. Keep this key private.\n\nRazeen Secure Solution",
+      html: "<div style=\"font-family:Arial,sans-serif;max-width:600px;margin:auto\"><h2>RSS Prism Premium</h2><p>Thank you for your purchase.</p><p><strong>Licence key</strong></p><p style=\"font-size:18px;word-break:break-all\">" + key + "</p><p>Tier: " + tier + "<br>Valid until: " + expiresAt + "</p><p>Enter this key and your purchase email in RSS Prism Builder → Licence.</p><p>Razeen Secure Solution</p></div>"
+    })
+  });
+  if (!response.ok) throw new Error("Unable to deliver RSS Prism licence email (" + response.status + ")");
+}
+async function handlePaymentsWebhook(request, env) {
+  if (!env.PAYMENTS_LK_WEBHOOK_SECRET || !env.PRISM_LICENSE_SIGNING_SECRET || !env.RESEND_API_KEY || !env.PRISM_LICENSE_FROM_EMAIL) {
+    return json({ error: "Payments.lk webhook is not fully configured." }, 503);
+  }
+  const raw = await request.text();
+  if (new TextEncoder().encode(raw).length > 65536) return json({ error: "Webhook payload is too large." }, 413);
+  const signature = request.headers.get("Payments-Signature") || "";
+  if (!(await verifyPaymentsSignature(env.PAYMENTS_LK_WEBHOOK_SECRET, signature, raw))) return json({ error: "Invalid webhook signature." }, 400);
+  let event;
+  try { event = JSON.parse(raw); } catch { return json({ error: "Invalid JSON." }, 400); }
+  if (!event || typeof event.id !== "string" || typeof event.type !== "string") return json({ error: "Invalid event payload." }, 400);
+  const headerEventId = request.headers.get("Payments-Event-Id");
+  if (headerEventId && headerEventId !== event.id) return json({ error: "Event ID mismatch." }, 400);
+  if (event.type === "test.ping") return json({ ok: true, received: true, event_id: event.id });
+  if (event.type !== "payment.succeeded") return json({ ok: true, ignored: true, event_id: event.id });
+  const payment = event?.data?.object;
+  const expectedMode = String(env.PAYMENTS_LK_MODE || "test").toLowerCase();
+  const actualMode = String(payment?.mode || event?.mode || "").toLowerCase();
+  if (!payment || actualMode !== expectedMode) return json({ error: "Payment mode mismatch." }, 400);
+  const orderId = String(payment.reference || "");
+  if (!/^prism_[a-f0-9]{32}$/i.test(orderId)) return json({ error: "Payment reference is invalid." }, 400);
+  const order = await env.DB.prepare("SELECT id, customer_email, customer_email_hash, product_id, license_tier, activation_limit, amount_minor, currency, payment_status, provider_session_id FROM orders WHERE id = ? AND provider = 'payments_lk' LIMIT 1").bind(orderId).first();
+  if (!order) return json({ error: "Payment order not found." }, 404);
+  if (Number(payment.amountCents) !== Number(order.amount_minor) || String(payment.currency || "").toUpperCase() !== String(order.currency).toUpperCase()) {
+    return json({ error: "Payment amount or currency mismatch." }, 400);
+  }
+  if (order.provider_session_id && String(payment.checkoutId || "") !== String(order.provider_session_id)) return json({ error: "Checkout reference mismatch." }, 400);
+  if (!order.customer_email || !order.customer_email_hash) return json({ error: "Order customer details are missing." }, 503);
+  if (!["pending", "paid"].includes(String(order.payment_status))) return json({ error: "Order is not payable." }, 409);
+  await env.DB.prepare("INSERT INTO payment_webhook_events (provider, event_id, received_at, processing_status) VALUES ('payments_lk', ?, ?, 'received') ON CONFLICT(provider, event_id) DO NOTHING").bind(event.id, new Date().toISOString()).run();
+  const existingEvent = await env.DB.prepare("SELECT processing_status FROM payment_webhook_events WHERE provider = 'payments_lk' AND event_id = ? LIMIT 1").bind(event.id).first();
+  if (existingEvent?.processing_status === "processed") return json({ ok: true, duplicate: true, event_id: event.id });
+  const signingKey = await crypto.subtle.importKey("raw", new TextEncoder().encode(env.PRISM_LICENSE_SIGNING_SECRET), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+  const keyBytes = new Uint8Array(await crypto.subtle.sign("HMAC", signingKey, new TextEncoder().encode("rss-prism-license:" + orderId)));
+  const licenseKey = "RSSP-" + Array.from(keyBytes.slice(0, 20), byte => byte.toString(16).padStart(2, "0")).join("").toUpperCase();
+  const now = new Date().toISOString();
+  const expiresAt = new Date(Date.now() + 365 * 86400000).toISOString();
+  await env.DB.prepare("UPDATE orders SET payment_status = 'paid', provider_payment_id = ?, paid_at = COALESCE(paid_at, ?) WHERE id = ? AND payment_status IN ('pending', 'paid')").bind(String(payment.id || ""), now, orderId).run();
+  await env.DB.prepare(
+    "INSERT INTO licenses (id, license_key_hash, customer_email_hash, product_id, license_tier, activation_limit, status, starts_at, expires_at, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, 'active', ?, ?, ?, ?) ON CONFLICT(id) DO NOTHING"
+  ).bind(orderId, await sha256(licenseKey), order.customer_email_hash, PRODUCT_ID, order.license_tier, Number(order.activation_limit), now, expiresAt, now, now).run();
+  await sendPrismLicenseEmail(env, order.customer_email, licenseKey, order.license_tier, expiresAt);
+  await env.DB.prepare("UPDATE payment_webhook_events SET processing_status = 'processed', processed_at = ? WHERE provider = 'payments_lk' AND event_id = ?").bind(new Date().toISOString(), event.id).run();
+  return json({ ok: true, processed: true, event_id: event.id, order_id: orderId });
+}
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
@@ -123,12 +256,17 @@ export default {
     }
     if (request.method !== "POST") return json({ error: "Method not allowed." }, 405);
     if (!env.DB) return json({ error: "Licence service is not configured." }, 503);
+    if (url.pathname === "/v1/payments/webhook") {
+      try { return await handlePaymentsWebhook(request, env); }
+      catch { return json({ error: "Payment webhook processing failed; provider may retry." }, 503); }
+    }
     const parsed = await readJson(request);
     if (parsed.error) return json({ error: parsed.error }, parsed.status);
     try {
       if (url.pathname === "/v1/license/verify") return await handleVerify(parsed.value, env);
       if (url.pathname === "/v1/license/activate") return await handleActivate(parsed.value, env);
       if (url.pathname === "/v1/license/deactivate") return await handleDeactivate(parsed.value, env);
+      if (url.pathname === "/v1/payments/checkout") return await createPrismCheckout(parsed.value, env);
       return json({ error: "Not found." }, 404);
     } catch { return json({ error: "Licence service temporarily unavailable." }, 503); }
   }
