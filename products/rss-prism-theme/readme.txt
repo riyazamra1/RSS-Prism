@@ -1,6 +1,6 @@
 === RSS Prism ===
 
-Version 1.3.7: prepares the customer installation package, refreshes the packaged theme preview, and keeps the release version aligned with the update feed.
+Version 1.3.8: prepares the customer installation package with aligned release metadata and a generated theme preview.
 
 Update 1.3.6: clarifies Customizer section descriptions, separates footer layout from footer appearance, and orders the related controls together.
 Update 1.3.5: reorganises Customizer controls into dedicated Navigation & Menu Typography and Footer Layout & Visibility sections, while retaining existing setting IDs and saved values.
@@ -11,7 +11,7 @@ Contributors: razeen-secure-solution
 Requires at least: 6.4
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 1.3.7
+Stable tag: 1.3.8
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
