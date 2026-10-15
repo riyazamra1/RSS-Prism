@@ -48,7 +48,7 @@ jobs:
           grep -Fq "add_shortcode( 'rss_prism_canvas', 'rss_prism_builder_render_canvas_shortcode' );" "$PHP"
           grep -Fq 'rss-prism-canvas-columns .rss-prism-columns-grid{grid-template-columns:1fr!important}' "$PHP"
           grep -Fq "version_compare( self::current_version(), \$release['version'], '<' )" "$UPDATER"
-          grep -Fq "'/riyazamra1/RSS-Prism/releases/download/' . $tag . '/rss-prism-builder.zip'" "$UPDATER"
+          grep -Fq "'/riyazamra1/RSS-Prism/releases/download/' . \$tag . '/rss-prism-builder.zip'" "$UPDATER"
           grep -Fq "current_user_can( 'update_plugins' )" "$UPDATER"
           grep -Fq "check_admin_referer( 'rss_prism_builder_check_updates' )" "$UPDATER"
 
