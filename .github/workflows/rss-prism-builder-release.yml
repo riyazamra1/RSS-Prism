@@ -1,0 +1,85 @@
+name: RSS Prism Builder Release
+
+on:
+  push:
+    tags:
+      - 'rss-prism-builder-v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing Builder release tag to package
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: rss-prism-builder-release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  package-and-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag || github.ref }}
+
+      - name: Validate release tag and plugin version
+        shell: bash
+        run: |
+          set -euo pipefail
+          TAG="${{ inputs.tag || github.ref_name }}"
+          if [[ ! "$TAG" =~ ^rss-prism-builder-v([0-9]+\.[0-9]+\.[0-9]+)$ ]]; then
+            echo "::error::Invalid Builder release tag: $TAG"
+            exit 1
+          fi
+          VERSION="${BASH_REMATCH[1]}"
+          HEADER="products/rss-prism-builder/rss-prism-builder.php"
+          test -f "$HEADER"
+          grep -Eq "^[[:space:]]*\* Version: ${VERSION//./\.}$" "$HEADER" || {
+            echo "::error::Tag version $VERSION does not match plugin header."
+            exit 1
+          }
+          grep -Fq "define( 'RSS_PRISM_BUILDER_VERSION', '$VERSION' );" "$HEADER" || {
+            echo "::error::Runtime version constant does not match tag."
+            exit 1
+          }
+          find products/rss-prism-builder -type f -name '*.php' -print0 | xargs -0 -n1 php -l
+
+      - name: Build installable plugin ZIP
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf package
+          mkdir -p package
+          cp -a products/rss-prism-builder package/rss-prism-builder
+          cd package
+          zip -qr ../rss-prism-builder.zip rss-prism-builder
+          cd ..
+          unzip -t rss-prism-builder.zip
+          unzip -Z1 rss-prism-builder.zip | grep -q '^rss-prism-builder/rss-prism-builder.php$'
+          unzip -Z1 rss-prism-builder.zip | grep -q '^rss-prism-builder/includes/auto-updates.php$'
+          php -r '
+            $z = new ZipArchive();
+            if ($z->open("rss-prism-builder.zip") !== true) exit(1);
+            $s = $z->getStream("rss-prism-builder/rss-prism-builder.php");
+            if (!$s) exit(2);
+            $header = stream_get_contents($s);
+            fclose($s);
+            if (!preg_match("/^\\s*\\* Version: ([0-9]+\\.[0-9]+\\.[0-9]+)/m", $header, $m)) exit(3);
+            echo "Validated installable Builder ZIP version " . $m[1] . PHP_EOL;
+            $z->close();
+          '
+
+      - name: Publish versioned release asset
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ inputs.tag || github.ref_name }}
+          name: RSS Prism Builder ${{ inputs.tag || github.ref_name }}
+          generate_release_notes: true
+          files: rss-prism-builder.zip
+          fail_on_unmatched_files: true
+          make_latest: true
