@@ -41,7 +41,9 @@ jobs:
           fi
           [[ "$TAG" == rss-prism-theme-v* ]]
           [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+([+-][0-9A-Za-z.-]+)?$ ]]
-          grep -q "Version: $VERSION" products/rss-prism-theme/style.css
+          grep -q "^Version: $VERSION$" products/rss-prism-theme/style.css
+          STABLE_TAG="$(sed -n 's/^Stable tag: *//p' products/rss-prism-theme/readme.txt | head -n1)"
+          test "$VERSION" = "$STABLE_TAG"
           test -f products/rss-prism-theme/functions.php
           test -f products/rss-prism-theme/inc/auto-updates.php
           echo "VERSION=$VERSION" >> "$GITHUB_ENV"
