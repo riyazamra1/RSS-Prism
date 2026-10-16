@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { createHmac } from "node:crypto";
 import worker, { normaliseEmail, normaliseSite, sha256 } from "../src/index.js";
 
 const KEY = "RSSP-1234-5678-ABCD";
@@ -105,5 +106,50 @@ test("unsupported product is rejected", async () => {
   const response = await worker.fetch(request("/v1/license/verify", {
     license_key: KEY, email: EMAIL, product_id: "other-product"
   }), { DB: new FakeDB(license()) });
+  assert.equal(response.status, 400);
+});
+
+function signedWebhook(secret, rawBody, timestamp = Math.floor(Date.now() / 1000)) {
+  const signature = createHmac("sha256", secret).update(timestamp + "." + rawBody).digest("hex");
+  return "t=" + timestamp + ",v1=" + "0".repeat(64) + ",v1=" + signature;
+}
+
+test("Payments.lk webhook accepts a valid rotated-signature header and documented test.ping event", async () => {
+  const secret = "test-webhook-secret";
+  const rawBody = JSON.stringify({ id: "evt_test_ping", object: "event", type: "test.ping", mode: "test", data: {} });
+  const response = await worker.fetch(new Request("https://licensing.example.test/v1/payments/webhook", {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      "Payments-Signature": signedWebhook(secret, rawBody),
+      "Payments-Event-Id": "evt_test_ping"
+    },
+    body: rawBody
+  }), {
+    DB: new FakeDB(null),
+    PAYMENTS_LK_WEBHOOK_SECRET: secret,
+    PRISM_LICENSE_SIGNING_SECRET: "independent-signing-secret",
+    RESEND_API_KEY: "test-resend-key",
+    PRISM_LICENSE_FROM_EMAIL: "licences@example.com",
+    PAYMENTS_LK_MODE: "test"
+  });
+  assert.equal(response.status, 200);
+  assert.equal((await response.json()).received, true);
+});
+
+test("Payments.lk webhook rejects an invalid signature", async () => {
+  const rawBody = JSON.stringify({ id: "evt_bad_signature", type: "test.ping", mode: "test", data: {} });
+  const response = await worker.fetch(new Request("https://licensing.example.test/v1/payments/webhook", {
+    method: "POST",
+    headers: { "content-type": "application/json", "Payments-Signature": "t=" + Math.floor(Date.now() / 1000) + ",v1=" + "0".repeat(64) },
+    body: rawBody
+  }), {
+    DB: new FakeDB(null),
+    PAYMENTS_LK_WEBHOOK_SECRET: "correct-secret",
+    PRISM_LICENSE_SIGNING_SECRET: "independent-signing-secret",
+    RESEND_API_KEY: "test-resend-key",
+    PRISM_LICENSE_FROM_EMAIL: "licences@example.com",
+    PAYMENTS_LK_MODE: "test"
+  });
   assert.equal(response.status, 400);
 });
