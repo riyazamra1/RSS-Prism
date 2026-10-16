@@ -10,3 +10,12 @@ compatibility_date = "2026-10-11"
 binding = "DB"
 database_name = "rss-prism-licensing"
 database_id = "REPLACE_WITH_D1_DATABASE_ID"
+
+# Staging is deliberately isolated from the default Worker and database binding.
+[env.staging]
+name = "rss-prism-licensing-staging"
+
+[[env.staging.d1_databases]]
+binding = "DB"
+database_name = "rss-prism-licensing-staging"
+database_id = "REPLACE_WITH_D1_DATABASE_ID"
