@@ -4,6 +4,7 @@ CREATE TABLE IF NOT EXISTS licenses (
   id TEXT PRIMARY KEY,
   license_key_hash TEXT NOT NULL UNIQUE,
   customer_email_hash TEXT NOT NULL,
+  customer_email TEXT,
   product_id TEXT NOT NULL CHECK (product_id = 'rss-prism-premium'),
   license_tier TEXT NOT NULL CHECK (license_tier IN ('single_site', 'five_site')),
   activation_limit INTEGER NOT NULL CHECK (activation_limit IN (1, 5)),
