@@ -123,16 +123,21 @@ function timingSafeHexEqual(a, b) {
   return diff === 0;
 }
 async function verifyPaymentsSignature(secret, header, rawBody) {
-  const parts = Object.fromEntries(String(header || "").split(",").map(part => {
+  let timestamp;
+  const signatures = [];
+  for (const part of String(header || "").split(",")) {
     const i = part.indexOf("=");
-    return i > 0 ? [part.slice(0, i).trim(), part.slice(i + 1).trim()] : ["", ""];
-  }).filter(part => part[0]));
-  const timestamp = Number(parts.t);
-  if (!Number.isFinite(timestamp) || !parts.v1 || Math.abs(Date.now() / 1000 - timestamp) > 300) return false;
+    if (i <= 0) continue;
+    const name = part.slice(0, i).trim();
+    const value = part.slice(i + 1).trim();
+    if (name === "t" && /^[0-9]{1,12}$/.test(value)) timestamp = Number(value);
+    if (name === "v1" && /^[0-9a-f]{64}$/i.test(value)) signatures.push(value.toLowerCase());
+  }
+  if (timestamp === undefined || signatures.length === 0 || Math.abs(Date.now() / 1000 - timestamp) > 300) return false;
   const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(secret), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
-  const signature = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(String(parts.t) + "." + rawBody));
+  const signature = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(String(timestamp) + "." + rawBody));
   const expected = Array.from(new Uint8Array(signature), byte => byte.toString(16).padStart(2, "0")).join("");
-  return timingSafeHexEqual(expected, String(parts.v1).toLowerCase());
+  return signatures.some(candidate => timingSafeHexEqual(expected, candidate));
 }
 async function paymentsLkRequest(env, path, body, idempotencyKey) {
   if (!env.PAYMENTS_LK_SECRET_KEY) throw new Error("Payments.lk API key is not configured");
@@ -217,7 +222,7 @@ async function handlePaymentsWebhook(request, env) {
   if (headerEventId && headerEventId !== event.id) return json({ error: "Event ID mismatch." }, 400);
   if (event.type === "test.ping") return json({ ok: true, received: true, event_id: event.id });
   if (event.type !== "payment.succeeded") return json({ ok: true, ignored: true, event_id: event.id });
-  const payment = event?.data?.object;
+  const payment = event?.data?.object ?? event?.data;
   const expectedMode = String(env.PAYMENTS_LK_MODE || "test").toLowerCase();
   const actualMode = String(payment?.mode || event?.mode || "").toLowerCase();
   if (!payment || actualMode !== expectedMode) return json({ error: "Payment mode mismatch." }, 400);
