@@ -168,7 +168,7 @@ async function createPrismCheckout(body, env) {
   const tierConfig = tier === "single_site"
     ? { activationLimit: 1, price: Number(env.PRISM_SINGLE_SITE_PRICE_LKR) }
     : tier === "five_site" ? { activationLimit: 5, price: Number(env.PRISM_FIVE_SITE_PRICE_LKR) } : null;
-  if (!tierConfig || !Number.isSafeInteger(tierConfig.price) || tierConfig.price < 10) return json({ error: "That paid licence tier is not configured. Annual prices must be at least LKR 10." }, 400);
+  if (!tierConfig || !Number.isSafeInteger(tierConfig.price) || tierConfig.price < 10 || tierConfig.price > 1000000) return json({ error: "That paid licence tier is not configured. Annual prices must be between LKR 10 and LKR 1,000,000." }, 400);
   if (body.accept_terms !== true || String(body.terms_version || "") !== String(env.PRISM_TERMS_VERSION)) {
     return json({ error: "Please accept the current RSS Prism licence terms." }, 400);
   }
@@ -183,6 +183,7 @@ async function createPrismCheckout(body, env) {
     amountCents: amountMinor,
     description: "RSS Prism Premium — " + (tier === "single_site" ? "Single Site" : "Five Sites") + " — Annual",
     reference: orderId,
+    customer: { email },
     successUrl: env.PRISM_PAYMENT_SUCCESS_URL,
     cancelUrl: env.PRISM_PAYMENT_CANCEL_URL
   }, orderId);
