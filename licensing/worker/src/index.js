@@ -238,21 +238,35 @@ async function handlePaymentsWebhook(request, env) {
   if (!order.customer_email || !order.customer_email_hash) return json({ error: "Order customer details are missing." }, 503);
   if (!["pending", "paid"].includes(String(order.payment_status))) return json({ error: "Order is not payable." }, 409);
   await env.DB.prepare("INSERT INTO payment_webhook_events (provider, event_id, received_at, processing_status) VALUES ('payments_lk', ?, ?, 'received') ON CONFLICT(provider, event_id) DO NOTHING").bind(event.id, new Date().toISOString()).run();
-  const existingEvent = await env.DB.prepare("SELECT processing_status FROM payment_webhook_events WHERE provider = 'payments_lk' AND event_id = ? LIMIT 1").bind(event.id).first();
-  if (existingEvent?.processing_status === "processed") return json({ ok: true, duplicate: true, event_id: event.id });
-  const signingKey = await crypto.subtle.importKey("raw", new TextEncoder().encode(env.PRISM_LICENSE_SIGNING_SECRET), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
-  const keyBytes = new Uint8Array(await crypto.subtle.sign("HMAC", signingKey, new TextEncoder().encode("rss-prism-license:" + orderId)));
-  const licenseKey = "RSSP-" + Array.from(keyBytes.slice(0, 20), byte => byte.toString(16).padStart(2, "0")).join("").toUpperCase();
-  const now = new Date().toISOString();
-  const expiresAt = new Date(Date.now() + 365 * 86400000).toISOString();
-  await env.DB.prepare("UPDATE orders SET payment_status = 'paid', provider_payment_id = ?, paid_at = COALESCE(paid_at, ?) WHERE id = ? AND payment_status IN ('pending', 'paid')").bind(String(payment.id || ""), now, orderId).run();
-  await env.DB.prepare(
-    "INSERT INTO licenses (id, license_key_hash, customer_email_hash, product_id, license_tier, activation_limit, status, starts_at, expires_at, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, 'active', ?, ?, ?, ?) ON CONFLICT(id) DO NOTHING"
-  ).bind(orderId, await sha256(licenseKey), order.customer_email_hash, PRODUCT_ID, order.license_tier, Number(order.activation_limit), now, expiresAt, now, now).run();
-  const savedLicense = await env.DB.prepare("SELECT expires_at FROM licenses WHERE id = ? LIMIT 1").bind(orderId).first();
-  await sendPrismLicenseEmail(env, order.customer_email, licenseKey, order.license_tier, String(savedLicense?.expires_at || expiresAt));
-  await env.DB.prepare("UPDATE payment_webhook_events SET processing_status = 'processed', processed_at = ? WHERE provider = 'payments_lk' AND event_id = ?").bind(new Date().toISOString(), event.id).run();
-  return json({ ok: true, processed: true, event_id: event.id, order_id: orderId });
+  // Claim the event atomically. Concurrent webhook deliveries cannot both fulfil one event.
+  const claim = await env.DB.prepare(
+    "UPDATE payment_webhook_events SET processing_status = 'processing' WHERE provider = 'payments_lk' AND event_id = ? AND processing_status IN ('received', 'failed')"
+  ).bind(event.id).run();
+  if (Number(claim?.meta?.changes || 0) === 0) {
+    const existingEvent = await env.DB.prepare("SELECT processing_status FROM payment_webhook_events WHERE provider = 'payments_lk' AND event_id = ? LIMIT 1").bind(event.id).first();
+    if (existingEvent?.processing_status === "processed") return json({ ok: true, duplicate: true, event_id: event.id });
+    // Another delivery currently owns the event. Ask the provider to retry instead of duplicating fulfilment.
+    return json({ error: "Payment event is already being processed; retry shortly." }, 503);
+  }
+  try {
+    const signingKey = await crypto.subtle.importKey("raw", new TextEncoder().encode(env.PRISM_LICENSE_SIGNING_SECRET), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+    const keyBytes = new Uint8Array(await crypto.subtle.sign("HMAC", signingKey, new TextEncoder().encode("rss-prism-license:" + orderId)));
+    const licenseKey = "RSSP-" + Array.from(keyBytes.slice(0, 20), byte => byte.toString(16).padStart(2, "0")).join("").toUpperCase();
+    const now = new Date().toISOString();
+    const expiresAt = new Date(Date.now() + 365 * 86400000).toISOString();
+    await env.DB.prepare("UPDATE orders SET payment_status = 'paid', provider_payment_id = ?, paid_at = COALESCE(paid_at, ?) WHERE id = ? AND payment_status IN ('pending', 'paid')").bind(String(payment.id || ""), now, orderId).run();
+    await env.DB.prepare(
+      "INSERT INTO licenses (id, license_key_hash, customer_email_hash, product_id, license_tier, activation_limit, status, starts_at, expires_at, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, 'active', ?, ?, ?, ?) ON CONFLICT(id) DO NOTHING"
+    ).bind(orderId, await sha256(licenseKey), order.customer_email_hash, PRODUCT_ID, order.license_tier, Number(order.activation_limit), now, expiresAt, now, now).run();
+    const savedLicense = await env.DB.prepare("SELECT expires_at FROM licenses WHERE id = ? LIMIT 1").bind(orderId).first();
+    await sendPrismLicenseEmail(env, order.customer_email, licenseKey, order.license_tier, String(savedLicense?.expires_at || expiresAt));
+    await env.DB.prepare("UPDATE payment_webhook_events SET processing_status = 'processed', processed_at = ? WHERE provider = 'payments_lk' AND event_id = ?").bind(new Date().toISOString(), event.id).run();
+    return json({ ok: true, processed: true, event_id: event.id, order_id: orderId });
+  } catch (error) {
+    // Failed deliveries are retryable; licence IDs and keys are deterministic by order.
+    await env.DB.prepare("UPDATE payment_webhook_events SET processing_status = 'failed' WHERE provider = 'payments_lk' AND event_id = ? AND processing_status = 'processing'").bind(event.id).run();
+    throw error;
+  }
 }
 
 export default {
