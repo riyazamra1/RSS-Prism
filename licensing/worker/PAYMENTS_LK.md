@@ -20,6 +20,20 @@ npx wrangler d1 execute rss-prism-licensing --remote --file=licensing/worker/mig
 
 Use the actual D1 database name configured for the deployment if it differs. Run the migration once.
 
+## Staging deployment
+
+The GitHub Actions workflow deploys only to the separate `rss-prism-licensing-staging` Worker and its separate D1 database. It must not be pointed at the production database.
+
+Before running **Deploy RSS Prism Licensing Worker**, configure these GitHub Actions secrets in the repository (or the workflow's `rss-prism-staging` environment):
+
+- `CLOUDFLARE_API_TOKEN` — token with Workers Scripts and D1 edit permissions for the intended account.
+- `CLOUDFLARE_ACCOUNT_ID` — Cloudflare account ID.
+- `RSS_PRISM_D1_DATABASE_ID` — ID of the dedicated staging D1 database named `rss-prism-licensing-staging`.
+
+Create the staging D1 database first and ensure its name matches the Wrangler staging binding. The workflow requires typing `DEPLOY-STAGING` to proceed. This deploys code/schema only; it does not configure payment secrets or enable checkout.
+
+After deployment, add the following **Worker secrets** in Cloudflare for the staging Worker only: `PAYMENTS_LK_SECRET_KEY` (must start with `sk_test_`), `PAYMENTS_LK_WEBHOOK_SECRET`, `PRISM_LICENSE_SIGNING_SECRET`, and `RESEND_API_KEY`. Set staging Worker variables: `PAYMENTS_LK_MODE=test`, `PRISM_PAID_CHECKOUT_ENABLED=false` initially, approved test `PRISM_SINGLE_SITE_PRICE_LKR` and `PRISM_FIVE_SITE_PRICE_LKR`, `PRISM_TERMS_VERSION`, HTTPS success/cancel URLs, and `PRISM_LICENSE_FROM_EMAIL`. Configure a test-mode webhook in the Payments.lk dashboard targeting the staging Worker's `/v1/payments/webhook` route. Do not paste secret values into GitHub source, issues, or chat.
+
 ## Required configuration
 
 Configure these as Worker secrets or non-secret variables in the Cloudflare dashboard / Wrangler environment. Do not commit secret values.
