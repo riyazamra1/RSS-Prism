@@ -4,7 +4,7 @@
  * Plugin URI: https://www.rsscctvsolution.eu.cc/
  * Update URI: https://github.com/riyazamra1/RSS-Prism/
  * Description: Free visual page builder. Theme design tools: Dashboard → Appearance → RSS Prism Studio.
- * Version: 0.29.0
+ * Version: 0.30.0
  * Requires at least: 6.4
  * Requires PHP: 7.4
  * Author: Razeen Secure Solution
@@ -16,7 +16,7 @@
 defined( 'ABSPATH' ) || exit;
 
 require_once __DIR__ . '/includes/auto-updates.php';
-define( 'RSS_PRISM_BUILDER_VERSION', '0.29.0' );
+define( 'RSS_PRISM_BUILDER_VERSION', '0.30.0' );
 
 function rss_prism_builder_register_templates() {
 	register_post_type( 'rss_prism_template', array(
@@ -73,7 +73,7 @@ function rss_prism_builder_sanitize_layout( $layout ) {
 	if ( ! is_array( $layout ) ) { return new WP_Error( 'invalid_layout', __( 'Layout must be a list of elements.', 'rss-prism-builder' ), array( 'status' => 400 ) ); }
 	if ( count( $layout ) > 100 ) { return new WP_Error( 'layout_too_large', __( 'A layout may contain at most 100 elements.', 'rss-prism-builder' ), array( 'status' => 400 ) ); }
 	$clean = array();
-	$allowed = array( 'section', 'heading', 'text', 'button', 'image', 'columns', 'container', 'divider', 'spacer', 'quote', 'blurb', 'callout' );
+	$allowed = array( 'section', 'heading', 'text', 'button', 'image', 'columns', 'container', 'divider', 'spacer', 'quote', 'blurb', 'callout', 'gallery' );
 	foreach ( $layout as $item ) {
 		if ( ! is_array( $item ) || empty( $item['type'] ) || ! in_array( $item['type'], $allowed, true ) ) { continue; }
 		$padding = isset( $item['padding'] ) ? absint( $item['padding'] ) : 24;
@@ -105,6 +105,7 @@ function rss_prism_builder_sanitize_layout( $layout ) {
 			'blurb_body' => isset( $item['blurb_body'] ) ? sanitize_textarea_field( $item['blurb_body'] ) : '',
 			'callout_body' => isset( $item['callout_body'] ) ? sanitize_textarea_field( $item['callout_body'] ) : '',
 			'callout_label' => isset( $item['callout_label'] ) ? sanitize_text_field( $item['callout_label'] ) : 'Get started',
+			'gallery_urls' => isset( $item['gallery_urls'] ) ? sanitize_textarea_field( $item['gallery_urls'] ) : '',
 			'text_color' => isset( $item['text_color'] ) ? sanitize_hex_color( $item['text_color'] ) : '',
 			'font_size' => min( 96, max( 10, absint( $item['font_size'] ?? 16 ) ) ),
 			'align' => isset( $item['align'] ) && in_array( $item['align'], array( 'left', 'center', 'right' ), true ) ? $item['align'] : 'left',
@@ -405,6 +406,13 @@ function rss_prism_builder_render_canvas_shortcode( $atts ) {
 			$label = isset( $item['callout_label'] ) ? sanitize_text_field( $item['callout_label'] ) : 'Get started';
 			$button_style = 'display:inline-block;background:' . ( sanitize_hex_color( $item['button_bg'] ?? '#b88a2b' ) ?: '#b88a2b' ) . ';color:' . ( sanitize_hex_color( $item['button_text'] ?? '#ffffff' ) ?: '#ffffff' ) . ';border-radius:' . min( 40, absint( $item['button_radius'] ?? 6 ) ) . 'px;padding:.7rem 1.1rem;text-decoration:none;';
 			$out .= '<section class="rss-prism-canvas-callout ' . esc_attr( 'rss-prism-item-' . $safe_id ) . '" style="' . esc_attr( $style ) . '"><h2 style="margin-top:0;color:inherit">' . esc_html( $text ) . '</h2><p>' . nl2br( esc_html( $body ) ) . '</p>' . ( ! empty( $item['url'] ) ? '<a class="rss-prism-canvas-button" style="' . esc_attr( $button_style ) . '" href="' . esc_url( $item['url'] ) . '">' . esc_html( $label ) . '</a>' : '<span class="rss-prism-canvas-button" style="' . esc_attr( $button_style ) . '">' . esc_html( $label ) . '</span>' ) . '</section>';
+		} elseif ( 'gallery' === $type ) {
+			$urls = array_slice( array_filter( array_map( 'trim', preg_split( '/\r\n|\r|\n/', (string) ( $item['gallery_urls'] ?? '' ) ) ) ), 0, 12 );
+			if ( $urls ) {
+				$out .= '<div class="rss-prism-canvas-gallery ' . esc_attr( 'rss-prism-item-' . $safe_id ) . '" style="' . esc_attr( $style ) . '">';
+				foreach ( $urls as $url ) { $safe_url = esc_url( $url ); if ( $safe_url ) { $out .= '<figure><img src="' . $safe_url . '" alt="" loading="lazy" decoding="async"></figure>'; } }
+				$out .= '</div>';
+			}
 		} elseif ( 'image' === $type && ! empty( $item['image_url'] ) ) {
 			$out .= '<figure class="rss-prism-canvas-image ' . esc_attr( 'rss-prism-item-' . $safe_id ) . '" style="' . esc_attr( $style ) . '"><img src="' . esc_url( $item['image_url'] ) . '" alt="' . esc_attr( $item['alt'] ?? '' ) . '" loading="lazy" decoding="async" style="display:block;width:' . min( 100, max( 10, absint( $item['image_width'] ?? 100 ) ) ) . '%;max-width:100%;height:auto;margin-inline:auto"></figure>';
 		}
