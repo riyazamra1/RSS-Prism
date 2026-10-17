@@ -78,7 +78,7 @@
 				const next = { ...entry, text_color: preset.text, padding: preset.padding, border_radius: preset.radius };
 				if (['section','container','columns','quote'].includes(entry.type)) next.background = preset.background;
 				if (entry.type === 'container') next.container_background = preset.surface;
-				if (entry.type === 'button') { next.button_bg = preset.accent; next.button_text = preset.buttonText; next.button_radius = preset.radius; }
+				if (entry.type === 'button' || entry.type === 'callout') { next.button_bg = preset.accent; next.button_text = preset.buttonText; next.button_radius = preset.radius; }
 				if (entry.type === 'divider') next.divider_color = preset.accent;
 				if (entry.responsive) {
 					next.responsive = clone(entry.responsive);
