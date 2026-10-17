@@ -1,3 +1,5 @@
+Stable tag: 0.29.0
+
 Version 0.28.0 introduces a Global Design System panel with four coordinated design presets (RSS Gold, Ocean Blue, Forest Green, Midnight). Applying a preset updates the current layout's element palette, text colors, button styles, spacing, dividers, and corner radii in one undoable action; the normal WordPress autosave persists the resulting layout. The admin workspace also gains improved responsive panel stacking. This is a further builder foundation, not a claim of complete Divi feature parity.
 
 Version 0.27.0 fixes WordPress host-specific update routing for the GitHub Update URI and adds three practical visual modules: adjustable divider, adjustable vertical spacer, and quote with attribution. Each module is available from the element palette, editable in the live canvas/inspector, and sanitized and rendered in published output. Automatic updating still requires verification on the target WordPress installation.
