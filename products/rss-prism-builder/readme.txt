@@ -1,3 +1,5 @@
+Version 0.26.0 fixes WordPress automatic-update routing for the plugin's GitHub Update URI. WordPress versions that use the host-specific update hook now receive the validated release version and direct ZIP package URL, rather than relying only on the generic update transient. This addresses the “Automatic update is unavailable” state; the actual customer WordPress installation still needs an update check and upgrade test.
+
 === RSS Prism Builder ===
 
 Version 0.25.0 adds optional element borders to the live design inspector. Set border color and a 0–12px border width; borders are validated and saved with the layout and applied to published output. Combined with the previous release's background and corner-radius controls, this adds practical per-element styling without requiring custom CSS.
