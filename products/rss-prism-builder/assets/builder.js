@@ -31,6 +31,7 @@
 	function App() {
 		const [items, setItems] = useState(Array.isArray(config.layout) ? config.layout : []);
 		const [selected, setSelected] = useState(0);
+		const [inlineEditing, setInlineEditing] = useState(false);
 		const [notice, setNotice] = useState('');
 		const [busy, setBusy] = useState(false);
 		const [copyTitle, setCopyTitle] = useState('');
@@ -253,10 +254,19 @@
 		const previewElement = (entry, i) => {
 			const deviceStyle = (entry.responsive && entry.responsive[preview]) || entry;
 			const style = { padding: (Number(deviceStyle.padding ?? entry.padding) || 0) + 'px', background: entry.background || 'transparent', color: entry.text_color || '#202124', fontSize: (Number(deviceStyle.font_size ?? entry.font_size) || 16) + 'px', textAlign: deviceStyle.align || entry.align || 'left', boxSizing: 'border-box', overflowWrap: 'anywhere' };
-			const common = { key: entry.id || i, className: 'rss-prism-live-element ' + (i === selected ? 'is-selected' : ''), style, onClick: () => setSelected(i) };
-			if (entry.type === 'heading') return h('h2', common, entry.text || 'Heading');
-			if (entry.type === 'text') return h('p', common, entry.text || 'Text');
-			if (entry.type === 'button') return h('div', common, h('span', { className: 'rss-prism-live-button', style: { background: entry.button_bg || '#b88a2b', color: entry.button_text || '#ffffff', borderRadius: (Number(entry.button_radius ?? 6)) + 'px' } }, entry.text || 'Button'));
+			const editable = i === selected && inlineEditing && ['heading', 'text', 'button', 'section'].includes(entry.type);
+			const inlineTextProps = {
+				contentEditable: editable,
+				suppressContentEditableWarning: true,
+				spellCheck: editable,
+				'aria-label': 'Edit text inline; changes are saved when you finish editing',
+				onBlur: e => { if (editable) { const value = e.currentTarget.innerText.replace(/\\r/g, ''); if (value !== (entry.text || '')) update('text', value); setInlineEditing(false); } },
+				onKeyDown: e => { if (e.key === 'Escape') { e.preventDefault(); e.currentTarget.blur(); } if (e.key === 'Enter' && entry.type !== 'text') { e.preventDefault(); e.currentTarget.blur(); } }
+			};
+			const common = { key: entry.id || i, className: 'rss-prism-live-element ' + (i === selected ? 'is-selected' : '') + (editable ? ' is-inline-editing' : ''), style, onClick: () => { setSelected(i); if (i !== selected) setInlineEditing(false); }, onDoubleClick: () => { if (['heading', 'text', 'button', 'section'].includes(entry.type)) { setSelected(i); setInlineEditing(true); } }, title: ['heading', 'text', 'button', 'section'].includes(entry.type) ? 'Double-click to edit text inline' : 'Click to select and edit settings' };
+			if (entry.type === 'heading') return h('h2', { ...common, ...inlineTextProps }, entry.text || 'Heading');
+			if (entry.type === 'text') return h('p', { ...common, ...inlineTextProps }, entry.text || 'Text');
+			if (entry.type === 'button') return h('div', common, h('span', { className: 'rss-prism-live-button', style: { background: entry.button_bg || '#b88a2b', color: entry.button_text || '#ffffff', borderRadius: (Number(entry.button_radius ?? 6)) + 'px' }, ...inlineTextProps }, entry.text || 'Button'));
 			const previewNested = (child, childIndex, depth = 0) => {
 				const key = child.id || childIndex;
 				if (child.type === 'container' && depth < 2) return h('div', { key, className: 'rss-prism-live-container rss-prism-live-container--nested', style: { background: child.container_background || '#f7f6f2', border: '1px solid #e2e4e7', borderRadius: '8px', padding: '12px', margin: '12px 0' } }, ...(Array.isArray(child.container_elements) ? child.container_elements : []).map((nested, nestedIndex) => previewNested(nested, nestedIndex, depth + 1)));
@@ -268,7 +278,7 @@
 			if (entry.type === 'container') return h('div', { ...common, className: common.className + ' rss-prism-live-container', style: { ...style, background: entry.container_background || '#f7f6f2', border: '1px solid #e2e4e7', borderRadius: '10px' } }, ...(Array.isArray(entry.container_elements) ? entry.container_elements : []).map((child, childIndex) => previewNested(child, childIndex, 0)));
 			if (entry.type === 'columns') return h('div', { ...common, className: common.className + ' rss-prism-live-columns', style: { ...style, display: 'grid', gridTemplateColumns: 'repeat(' + Math.min(3, Math.max(2, Number(entry.columns_count || 2))) + ', minmax(0, 1fr))', gap: '12px' } }, ...Array.from({ length: Number(entry.columns_count || 2) }, (_, index) => { const children = normalizedColumnElements(entry)[index]; return h('div', { key: index, className: 'rss-prism-live-column-cell' }, ...children.map((child, childIndex) => child.type === 'heading' ? h('h3', { key: child.id || childIndex }, child.text || 'Heading') : child.type === 'button' ? h('p', { key: child.id || childIndex }, h('span', { className: 'rss-prism-live-button' }, child.text || 'Button')) : h('p', { key: child.id || childIndex }, child.text || 'Text'))); }));
 			if (entry.type === 'image') return h('div', common, entry.image_url ? h('img', { src: entry.image_url, alt: entry.alt || '', className: 'rss-prism-live-image', style: { width: Math.min(100, Math.max(10, Number(entry.image_width ?? 100))) + '%' } }) : h('span', { className: 'rss-prism-image-placeholder' }, 'Choose an image in Element settings'));
-			return h('section', common, entry.text || 'Section');
+			return h('section', { ...common, ...inlineTextProps }, entry.text || 'Section');
 		};
 		const canvasItem = (entry, i) => h('div', { key: entry.id || i, className: 'rss-prism-canvas-item' + (i === selected ? ' is-selected' : ''), draggable: true, onDragStart: e => { e.dataTransfer.setData('text/plain', String(i)); e.dataTransfer.effectAllowed = 'move'; }, onDragOver: e => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; }, onDrop: e => { e.preventDefault(); move(Number(e.dataTransfer.getData('text/plain')), i); }, onClick: () => setSelected(i) },
 			h('span', { className: 'rss-prism-drag-handle', title: 'Drag to reorder', 'aria-label': 'Drag to reorder' }, '⠿'),
@@ -328,7 +338,7 @@
 					h('label', { className: 'rss-prism-field' }, h('span', null, 'Padding (' + preview + '): ' + ((((item.responsive || {})[preview] || item).padding ?? item.padding) || 0) + ' px'), h('input', { type: 'range', min: 0, max: 200, value: (((item.responsive || {})[preview] || item).padding ?? item.padding ?? 0), onChange: e => update('padding', Number(e.target.value)) })),
 					h('div', { className: 'rss-prism-inspector-actions' }, h('button', { type: 'button', className: 'button', disabled: selected <= 0, onClick: () => move(selected, selected - 1) }, 'Move up'), h('button', { type: 'button', className: 'button', disabled: selected >= items.length - 1, onClick: () => move(selected, selected + 1) }, 'Move down'))
 				) : h('p', null, 'Select an element on the canvas to edit its settings.')),
-				h('section', { className: 'rss-prism-preview-frame rss-prism-preview-' + preview, onDragOver: e => { e.preventDefault(); e.dataTransfer.dropEffect = String(e.dataTransfer.getData('text/plain') || '').startsWith('rss-prism-add:') ? 'copy' : 'move'; }, onDrop: e => { e.preventDefault(); const payload = e.dataTransfer.getData('text/plain') || ''; if (payload.startsWith('rss-prism-add:')) { const type = payload.slice('rss-prism-add:'.length); if (TYPES[type]) add(type); return; } const from = Number(payload); if (Number.isInteger(from) && String(from) === payload) move(from, items.length - 1); } }, h('div', { className: 'rss-prism-preview-caption' }, h('span', null, 'LIVE CANVAS'), h('span', null, preview.charAt(0).toUpperCase() + preview.slice(1) + ' preview · click any element to edit · drop elements here')), items.length ? items.map(previewElement) : h('p', { className: 'rss-prism-empty' }, 'Drag an element here or click an element above to start building.'))
+				h('section', { className: 'rss-prism-preview-frame rss-prism-preview-' + preview, onDragOver: e => { e.preventDefault(); e.dataTransfer.dropEffect = String(e.dataTransfer.getData('text/plain') || '').startsWith('rss-prism-add:') ? 'copy' : 'move'; }, onDrop: e => { e.preventDefault(); const payload = e.dataTransfer.getData('text/plain') || ''; if (payload.startsWith('rss-prism-add:')) { const type = payload.slice('rss-prism-add:'.length); if (TYPES[type]) add(type); return; } const from = Number(payload); if (Number.isInteger(from) && String(from) === payload) move(from, items.length - 1); } }, h('div', { className: 'rss-prism-preview-caption' }, h('span', null, 'LIVE CANVAS'), h('span', null, preview.charAt(0).toUpperCase() + preview.slice(1) + ' preview · click to select · double-click text to edit inline · drop elements here')), items.length ? items.map(previewElement) : h('p', { className: 'rss-prism-empty' }, 'Drag an element here or click an element above to start building.'))
 			)
 		);
 	}
