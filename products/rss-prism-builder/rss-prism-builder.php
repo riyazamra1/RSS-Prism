@@ -4,7 +4,7 @@
  * Plugin URI: https://www.rsscctvsolution.eu.cc/
  * Update URI: https://github.com/riyazamra1/RSS-Prism/
  * Description: Free visual page builder. Theme design tools: Dashboard → Appearance → RSS Prism Studio.
- * Version: 0.28.0
+ * Version: 0.29.0
  * Requires at least: 6.4
  * Requires PHP: 7.4
  * Author: Razeen Secure Solution
@@ -16,7 +16,7 @@
 defined( 'ABSPATH' ) || exit;
 
 require_once __DIR__ . '/includes/auto-updates.php';
-define( 'RSS_PRISM_BUILDER_VERSION', '0.28.0' );
+define( 'RSS_PRISM_BUILDER_VERSION', '0.29.0' );
 
 function rss_prism_builder_register_templates() {
 	register_post_type( 'rss_prism_template', array(
@@ -73,7 +73,7 @@ function rss_prism_builder_sanitize_layout( $layout ) {
 	if ( ! is_array( $layout ) ) { return new WP_Error( 'invalid_layout', __( 'Layout must be a list of elements.', 'rss-prism-builder' ), array( 'status' => 400 ) ); }
 	if ( count( $layout ) > 100 ) { return new WP_Error( 'layout_too_large', __( 'A layout may contain at most 100 elements.', 'rss-prism-builder' ), array( 'status' => 400 ) ); }
 	$clean = array();
-	$allowed = array( 'section', 'heading', 'text', 'button', 'image', 'columns', 'container', 'divider', 'spacer', 'quote' );
+	$allowed = array( 'section', 'heading', 'text', 'button', 'image', 'columns', 'container', 'divider', 'spacer', 'quote', 'blurb', 'callout' );
 	foreach ( $layout as $item ) {
 		if ( ! is_array( $item ) || empty( $item['type'] ) || ! in_array( $item['type'], $allowed, true ) ) { continue; }
 		$padding = isset( $item['padding'] ) ? absint( $item['padding'] ) : 24;
@@ -101,6 +101,10 @@ function rss_prism_builder_sanitize_layout( $layout ) {
 			'divider_width' => min( 100, max( 10, absint( $item['divider_width'] ?? 100 ) ) ),
 			'spacer_height' => min( 300, max( 8, absint( $item['spacer_height'] ?? 48 ) ) ),
 			'quote_author' => isset( $item['quote_author'] ) ? sanitize_text_field( $item['quote_author'] ) : '',
+			'blurb_icon' => isset( $item['blurb_icon'] ) ? sanitize_text_field( $item['blurb_icon'] ) : '✦',
+			'blurb_body' => isset( $item['blurb_body'] ) ? sanitize_textarea_field( $item['blurb_body'] ) : '',
+			'callout_body' => isset( $item['callout_body'] ) ? sanitize_textarea_field( $item['callout_body'] ) : '',
+			'callout_label' => isset( $item['callout_label'] ) ? sanitize_text_field( $item['callout_label'] ) : 'Get started',
 			'text_color' => isset( $item['text_color'] ) ? sanitize_hex_color( $item['text_color'] ) : '',
 			'font_size' => min( 96, max( 10, absint( $item['font_size'] ?? 16 ) ) ),
 			'align' => isset( $item['align'] ) && in_array( $item['align'], array( 'left', 'center', 'right' ), true ) ? $item['align'] : 'left',
@@ -392,6 +396,15 @@ function rss_prism_builder_render_canvas_shortcode( $atts ) {
 			$out .= '<div class="rss-prism-canvas-spacer ' . esc_attr( 'rss-prism-item-' . $safe_id ) . '" aria-hidden="true" style="height:' . min( 300, max( 8, absint( $item['spacer_height'] ?? 48 ) ) ) . 'px;padding:0"></div>';
 		} elseif ( 'quote' === $type ) {
 			$out .= '<blockquote class="rss-prism-canvas-quote ' . esc_attr( 'rss-prism-item-' . $safe_id ) . '" style="' . esc_attr( $style . 'border-left:4px solid #b88a2b;margin:1rem 0;font-style:italic;' ) . '"><p>' . nl2br( esc_html( $text ) ) . '</p>' . ( ! empty( $item['quote_author'] ) ? '<cite style="display:block;margin-top:.5rem;font-style:normal">' . esc_html( $item['quote_author'] ) . '</cite>' : '' ) . '</blockquote>';
+		} elseif ( 'blurb' === $type ) {
+			$icon = isset( $item['blurb_icon'] ) ? sanitize_text_field( $item['blurb_icon'] ) : '✦';
+			$body = isset( $item['blurb_body'] ) ? sanitize_textarea_field( $item['blurb_body'] ) : '';
+			$out .= '<article class="rss-prism-canvas-blurb ' . esc_attr( 'rss-prism-item-' . $safe_id ) . '" style="' . esc_attr( $style . 'border:1px solid #e5e7eb;border-radius:' . min( 48, absint( $item['border_radius'] ?? 8 ) ) . 'px;' ) . '"><span class="rss-prism-blurb-icon" aria-hidden="true">' . esc_html( $icon ) . '</span><h3 style="margin:10px 0 6px;color:inherit">' . esc_html( $text ) . '</h3><p>' . nl2br( esc_html( $body ) ) . '</p></article>';
+		} elseif ( 'callout' === $type ) {
+			$body = isset( $item['callout_body'] ) ? sanitize_textarea_field( $item['callout_body'] ) : '';
+			$label = isset( $item['callout_label'] ) ? sanitize_text_field( $item['callout_label'] ) : 'Get started';
+			$button_style = 'display:inline-block;background:' . ( sanitize_hex_color( $item['button_bg'] ?? '#b88a2b' ) ?: '#b88a2b' ) . ';color:' . ( sanitize_hex_color( $item['button_text'] ?? '#ffffff' ) ?: '#ffffff' ) . ';border-radius:' . min( 40, absint( $item['button_radius'] ?? 6 ) ) . 'px;padding:.7rem 1.1rem;text-decoration:none;';
+			$out .= '<section class="rss-prism-canvas-callout ' . esc_attr( 'rss-prism-item-' . $safe_id ) . '" style="' . esc_attr( $style ) . '"><h2 style="margin-top:0;color:inherit">' . esc_html( $text ) . '</h2><p>' . nl2br( esc_html( $body ) ) . '</p>' . ( ! empty( $item['url'] ) ? '<a class="rss-prism-canvas-button" style="' . esc_attr( $button_style ) . '" href="' . esc_url( $item['url'] ) . '">' . esc_html( $label ) . '</a>' : '<span class="rss-prism-canvas-button" style="' . esc_attr( $button_style ) . '">' . esc_html( $label ) . '</span>' ) . '</section>';
 		} elseif ( 'image' === $type && ! empty( $item['image_url'] ) ) {
 			$out .= '<figure class="rss-prism-canvas-image ' . esc_attr( 'rss-prism-item-' . $safe_id ) . '" style="' . esc_attr( $style ) . '"><img src="' . esc_url( $item['image_url'] ) . '" alt="' . esc_attr( $item['alt'] ?? '' ) . '" loading="lazy" decoding="async" style="display:block;width:' . min( 100, max( 10, absint( $item['image_width'] ?? 100 ) ) ) . '%;max-width:100%;height:auto;margin-inline:auto"></figure>';
 		}
