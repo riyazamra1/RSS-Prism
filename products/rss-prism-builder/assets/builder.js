@@ -18,7 +18,8 @@
 		spacer: { label: 'Spacer', text: 'Spacer' },
 		quote: { label: 'Quote', text: '“Add a memorable customer quote or key message.”' },
 		blurb: { label: 'Blurb', text: 'A useful feature or service' },
-		callout: { label: 'Call to Action', text: 'Ready to get started?' }
+		callout: { label: 'Call to Action', text: 'Ready to get started?' },
+		gallery: { label: 'Image Gallery', text: 'Image gallery' }
 	};
 
 	const DESIGN_PRESETS = {
@@ -31,7 +32,7 @@
 		const fontSize = type === 'heading' ? 32 : 16;
 		const responsive = {};
 		['desktop', 'tablet', 'mobile'].forEach(device => { responsive[device] = { font_size: fontSize, padding: 24, align: 'left' }; });
-		return { border_radius: 0, spacer_height: 48, divider_color: '#d9d9d9', divider_width: 100, quote_author: '', blurb_icon: '✦', blurb_body: 'Describe the benefit or service in a sentence or two.', callout_body: 'Tell visitors what to do next and why it matters.', callout_label: 'Get started', id: 'item-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7), type, text: TYPES[type].text, url: '', image_url: '', alt: '', button_bg: '#b88a2b', button_text: '#ffffff', button_radius: 6, image_width: 100, columns_count: 2, column_contents: ['First column content', 'Second column content', 'Third column content'], column_elements: [[{ id: 'child-' + Date.now() + '-a', type: 'text', text: 'First column content', url: '' }], [{ id: 'child-' + Date.now() + '-b', type: 'text', text: 'Second column content', url: '' }], [{ id: 'child-' + Date.now() + '-c', type: 'text', text: 'Third column content', url: '' }]], container_background: '#f7f6f2', container_elements: [{ id: 'nested-' + Date.now() + '-h', type: 'heading', text: 'Container heading', url: '' }, { id: 'nested-' + Date.now() + '-p', type: 'text', text: 'Add content inside this container.', url: '' }], background: type === 'section' ? '#f7f6f2' : '', text_color: '#202124', font_size: fontSize, align: 'left', padding: 24, responsive };
+		return { border_radius: 0, spacer_height: 48, divider_color: '#d9d9d9', divider_width: 100, quote_author: '', blurb_icon: '✦', blurb_body: 'Describe the benefit or service in a sentence or two.', callout_body: 'Tell visitors what to do next and why it matters.', callout_label: 'Get started', gallery_urls: '', id: 'item-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7), type, text: TYPES[type].text, url: '', image_url: '', alt: '', button_bg: '#b88a2b', button_text: '#ffffff', button_radius: 6, image_width: 100, columns_count: 2, column_contents: ['First column content', 'Second column content', 'Third column content'], column_elements: [[{ id: 'child-' + Date.now() + '-a', type: 'text', text: 'First column content', url: '' }], [{ id: 'child-' + Date.now() + '-b', type: 'text', text: 'Second column content', url: '' }], [{ id: 'child-' + Date.now() + '-c', type: 'text', text: 'Third column content', url: '' }]], container_background: '#f7f6f2', container_elements: [{ id: 'nested-' + Date.now() + '-h', type: 'heading', text: 'Container heading', url: '' }, { id: 'nested-' + Date.now() + '-p', type: 'text', text: 'Add content inside this container.', url: '' }], background: type === 'section' ? '#f7f6f2' : '', text_color: '#202124', font_size: fontSize, align: 'left', padding: 24, responsive };
 	};
 	const clone = value => JSON.parse(JSON.stringify(value));
 	const normalizedColumnElements = entry => Array.from({ length: Number(entry.columns_count || 2) }, (_, index) => {
@@ -136,7 +137,7 @@
 		};
 		const normalizeImported = (entries, depth = 0) => {
 			if (!Array.isArray(entries) || entries.length > (depth === 0 ? 100 : 20)) throw new Error('The layout contains too many elements.');
-			const allowed = depth === 0 ? ['section','heading','text','button','image','columns','container','divider','spacer','quote','blurb','callout'] : ['heading','text','button','image'].concat(depth < 2 ? ['container'] : []);
+			const allowed = depth === 0 ? ['section','heading','text','button','image','columns','container','divider','spacer','quote','blurb','callout','gallery'] : ['heading','text','button','image'].concat(depth < 2 ? ['container'] : []);
 			return entries.map((entry, index) => {
 				if (!entry || typeof entry !== 'object' || !allowed.includes(entry.type)) throw new Error('Unsupported element found in the JSON file.');
 				const clean = { ...entry, id: 'import-' + Date.now() + '-' + depth + '-' + index + '-' + Math.random().toString(36).slice(2,6) };
@@ -314,6 +315,7 @@
 			};
 			if (entry.type === 'container') return h('div', { ...common, className: common.className + ' rss-prism-live-container', style: { ...style, background: entry.container_background || '#f7f6f2', border: '1px solid #e2e4e7', borderRadius: '10px' } }, ...(Array.isArray(entry.container_elements) ? entry.container_elements : []).map((child, childIndex) => previewNested(child, childIndex, 0)));
 			if (entry.type === 'columns') return h('div', { ...common, className: common.className + ' rss-prism-live-columns', style: { ...style, display: 'grid', gridTemplateColumns: 'repeat(' + Math.min(3, Math.max(2, Number(entry.columns_count || 2))) + ', minmax(0, 1fr))', gap: '12px' } }, ...Array.from({ length: Number(entry.columns_count || 2) }, (_, index) => { const children = normalizedColumnElements(entry)[index]; return h('div', { key: index, className: 'rss-prism-live-column-cell' }, ...children.map((child, childIndex) => child.type === 'heading' ? h('h3', { key: child.id || childIndex }, child.text || 'Heading') : child.type === 'button' ? h('p', { key: child.id || childIndex }, h('span', { className: 'rss-prism-live-button' }, child.text || 'Button')) : h('p', { key: child.id || childIndex }, child.text || 'Text'))); }));
+			if (entry.type === 'gallery') { const urls = String(entry.gallery_urls || '').split(/\n+/).map(url => url.trim()).filter(Boolean).slice(0, 12); return h('div', common, urls.length ? h('div', { className: 'rss-prism-gallery-grid' }, ...urls.map((url, index) => h('img', { key: index, src: url, alt: '', loading: 'lazy' }))) : h('span', { className: 'rss-prism-image-placeholder' }, 'Add image URLs in Element settings')); }
 			if (entry.type === 'image') return h('div', common, entry.image_url ? h('img', { src: entry.image_url, alt: entry.alt || '', className: 'rss-prism-live-image', style: { width: Math.min(100, Math.max(10, Number(entry.image_width ?? 100))) + '%' } }) : h('span', { className: 'rss-prism-image-placeholder' }, 'Choose an image in Element settings'));
 			return h('section', { ...common, ...inlineTextProps }, entry.text || 'Section');
 		};
@@ -325,7 +327,7 @@
 			h('button', { type: 'button', className: 'button-link-delete', onClick: e => { e.stopPropagation(); remove(i); } }, 'Remove'));
 		return h('div', { className: 'rss-prism-builder-layout' },
 			h('div', { className: 'rss-prism-builder-toolbar' },
-				h('div', { className: 'rss-prism-builder-add' }, h('strong', null, 'Add element'), ...Object.keys(TYPES).map(type => h('button', { key: type, type: 'button', className: 'button rss-prism-palette-item', draggable: true, title: 'Drag onto the page canvas or click to add', onDragStart: e => { e.dataTransfer.setData('text/plain', 'rss-prism-add:' + type); e.dataTransfer.effectAllowed = 'copy'; }, onClick: () => add(type) }, h('span', { className: 'rss-prism-palette-icon', 'aria-hidden': 'true' }, ({section:'▱',heading:'T',text:'¶',button:'▰',image:'▧',columns:'▥',container:'□',divider:'—',spacer:'↕',quote:'❝',blurb:'✦',callout:'↗'})[type] || '+'), h('span', null, TYPES[type].label)))),
+				h('div', { className: 'rss-prism-builder-add' }, h('strong', null, 'Add element'), ...Object.keys(TYPES).map(type => h('button', { key: type, type: 'button', className: 'button rss-prism-palette-item', draggable: true, title: 'Drag onto the page canvas or click to add', onDragStart: e => { e.dataTransfer.setData('text/plain', 'rss-prism-add:' + type); e.dataTransfer.effectAllowed = 'copy'; }, onClick: () => add(type) }, h('span', { className: 'rss-prism-palette-icon', 'aria-hidden': 'true' }, ({section:'▱',heading:'T',text:'¶',button:'▰',image:'▧',columns:'▥',container:'□',divider:'—',spacer:'↕',quote:'❝',blurb:'✦',callout:'↗',gallery:'▦'})[type] || '+'), h('span', null, TYPES[type].label)))),
 				h('div', { className: 'rss-prism-builder-add rss-prism-starters' }, h('strong', null, 'Insert RSS starter layout'), ...[['business','Business landing'],['services','Services'],['about','About RSS'],['projects','RSS projects'],['security','Security solutions'],['contact','Contact page']].map(([kind,label]) => h('button', { key: kind, type: 'button', className: 'button', onClick: () => insertStarter(kind) }, label))),
 				h('div', { className: 'rss-prism-global-design' },
 					h('strong', null, 'Global design system'),
@@ -343,6 +345,7 @@
 				h('aside', { className: 'rss-prism-builder-inspector' }, h('h2', null, 'Element settings'), item ? h('div', null,
 					h('p', { className: 'rss-prism-inspector-type' }, TYPES[item.type] ? TYPES[item.type].label : item.type),
 					field('Content', 'text', item.text, 'textarea'),
+					item.type === 'gallery' ? h('div', { className: 'rss-prism-image-controls' }, field('Image URLs (one per line; up to 12)', 'gallery_urls', item.gallery_urls || '', 'textarea'), h('p', { className: 'description' }, 'Paste direct image URLs, one per line. The gallery is responsive on the published page.')) : null,
 					item.type === 'button' ? h('div', { className: 'rss-prism-image-controls' }, field('Button URL', 'url', item.url, 'url'), field('Button background', 'button_bg', item.button_bg || '#b88a2b', 'color'), field('Button text color', 'button_text', item.button_text || '#ffffff', 'color'), h('label', { className: 'rss-prism-field' }, h('span', null, 'Corner radius: ' + (item.button_radius ?? 6) + ' px'), h('input', { type: 'range', min: 0, max: 40, value: item.button_radius ?? 6, onChange: e => update('button_radius', Number(e.target.value)) }))) : null,
 					item.type === 'container' ? h('div', { className: 'rss-prism-image-controls' },
 						field('Container background', 'container_background', item.container_background || '#f7f6f2', 'color'),
