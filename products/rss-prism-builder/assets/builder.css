@@ -22,3 +22,6 @@
 
 /* Inline editing: double-click text on the live canvas to edit it in place. */
 .rss-prism-live-element{position:relative;outline:2px solid transparent;outline-offset:2px;transition:outline-color .12s ease,box-shadow .12s ease;cursor:pointer}.rss-prism-live-element:hover{outline-color:#d9c18b}.rss-prism-live-element.is-selected{outline:2px solid #b88a2b;outline-offset:2px;box-shadow:0 0 0 4px #b88a2b18}.rss-prism-live-element.is-inline-editing{outline:2px solid #2271b1;background-clip:padding-box;cursor:text;user-select:text;white-space:pre-wrap}.rss-prism-live-element.is-inline-editing:focus{outline:2px solid #2271b1;box-shadow:0 0 0 4px #2271b122}.rss-prism-live-button[contenteditable=true]{min-width:2em;outline:2px dashed #2271b1;outline-offset:3px}
+
+/* RSS Prism Builder 0.27.0 — visual structure modules */
+.rss-prism-live-divider{min-height:12px;cursor:pointer}.rss-prism-live-divider span{vertical-align:middle}.rss-prism-live-spacer{display:flex;align-items:center;justify-content:center;min-height:8px;border:1px dashed #c7ccd4;color:#69717d;font-size:11px;line-height:1}.rss-prism-live-quote{padding:16px 20px;background:#faf8f2;border-radius:4px;color:#343943}.rss-prism-live-quote cite{font-size:12px;color:#686e77}.rss-prism-live-element.rss-prism-live-spacer.is-selected{outline:2px solid var(--rp-gold);outline-offset:2px}
