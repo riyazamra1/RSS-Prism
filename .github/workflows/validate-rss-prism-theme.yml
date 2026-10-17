@@ -1,6 +1,10 @@
 name: Validate RSS Prism theme
 
 on:
+  push:
+    paths:
+      - 'products/rss-prism-theme/**'
+      - '.github/workflows/validate-rss-prism-theme.yml'
   pull_request:
     paths:
       - 'products/rss-prism-theme/**'
@@ -23,6 +27,21 @@ jobs:
           php-version: '8.2'
           tools: none
 
+      - name: Check theme metadata and thumbnail source
+        id: metadata
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f products/rss-prism-theme/style.css
+          test -f products/rss-prism-theme/readme.txt
+          test -f products/rss-prism-theme/screenshot.svg
+          version="$(sed -n 's/^Version:[[:space:]]*//p' products/rss-prism-theme/style.css | head -n1 | tr -d '\r')"
+          stable_tag="$(sed -n 's/^Stable tag:[[:space:]]*//p' products/rss-prism-theme/readme.txt | head -n1 | tr -d '\r')"
+          [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]
+          test "$version" = "$stable_tag"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "Theme version: $version"
+
       - name: PHP syntax check
         shell: bash
         run: |
@@ -31,21 +50,26 @@ jobs:
 
       - name: Build installable theme ZIP
         shell: bash
+        env:
+          THEME_VERSION: ${{ steps.metadata.outputs.version }}
         run: |
           set -euo pipefail
-          test -f products/rss-prism-theme/style.css
-          grep -q '^Version: 1.3.1$' products/rss-prism-theme/style.css
+          sudo apt-get update
+          sudo apt-get install -y librsvg2-bin
           mkdir -p dist/rss-prism-theme
           cp -a products/rss-prism-theme/. dist/rss-prism-theme/
+          rsvg-convert -o dist/rss-prism-theme/screenshot.png dist/rss-prism-theme/screenshot.svg
+          test -s dist/rss-prism-theme/screenshot.png
           cd dist
-          zip -qr ../rss-prism-theme.zip rss-prism-theme
-          unzip -t ../rss-prism-theme.zip
-          unzip -l ../rss-prism-theme.zip | grep -q 'rss-prism-theme/style.css'
+          zip -qr "../rss-prism-theme-${THEME_VERSION}.zip" rss-prism-theme
+          unzip -t "../rss-prism-theme-${THEME_VERSION}.zip"
+          unzip -l "../rss-prism-theme-${THEME_VERSION}.zip" | grep -q 'rss-prism-theme/style.css'
+          unzip -l "../rss-prism-theme-${THEME_VERSION}.zip" | grep -q 'rss-prism-theme/screenshot.png'
 
       - name: Upload installable ZIP for test
         uses: actions/upload-artifact@v4
         with:
-          name: rss-prism-theme-1.3.1-test
-          path: rss-prism-theme.zip
+          name: rss-prism-theme-${{ steps.metadata.outputs.version }}-test
+          path: rss-prism-theme-${{ steps.metadata.outputs.version }}.zip
           if-no-files-found: error
           retention-days: 14
