@@ -1,4 +1,4 @@
-Stable tag: 0.29.0
+Stable tag: 0.30.0
 
 Version 0.28.0 introduces a Global Design System panel with four coordinated design presets (RSS Gold, Ocean Blue, Forest Green, Midnight). Applying a preset updates the current layout's element palette, text colors, button styles, spacing, dividers, and corner radii in one undoable action; the normal WordPress autosave persists the resulting layout. The admin workspace also gains improved responsive panel stacking. This is a further builder foundation, not a claim of complete Divi feature parity.
 
@@ -7,6 +7,9 @@ Version 0.27.0 fixes WordPress host-specific update routing for the GitHub Updat
 Version 0.26.0 fixes WordPress automatic-update routing for the plugin's GitHub Update URI. WordPress versions that use the host-specific update hook now receive the validated release version and direct ZIP package URL, rather than relying only on the generic update transient. This addresses the “Automatic update is unavailable” state; the actual customer WordPress installation still needs an update check and upgrade test.
 
 === RSS Prism Builder ===
+
+Version 0.30.0 adds a responsive Image Gallery module. Add up to 12 direct image URLs (one per line), preview them in the visual canvas, and render the gallery in published templates. URLs are escaped on output and the list is bounded to 12 images. The gallery module joins the existing sanitized layout schema and JSON import/export workflow.
+
 
 Version 0.29.0 adds two conversion-focused modules to the live editor and published output: Blurb (icon/symbol, title, description) and Call to Action (headline, supporting copy, button label, URL and button colors). Both modules are editable in the inspector, autosaved, included in layout JSON import/export at top level, and sanitized before published rendering. This expands the module library; it is not a claim of full Divi feature parity.
 
