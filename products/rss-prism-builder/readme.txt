@@ -1,3 +1,5 @@
+Version 0.27.0 fixes WordPress host-specific update routing for the GitHub Update URI and adds three practical visual modules: adjustable divider, adjustable vertical spacer, and quote with attribution. Each module is available from the element palette, editable in the live canvas/inspector, and sanitized and rendered in published output. Automatic updating still requires verification on the target WordPress installation.
+
 Version 0.26.0 fixes WordPress automatic-update routing for the plugin's GitHub Update URI. WordPress versions that use the host-specific update hook now receive the validated release version and direct ZIP package URL, rather than relying only on the generic update transient. This addresses the “Automatic update is unavailable” state; the actual customer WordPress installation still needs an update check and upgrade test.
 
 === RSS Prism Builder ===
