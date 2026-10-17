@@ -6,6 +6,8 @@ Version 0.26.0 fixes WordPress automatic-update routing for the plugin's GitHub 
 
 === RSS Prism Builder ===
 
+Version 0.29.0 adds two conversion-focused modules to the live editor and published output: Blurb (icon/symbol, title, description) and Call to Action (headline, supporting copy, button label, URL and button colors). Both modules are editable in the inspector, autosaved, included in layout JSON import/export at top level, and sanitized before published rendering. This expands the module library; it is not a claim of full Divi feature parity.
+
 Version 0.25.0 adds optional element borders to the live design inspector. Set border color and a 0–12px border width; borders are validated and saved with the layout and applied to published output. Combined with the previous release's background and corner-radius controls, this adds practical per-element styling without requiring custom CSS.
 
 Version 0.24.0 expands the live design inspector: background color is available for every top-level element, corner radius is adjustable from 0–48px, and these styles are sanitized, stored, and rendered on the published page. This builds on the inline canvas editing introduced in 0.23.0; full Divi parity is still in progress.
@@ -18,7 +20,7 @@ Tags: page-builder, layout, templates
 Requires at least: 6.4
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 0.28.0
+Stable tag: 0.29.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
