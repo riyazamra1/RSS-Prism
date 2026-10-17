@@ -1,5 +1,7 @@
 === RSS Prism Builder ===
 
+Version 0.25.0 adds optional element borders to the live design inspector. Set border color and a 0–12px border width; borders are validated and saved with the layout and applied to published output. Combined with the previous release's background and corner-radius controls, this adds practical per-element styling without requiring custom CSS.
+
 Version 0.24.0 expands the live design inspector: background color is available for every top-level element, corner radius is adjustable from 0–48px, and these styles are sanitized, stored, and rendered on the published page. This builds on the inline canvas editing introduced in 0.23.0; full Divi parity is still in progress.
 
 Version 0.23.0 adds direct inline editing on the live canvas: double-click a heading, text block, button label, or section title to edit it in place, then finish editing to commit the text into the autosaved layout. Escape exits inline editing; Enter finishes editing for single-line elements. The editor now visibly outlines hover, selection, and inline-editing states. The Divi-style workflow is being built incrementally; this release does not yet provide full Divi parity.
@@ -10,7 +12,7 @@ Tags: page-builder, layout, templates
 Requires at least: 6.4
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 0.24.0
+Stable tag: 0.25.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
