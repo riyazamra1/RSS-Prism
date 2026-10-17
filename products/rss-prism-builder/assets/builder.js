@@ -18,6 +18,13 @@
 		spacer: { label: 'Spacer', text: 'Spacer' },
 		quote: { label: 'Quote', text: '“Add a memorable customer quote or key message.”' }
 	};
+
+	const DESIGN_PRESETS = {
+		'rss-gold': { label: 'RSS Gold', background: '#f7f3e8', surface: '#ffffff', text: '#202124', accent: '#b88a2b', buttonText: '#ffffff', radius: 8, padding: 28 },
+		'ocean-blue': { label: 'Ocean Blue', background: '#edf5fb', surface: '#ffffff', text: '#17324d', accent: '#1769aa', buttonText: '#ffffff', radius: 10, padding: 28 },
+		'forest-green': { label: 'Forest Green', background: '#eef5ef', surface: '#ffffff', text: '#20352a', accent: '#28734b', buttonText: '#ffffff', radius: 8, padding: 26 },
+		'midnight': { label: 'Midnight', background: '#202632', surface: '#2b3443', text: '#f3f5f8', accent: '#d7ad54', buttonText: '#202632', radius: 6, padding: 28 }
+	};
 	const fresh = type => {
 		const fontSize = type === 'heading' ? 32 : 16;
 		const responsive = {};
@@ -40,6 +47,7 @@
 		const [copyTitle, setCopyTitle] = useState('');
 		const [pageTitle, setPageTitle] = useState('');
 		const [preview, setPreview] = useState('desktop');
+		const [designPreset, setDesignPreset] = useState('rss-gold');
 		const [history, setHistory] = useState([]);
 		const [future, setFuture] = useState([]);
 		const [autosaveStatus, setAutosaveStatus] = useState('Waiting for changes');
@@ -59,6 +67,25 @@
 			return { ...entry, [key]: value };
 		}));
 		const add = type => { const next = [...items, fresh(type)]; commitItems(next); setSelected(next.length - 1); setNotice(''); };
+
+		const applyDesignPreset = key => {
+			const preset = DESIGN_PRESETS[key];
+			if (!preset) return;
+			if (!window.confirm('Apply ' + preset.label + ' global styling to every element in this layout? This updates element colors, button styling, spacing and corner radius. You can undo the change.')) return;
+			commitItems(items.map(entry => {
+				const next = { ...entry, text_color: preset.text, padding: preset.padding, border_radius: preset.radius };
+				if (['section','container','columns','quote'].includes(entry.type)) next.background = preset.background;
+				if (entry.type === 'container') next.container_background = preset.surface;
+				if (entry.type === 'button') { next.button_bg = preset.accent; next.button_text = preset.buttonText; next.button_radius = preset.radius; }
+				if (entry.type === 'divider') next.divider_color = preset.accent;
+				if (entry.responsive) {
+					next.responsive = clone(entry.responsive);
+					['desktop','tablet','mobile'].forEach(device => { next.responsive[device] = { ...(next.responsive[device] || {}), padding: preset.padding }; });
+				}
+				return next;
+			}));
+			setNotice(preset.label + ' styling applied across ' + items.length + ' elements. Autosave will store the changes.');
+		};
 		const insertStarter = kind => {
 			const library = {
 				business: [['section','Razeen Secure Solution'],['heading','Developing Ideas. Delivering Solutions.'],['text','Software development, CCTV solutions, networking, cloud services, and practical AI solutions.'],['columns',''],['heading','A practical technology partner'],['text','Reliable implementation, clear communication, and security-conscious solutions for every project.'],['button','Explore RSS']],
@@ -296,6 +323,11 @@
 			h('div', { className: 'rss-prism-builder-toolbar' },
 				h('div', { className: 'rss-prism-builder-add' }, h('strong', null, 'Add element'), ...Object.keys(TYPES).map(type => h('button', { key: type, type: 'button', className: 'button rss-prism-palette-item', draggable: true, title: 'Drag onto the page canvas or click to add', onDragStart: e => { e.dataTransfer.setData('text/plain', 'rss-prism-add:' + type); e.dataTransfer.effectAllowed = 'copy'; }, onClick: () => add(type) }, h('span', { className: 'rss-prism-palette-icon', 'aria-hidden': 'true' }, ({section:'▱',heading:'T',text:'¶',button:'▰',image:'▧',columns:'▥',container:'□',divider:'—',spacer:'↕',quote:'❝'})[type] || '+'), h('span', null, TYPES[type].label)))),
 				h('div', { className: 'rss-prism-builder-add rss-prism-starters' }, h('strong', null, 'Insert RSS starter layout'), ...[['business','Business landing'],['services','Services'],['about','About RSS'],['projects','RSS projects'],['security','Security solutions'],['contact','Contact page']].map(([kind,label]) => h('button', { key: kind, type: 'button', className: 'button', onClick: () => insertStarter(kind) }, label))),
+				h('div', { className: 'rss-prism-global-design' },
+					h('strong', null, 'Global design system'),
+					h('span', { className: 'rss-prism-global-design-note' }, 'Apply a consistent palette, spacing and button style across this entire layout.'),
+					h('div', { className: 'rss-prism-design-presets' }, ...Object.keys(DESIGN_PRESETS).map(key => h('button', { key, type: 'button', className: 'button rss-prism-design-preset' + (designPreset === key ? ' is-active' : ''), onClick: () => setDesignPreset(key), 'aria-pressed': designPreset === key }, h('span', { className: 'rss-prism-design-swatch', style: { background: DESIGN_PRESETS[key].accent } }), DESIGN_PRESETS[key].label))),
+					h('button', { type: 'button', className: 'button button-primary rss-prism-apply-design', onClick: () => applyDesignPreset(designPreset) }, 'Apply to entire layout')),
 				h('div', { className: 'rss-prism-autosave-status', role: 'status', 'aria-live': 'polite' }, h('span', { className: autosaveStatus.startsWith('Autosaved') ? 'is-saved' : autosaveStatus.startsWith('Autosave failed') ? 'is-error' : '' }, 'Autosave: ' + autosaveStatus)),
 				restoreVersions.length ? h('details', { className: 'rss-prism-restore-history' }, h('summary', null, 'Restore history (' + restoreVersions.length + ')'), h('p', { className: 'description' }, 'Browser-local recovery list for this template. Up to 20 prior layouts are kept in this browser; export JSON for an independent backup.'), h('ol', null, ...restoreVersions.map(version => h('li', { key: version.id }, h('span', null, new Date(version.saved_at).toLocaleString()), h('button', { type: 'button', className: 'button button-small', onClick: () => restoreVersion(version) }, 'Restore'))))) : h('p', { className: 'description rss-prism-no-history' }, 'No browser restore versions yet. Make a change to start the recovery list.'),
 				h('div', { className: 'rss-prism-builder-actions' }, h('button', { type: 'button', className: 'button', disabled: !history.length, onClick: undo }, 'Undo'), h('button', { type: 'button', className: 'button', disabled: !future.length, onClick: redo }, 'Redo'), h('button', { type: 'button', className: 'button', onClick: exportLayout }, 'Export JSON backup'), h('button', { type: 'button', className: 'button', onClick: () => { const input = root.querySelector('#rss-prism-layout-import'); if (input) input.click(); } }, 'Import JSON'), h('button', { type: 'button', className: 'button button-primary', disabled: busy, onClick: save }, busy ? 'Saving…' : 'Save layout'), h('input', { id: 'rss-prism-layout-import', type: 'file', accept: 'application/json,.json', onChange: importLayout, hidden: true, 'aria-label': 'Import RSS Prism layout JSON' })),
