@@ -42,19 +42,7 @@ jobs:
           echo "VERSION=$VERSION" >> "$GITHUB_ENV"
           echo "RELEASE_TAG=$TAG" >> "$GITHUB_ENV"
 
-      - name: Check whether release already exists
-        id: existing
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          if gh release view "${RELEASE_TAG}" >/dev/null 2>&1; then
-            echo "exists=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "exists=false" >> "$GITHUB_OUTPUT"
-          fi
-
       - name: Validate and build installable plugin ZIP
-        if: steps.existing.outputs.exists == 'false'
         shell: bash
         run: |
           set -euo pipefail
@@ -68,11 +56,11 @@ jobs:
           unzip -l ../rss-prism-builder.zip | grep -q 'rss-prism-builder/includes/auto-updates.php'
 
       - name: Publish release asset
-        if: steps.existing.outputs.exists == 'false'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ env.RELEASE_TAG }}
           target_commitish: ${{ github.sha }}
           name: RSS Prism Builder ${{ env.VERSION }}
           generate_release_notes: true
+          overwrite_files: true
           files: rss-prism-builder.zip
