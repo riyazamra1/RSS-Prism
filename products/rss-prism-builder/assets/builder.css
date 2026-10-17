@@ -19,3 +19,6 @@
 @media(prefers-reduced-motion:reduce){.rss-prism-live-element{transition:none}}
 
 .rss-prism-preview-desktop{width:100%;max-width:none}.rss-prism-preview-tablet{box-sizing:border-box;width:768px;max-width:100%;margin-inline:auto}.rss-prism-preview-mobile{box-sizing:border-box;width:390px;max-width:100%;margin-inline:auto}.rss-prism-preview-tablet .rss-prism-live-columns{grid-template-columns:repeat(2,minmax(0,1fr))}.rss-prism-preview-mobile .rss-prism-live-columns{grid-template-columns:1fr}.rss-prism-preview-mobile .rss-prism-live-column-cell{padding:10px}
+
+/* Inline editing: double-click text on the live canvas to edit it in place. */
+.rss-prism-live-element{position:relative;outline:2px solid transparent;outline-offset:2px;transition:outline-color .12s ease,box-shadow .12s ease;cursor:pointer}.rss-prism-live-element:hover{outline-color:#d9c18b}.rss-prism-live-element.is-selected{outline:2px solid #b88a2b;outline-offset:2px;box-shadow:0 0 0 4px #b88a2b18}.rss-prism-live-element.is-inline-editing{outline:2px solid #2271b1;background-clip:padding-box;cursor:text;user-select:text;white-space:pre-wrap}.rss-prism-live-element.is-inline-editing:focus{outline:2px solid #2271b1;box-shadow:0 0 0 4px #2271b122}.rss-prism-live-button[contenteditable=true]{min-width:2em;outline:2px dashed #2271b1;outline-offset:3px}
