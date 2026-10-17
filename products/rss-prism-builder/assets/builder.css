@@ -1,5 +1,5 @@
 
-/* RSS Prism Builder 0.22.1 — compact visual workspace */
+
 .rss-prism-admin-wrap{max-width:none;margin-right:20px}.rss-prism-admin-wrap>h1{font-size:24px;font-weight:650;letter-spacing:-.02em;margin:18px 0 4px}.rss-prism-admin-wrap>p{color:#646970}.rss-prism-live-test-guide{display:none}
 .rss-prism-template-select{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:12px 14px;background:#fff;border:1px solid #dcdcde;border-radius:10px}.rss-prism-template-select label{display:flex;flex-direction:column;gap:4px;font-weight:600}.rss-prism-template-select input[type=search]{min-width:180px}
 .rss-prism-builder-layout{--rp-gold:#b88a2b;--rp-line:#dfe2e7;max-width:none;margin:14px 0 32px}.rss-prism-builder-toolbar{position:sticky;top:32px;z-index:30;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:10px 12px;margin:0 0 12px;background:#fff;border:1px solid var(--rp-line);border-radius:12px;box-shadow:0 5px 18px #191e280f}.rss-prism-builder-toolbar>div{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
@@ -20,13 +20,13 @@
 
 .rss-prism-preview-desktop{width:100%;max-width:none}.rss-prism-preview-tablet{box-sizing:border-box;width:768px;max-width:100%;margin-inline:auto}.rss-prism-preview-mobile{box-sizing:border-box;width:390px;max-width:100%;margin-inline:auto}.rss-prism-preview-tablet .rss-prism-live-columns{grid-template-columns:repeat(2,minmax(0,1fr))}.rss-prism-preview-mobile .rss-prism-live-columns{grid-template-columns:1fr}.rss-prism-preview-mobile .rss-prism-live-column-cell{padding:10px}
 
-/* Inline editing: double-click text on the live canvas to edit it in place. */
+
 .rss-prism-live-element{position:relative;outline:2px solid transparent;outline-offset:2px;transition:outline-color .12s ease,box-shadow .12s ease;cursor:pointer}.rss-prism-live-element:hover{outline-color:#d9c18b}.rss-prism-live-element.is-selected{outline:2px solid #b88a2b;outline-offset:2px;box-shadow:0 0 0 4px #b88a2b18}.rss-prism-live-element.is-inline-editing{outline:2px solid #2271b1;background-clip:padding-box;cursor:text;user-select:text;white-space:pre-wrap}.rss-prism-live-element.is-inline-editing:focus{outline:2px solid #2271b1;box-shadow:0 0 0 4px #2271b122}.rss-prism-live-button[contenteditable=true]{min-width:2em;outline:2px dashed #2271b1;outline-offset:3px}
 
-/* RSS Prism Builder 0.27.0 — visual structure modules */
+
 .rss-prism-live-divider{min-height:12px;cursor:pointer}.rss-prism-live-divider span{vertical-align:middle}.rss-prism-live-spacer{display:flex;align-items:center;justify-content:center;min-height:8px;border:1px dashed #c7ccd4;color:#69717d;font-size:11px;line-height:1}.rss-prism-live-quote{padding:16px 20px;background:#faf8f2;border-radius:4px;color:#343943}.rss-prism-live-quote cite{font-size:12px;color:#686e77}.rss-prism-live-element.rss-prism-live-spacer.is-selected{outline:2px solid var(--rp-gold);outline-offset:2px}
 
-/* RSS Prism Builder 0.28.0 — global design system and visual studio polish */
+
 .rss-prism-global-design{display:flex;align-items:center;gap:10px;flex-wrap:wrap;flex:1 1 100%;padding:10px 12px;margin:2px 0 0;border:1px solid #e6e0d1;border-radius:10px;background:linear-gradient(110deg,#fffdf7,#f7f8fa)}
 .rss-prism-global-design>strong{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#5d4a24}
 .rss-prism-global-design-note{flex:1 1 220px;font-size:11px;color:#656b75}
@@ -45,7 +45,7 @@
 @media(max-width:782px){.rss-prism-admin-wrap{margin-right:10px}.rss-prism-builder-toolbar{top:0}.rss-prism-builder-workspace{grid-template-columns:minmax(0,1fr)}.rss-prism-builder-canvas,.rss-prism-preview-frame,.rss-prism-builder-inspector{grid-column:1;grid-row:auto;position:static;max-height:none;min-height:0}.rss-prism-builder-canvas{max-height:300px}.rss-prism-global-design{align-items:flex-start}.rss-prism-global-design-note{flex-basis:100%}.rss-prism-design-presets{width:100%}.rss-prism-apply-design{width:100%}.rss-prism-preview-caption{margin:-14px -14px 18px;flex-wrap:wrap}.rss-prism-template-copy{align-items:stretch}.rss-prism-template-copy input{max-width:none}}
 
 
-/* RSS Prism Builder 0.29.0 — expanded conversion-focused module library */
+
 .rss-prism-live-blurb,.rss-prism-canvas-blurb{box-sizing:border-box;text-align:inherit;overflow-wrap:anywhere}
 .rss-prism-blurb-icon{display:inline-flex;align-items:center;justify-content:center;min-width:38px;min-height:38px;padding:4px;border-radius:10px;background:#b88a2b18;color:#9a701d;font-size:24px;line-height:1}
 .rss-prism-live-blurb p,.rss-prism-canvas-blurb p{margin:0;line-height:1.6}
