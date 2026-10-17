@@ -43,3 +43,12 @@
 .rss-prism-live-column-cell{background:#fff}
 @media(max-width:1200px){.rss-prism-builder-workspace{grid-template-columns:190px minmax(300px,1fr)}.rss-prism-builder-inspector{grid-column:1/-1;grid-row:2;position:static;max-height:none;min-height:0}.rss-prism-preview-frame{grid-column:2;grid-row:1}.rss-prism-builder-canvas{grid-column:1;grid-row:1}}
 @media(max-width:782px){.rss-prism-admin-wrap{margin-right:10px}.rss-prism-builder-toolbar{top:0}.rss-prism-builder-workspace{grid-template-columns:minmax(0,1fr)}.rss-prism-builder-canvas,.rss-prism-preview-frame,.rss-prism-builder-inspector{grid-column:1;grid-row:auto;position:static;max-height:none;min-height:0}.rss-prism-builder-canvas{max-height:300px}.rss-prism-global-design{align-items:flex-start}.rss-prism-global-design-note{flex-basis:100%}.rss-prism-design-presets{width:100%}.rss-prism-apply-design{width:100%}.rss-prism-preview-caption{margin:-14px -14px 18px;flex-wrap:wrap}.rss-prism-template-copy{align-items:stretch}.rss-prism-template-copy input{max-width:none}}
+
+
+/* RSS Prism Builder 0.29.0 — expanded conversion-focused module library */
+.rss-prism-live-blurb,.rss-prism-canvas-blurb{box-sizing:border-box;text-align:inherit;overflow-wrap:anywhere}
+.rss-prism-blurb-icon{display:inline-flex;align-items:center;justify-content:center;min-width:38px;min-height:38px;padding:4px;border-radius:10px;background:#b88a2b18;color:#9a701d;font-size:24px;line-height:1}
+.rss-prism-live-blurb p,.rss-prism-canvas-blurb p{margin:0;line-height:1.6}
+.rss-prism-live-callout,.rss-prism-canvas-callout{box-sizing:border-box;background:#f7f3e8;border:1px solid #e8ddc2;overflow-wrap:anywhere}
+.rss-prism-live-callout p,.rss-prism-canvas-callout p{line-height:1.65}
+.rss-prism-live-callout .rss-prism-live-button{display:inline-block;text-decoration:none;font-weight:650}
