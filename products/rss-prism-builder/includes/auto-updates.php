@@ -15,6 +15,9 @@ final class RSS_Prism_Builder_Auto_Updates {
 	public static function init() {
 		add_filter( 'pre_set_site_transient_update_plugins', array( __CLASS__, 'inject_update' ) );
 		add_filter( 'site_transient_update_plugins', array( __CLASS__, 'inject_update' ) );
+		// Plugins declaring a non-WordPress.org Update URI are checked through a host-specific filter.
+		// Return the update object here so WordPress receives the actual downloadable package URL.
+		add_filter( 'update_plugins_github.com', array( __CLASS__, 'host_update' ), 10, 4 );
 		add_filter( 'plugins_api', array( __CLASS__, 'plugin_information' ), 20, 3 );
 		add_action( 'admin_post_rss_prism_builder_check_updates', array( __CLASS__, 'force_check' ) );
 		add_action( 'admin_notices', array( __CLASS__, 'admin_notice' ) );
@@ -109,6 +112,34 @@ final class RSS_Prism_Builder_Auto_Updates {
 			set_site_transient( self::CACHE_KEY, $latest, self::CACHE_TTL );
 		}
 		return $latest;
+	}
+
+
+	/**
+	 * WordPress routes plugins with Update URI=https://github.com/... through this host filter.
+	 * The generic update transient alone is not sufficient on all supported WordPress versions.
+	 */
+	public static function host_update( $update, $plugin_data, $plugin_file, $locales ) {
+		unset( $plugin_data, $locales );
+		if ( self::plugin_file() !== $plugin_file ) {
+			return $update;
+		}
+		$release = self::release_data();
+		if ( empty( $release['version'] ) || empty( $release['zip_url'] ) ||
+			! version_compare( self::current_version(), $release['version'], '<' ) ) {
+			return false;
+		}
+		$result = new stdClass();
+		$result->id = 'https://github.com/riyazamra1/RSS-Prism/';
+		$result->slug = self::PLUGIN_SLUG;
+		$result->plugin = $plugin_file;
+		$result->new_version = $release['version'];
+		$result->url = $release['homepage'];
+		$result->package = $release['zip_url'];
+		$result->tested = '6.8';
+		$result->requires = '6.4';
+		$result->requires_php = '7.4';
+		return $result;
 	}
 
 	public static function inject_update( $transient ) {
