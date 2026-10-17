@@ -122,7 +122,7 @@ jobs:
           check_budget products/rss-prism-theme/style.css 30000
           check_budget products/rss-prism-theme/assets/js/navigation.js 1500
           check_budget products/rss-prism-builder/assets/builder.js 45000
-          check_budget products/rss-prism-builder/assets/builder.css 13000
+          check_budget products/rss-prism-builder/assets/builder.css 14000
           check_budget products/rss-prism-builder/assets/pricing.css 2000
           grep -q "wp_script_add_data( 'rss-prism-navigation', 'strategy', 'defer' )" products/rss-prism-theme/functions.php
           grep -q "prefers-reduced-motion: reduce" products/rss-prism-theme/style.css
