@@ -4,7 +4,7 @@
  * Plugin URI: https://www.rsscctvsolution.eu.cc/
  * Update URI: https://github.com/riyazamra1/RSS-Prism/
  * Description: Free visual page builder. Theme design tools: Dashboard → Appearance → RSS Prism Studio.
- * Version: 0.23.0
+ * Version: 0.24.0
  * Requires at least: 6.4
  * Requires PHP: 7.4
  * Author: Razeen Secure Solution
@@ -16,7 +16,7 @@
 defined( 'ABSPATH' ) || exit;
 
 require_once __DIR__ . '/includes/auto-updates.php';
-define( 'RSS_PRISM_BUILDER_VERSION', '0.23.0' );
+define( 'RSS_PRISM_BUILDER_VERSION', '0.24.0' );
 
 function rss_prism_builder_register_templates() {
 	register_post_type( 'rss_prism_template', array(
@@ -94,6 +94,7 @@ function rss_prism_builder_sanitize_layout( $layout ) {
 			'container_background' => isset( $item['container_background'] ) ? sanitize_hex_color( $item['container_background'] ) : '#f7f6f2',
 			'container_elements' => rss_prism_builder_sanitize_container_elements( $item['container_elements'] ?? array() ),
 			'background' => isset( $item['background'] ) ? sanitize_hex_color( $item['background'] ) : '',
+			'border_radius' => min( 48, absint( $item['border_radius'] ?? 0 ) ),
 			'text_color' => isset( $item['text_color'] ) ? sanitize_hex_color( $item['text_color'] ) : '',
 			'font_size' => min( 96, max( 10, absint( $item['font_size'] ?? 16 ) ) ),
 			'align' => isset( $item['align'] ) && in_array( $item['align'], array( 'left', 'center', 'right' ), true ) ? $item['align'] : 'left',
@@ -342,7 +343,7 @@ function rss_prism_builder_render_canvas_shortcode( $atts ) {
 		$text = isset( $item['text'] ) ? $item['text'] : '';
 		$safe_id = isset( $item['id'] ) ? sanitize_html_class( $item['id'] ) : '';
 		$responsive = rss_prism_builder_sanitize_responsive( $item['responsive'] ?? array(), $item );
-		$style = 'padding:' . min( 200, absint( $item['padding'] ?? 24 ) ) . 'px;';
+		$style = 'padding:' . min( 200, absint( $item['padding'] ?? 24 ) ) . 'px;border-radius:' . min( 48, absint( $item['border_radius'] ?? 0 ) ) . 'px;';
 		if ( $safe_id ) {
 			foreach ( array( 'desktop' => '', 'tablet' => '@media (max-width: 1024px){', 'mobile' => '@media (max-width: 640px){' ) as $device => $prefix ) {
 				$s = $responsive[ $device ];
