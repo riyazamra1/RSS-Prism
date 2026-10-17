@@ -1,4 +1,6 @@
 -- Expand the existing event-status constraint without discarding event history.
+-- If a previous migration attempt stopped mid-flight, rebuild the temporary table from the source of truth.
+DROP TABLE IF EXISTS payment_webhook_events_v2;
 CREATE TABLE payment_webhook_events_v2 (
   provider TEXT NOT NULL,
   event_id TEXT NOT NULL,
