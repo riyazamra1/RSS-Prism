@@ -1,4 +1,6 @@
-Stable tag: 0.30.0
+Version 0.31.0 adds Image elements inside Columns. Each column can now contain an image alongside headings, text and buttons; the image URL and alternative text are editable, sanitized before save, and rendered in the live preview and published template. Nested column imports accept the image type while preserving the existing 12-child limit.
+
+Stable tag: 0.31.0
 
 Version 0.28.0 introduces a Global Design System panel with four coordinated design presets (RSS Gold, Ocean Blue, Forest Green, Midnight). Applying a preset updates the current layout's element palette, text colors, button styles, spacing, dividers, and corner radii in one undoable action; the normal WordPress autosave persists the resulting layout. The admin workspace also gains improved responsive panel stacking. This is a further builder foundation, not a claim of complete Divi feature parity.
 
