@@ -1,0 +1,68 @@
+name: Validate RSS Prism Builder
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'products/rss-prism-builder/**'
+      - '.github/workflows/validate-rss-prism-builder.yml'
+  pull_request:
+    paths:
+      - 'products/rss-prism-builder/**'
+      - '.github/workflows/validate-rss-prism-builder.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-and-package:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Validate version metadata
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION="$(sed -n 's/^[[:space:]]*\* Version: *//p' products/rss-prism-builder/rss-prism-builder.php | head -n1)"
+          [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+([+-][0-9A-Za-z.-]+)?$ ]]
+          grep -Fq "define( 'RSS_PRISM_BUILDER_VERSION', '$VERSION' );" products/rss-prism-builder/rss-prism-builder.php
+          echo "Validated Builder version: $VERSION"
+
+      - name: PHP syntax check
+        shell: bash
+        run: |
+          set -euo pipefail
+          find products/rss-prism-builder -type f -name '*.php' -print0 | while IFS= read -r -d '' file; do
+            php -l "$file"
+          done
+
+      - name: JavaScript syntax check
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -f products/rss-prism-builder/assets/builder.js ]]; then
+            node --check products/rss-prism-builder/assets/builder.js
+          fi
+
+      - name: Build and verify WordPress plugin ZIP
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          cp -a products/rss-prism-builder dist/rss-prism-builder
+          cd dist
+          zip -qr rss-prism-builder.zip rss-prism-builder -x '*/.git/*' '*/node_modules/*' '*/vendor/*' '*/.DS_Store'
+          unzip -t rss-prism-builder.zip
+          unzip -l rss-prism-builder.zip | grep -q 'rss-prism-builder/rss-prism-builder.php'
+          unzip -l rss-prism-builder.zip | grep -q 'rss-prism-builder/includes/auto-updates.php'
+
+      - name: Upload installable ZIP artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: rss-prism-builder-validation
+          path: dist/rss-prism-builder.zip
+          if-no-files-found: error
+          retention-days: 14
