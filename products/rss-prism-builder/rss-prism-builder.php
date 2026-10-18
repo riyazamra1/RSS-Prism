@@ -418,7 +418,7 @@ function rss_prism_builder_render_canvas_shortcode( $atts ) {
 				$out .= '</div>';
 			}
 		} elseif ( 'image' === $type && ! empty( $item['image_url'] ) ) {
-			$out .= '<figure class="rss-prism-canvas-image ' . esc_attr( 'rss-prism-item-' . $safe_id ) . '" style="' . esc_attr( $style ) . '"><img src="' . esc_url( $item['image_url'] ) . '" alt="' . esc_attr( $item['alt'] ?? '' ) . '" loading="lazy" decoding="async" style="display:block;width:' . min( 100, max( 10, absint( $item['image_width'] ?? 100 ) ) ) . '%;max-width:100%;height:auto;object-fit:' . ( 'contain' === ( $item['image_fit'] ?? 'cover' ) ? 'contain' : 'cover' ) . ';margin-inline:auto"></figure>';
+			$out .= '<figure class="rss-prism-canvas-image ' . esc_attr( 'rss-prism-item-' . $safe_id ) . '" style="' . esc_attr( $style ) . '"><img src="' . esc_url( $item['image_url'] ) . '" alt="' . esc_attr( $item['alt'] ?? '' ) . '" loading="lazy" decoding="async" style="display:block;width:' . min( 100, max( 10, absint( $item['image_width'] ?? 100 ) ) ) . '%;max-width:100%;height:' . ( 'contain' === ( $item['image_fit'] ?? 'cover' ) ? 'auto' : '240px' ) . ';object-fit:' . ( 'contain' === ( $item['image_fit'] ?? 'cover' ) ? 'contain' : 'cover' ) . ';margin-inline:auto"></figure>';
 		}
 	}
 	if ( $responsive_css ) { $out .= '<style>' . $responsive_css . '@media(max-width:640px){.rss-prism-canvas-columns .rss-prism-columns-grid{grid-template-columns:1fr!important}}</style>'; } else { $out .= '<style>@media(max-width:640px){.rss-prism-canvas-columns .rss-prism-columns-grid{grid-template-columns:1fr!important}}</style>'; }
