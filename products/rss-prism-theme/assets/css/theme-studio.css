@@ -43,3 +43,9 @@
 
 /* Categorised element palette */
 .rp-studio-palette-group{padding-top:12px;margin-top:12px;border-top:1px solid #e8e6e0}.rp-studio-palette-group:first-child{padding-top:0;margin-top:0;border-top:0}.rp-studio-palette-group>strong{display:block;margin-bottom:8px;color:#686b70;font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}.rp-studio-palette-group .rp-studio-palette{display:flex;flex-wrap:wrap;gap:7px}.rp-studio-palette-group .rp-studio-chip{background:#fff}@media(max-width:600px){.rp-studio-palette-group .rp-studio-chip{flex:1 1 100%;justify-content:space-between}}
+
+/* Touch-friendly ordering controls for mobile and keyboard users */
+.rp-studio-chip .rp-studio-move-before,.rp-studio-chip .rp-studio-move-after{display:inline-flex;align-items:center;justify-content:center;min-width:24px;min-height:26px;margin-left:4px;border:1px solid #e4e1d8;border-radius:5px;background:#faf8f2;color:#5d4a20;font-size:14px;font-weight:700;line-height:1;cursor:pointer;user-select:none}
+.rp-studio-chip .rp-studio-move-before:hover,.rp-studio-chip .rp-studio-move-after:hover{background:#f1e6c9;border-color:#b88a2b}
+.rp-studio-chip .rp-studio-move-before:focus-visible,.rp-studio-chip .rp-studio-move-after:focus-visible{outline:2px solid #b88a2b;outline-offset:2px}
+@media(max-width:782px){.rp-studio-chip .rp-studio-move-before,.rp-studio-chip .rp-studio-move-after{min-width:30px;min-height:30px;margin-left:6px}}
