@@ -13,8 +13,8 @@ RSS Prism Builder is a visual layout builder for WordPress, with a live canvas, 
 == Changelog ==
 
 = 0.32.0 =
-* Adds an Image Fit control for top-level image elements: Cover or Contain.
-* Applies the validated fit setting in the live canvas and published layout output; older layouts default safely to Cover.
+* Adds an Image Fit control for top-level image elements: Cover crops to a consistent 240px height; Contain preserves the full image height.
+* Applies the validated fit setting consistently in the live canvas and published layout output; older layouts default safely to Cover.
 
 
 = 0.31.0 =
