@@ -53,14 +53,22 @@
 		zone.addEventListener('drop', function (event) {
 			event.preventDefault(); zone.classList.remove('is-over');
 			if (!dragged || !zone.closest('[data-builder-rows="' + zone.dataset.dropzone + '"]')) return;
+			var target = event.target.closest('.rp-studio-chip');
+			if (target && target.parentNode !== zone) target = null;
+			var item = dragged;
 			if (dragged.dataset.source === 'palette') {
 				if (hasElement(zone.dataset.dropzone, dragged.dataset.element)) return;
-				var clone = createChip(dragged.dataset.element, zone.dataset.dropzone);
-				zone.appendChild(clone); bindNewChips(zone);
-			} else {
-				zone.appendChild(dragged);
+				item = createChip(dragged.dataset.element, zone.dataset.dropzone);
+				bindNewChips(zone);
 			}
-			updateEmpty(zone);
+			if (target && target !== item) {
+				var rect = target.getBoundingClientRect();
+				var insertAfter = event.clientY > rect.top + rect.height / 2;
+				zone.insertBefore(item, insertAfter ? target.nextSibling : target);
+			} else {
+				zone.appendChild(item);
+			}
+			document.querySelectorAll('.rp-studio-dropzone').forEach(updateEmpty);
 		});
 		updateEmpty(zone);
 	});
