@@ -118,6 +118,18 @@ const remove = index => { commitItems(items.filter((_, i) => i !== index)); setS
 const undo = () => { if (!history.length) return; setFuture(old => [clone(items), ...old]); setItems(history[history.length - 1]); setHistory(old => old.slice(0, -1)); };
 const redo = () => { if (!future.length) return; setHistory(old => [...old, clone(items)]); setItems(future[0]); setFuture(old => old.slice(1)); };
 const duplicate = index => { const next = items.slice(); const copy = clone(next[index]); copy.id = 'item-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7); next.splice(index + 1, 0, copy); commitItems(next); setSelected(index + 1); };
+useEffect(() => {
+const onKeyDown = event => {
+const target = event.target;
+if (target && (target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName))) return;
+if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'd' && items[selected]) {
+event.preventDefault();
+duplicate(selected);
+}
+};
+window.addEventListener('keydown', onKeyDown);
+return () => window.removeEventListener('keydown', onKeyDown);
+}, [items, selected]);
 const chooseImage = () => {
 if (!window.wp || !wp.media) { setNotice('The WordPress media library is not available on this screen.'); return; }
 const frame = wp.media({ title: 'Choose an image', button: { text: 'Use image' }, library: { type: 'image' }, multiple: false });
