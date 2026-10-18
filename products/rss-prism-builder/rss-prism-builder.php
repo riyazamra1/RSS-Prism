@@ -4,7 +4,7 @@
  * Plugin URI: https://www.rsscctvsolution.eu.cc/
  * Update URI: https://github.com/riyazamra1/RSS-Prism/
  * Description: Free visual page builder. Theme design tools: Dashboard → Appearance → RSS Prism Studio.
- * Version: 0.36.0
+ * Version: 0.37.0
  * Requires at least: 6.4
  * Requires PHP: 7.4
  * Author: Razeen Secure Solution
@@ -16,7 +16,7 @@
 defined( 'ABSPATH' ) || exit;
 
 require_once __DIR__ . '/includes/auto-updates.php';
-define( 'RSS_PRISM_BUILDER_VERSION', '0.36.0' );
+define( 'RSS_PRISM_BUILDER_VERSION', '0.37.0' );
 
 function rss_prism_builder_register_templates() {
 	register_post_type( 'rss_prism_template', array(
@@ -33,6 +33,47 @@ function rss_prism_builder_register_templates() {
 	) );
 }
 add_action( 'init', 'rss_prism_builder_register_templates' );
+
+/**
+ * Route the WordPress "Add New Prism Template" action into the real visual editor.
+ * Keep the nonce fresh and let the editor create the draft after permission checks.
+ */
+function rss_prism_builder_redirect_new_template_to_editor() {
+	if ( ! current_user_can( 'edit_posts' ) || empty( $_GET['post_type'] ) || 'rss_prism_template' !== sanitize_key( wp_unslash( $_GET['post_type'] ) ) ) {
+		return;
+	}
+	$url = add_query_arg( array(
+		'page' => 'rss-prism-builder',
+		'rss_prism_new_template' => '1',
+	), admin_url( 'admin.php' ) );
+	wp_safe_redirect( wp_nonce_url( $url, 'rss_prism_new_template' ) );
+	exit;
+}
+add_action( 'load-post-new.php', 'rss_prism_builder_redirect_new_template_to_editor' );
+
+/** Add a direct, non-expiring editor link to existing template admin screens. */
+function rss_prism_builder_template_editor_metabox( $post ) {
+	if ( ! $post instanceof WP_Post || 'rss_prism_template' !== $post->post_type || ! current_user_can( 'edit_post', $post->ID ) ) {
+		return;
+	}
+	$url = add_query_arg( array( 'page' => 'rss-prism-builder', 'post_id' => $post->ID ), admin_url( 'admin.php' ) );
+	echo '<p>' . esc_html__( 'Edit the layout in the visual builder. This opens the saved layout without changing its publication status.', 'rss-prism-builder' ) . '</p>';
+	echo '<p><a class="button button-primary" href="' . esc_url( $url ) . '">' . esc_html__( 'Edit with RSS Prism Builder', 'rss-prism-builder' ) . '</a></p>';
+}
+function rss_prism_builder_add_template_editor_metabox() {
+	add_meta_box( 'rss-prism-template-builder', __( 'RSS Prism Visual Builder', 'rss-prism-builder' ), 'rss_prism_builder_template_editor_metabox', 'rss_prism_template', 'side', 'high' );
+}
+add_action( 'add_meta_boxes_rss_prism_template', 'rss_prism_builder_add_template_editor_metabox' );
+
+function rss_prism_builder_template_row_actions( $actions, $post ) {
+	if ( $post instanceof WP_Post && 'rss_prism_template' === $post->post_type && current_user_can( 'edit_post', $post->ID ) ) {
+		$url = add_query_arg( array( 'page' => 'rss-prism-builder', 'post_id' => $post->ID ), admin_url( 'admin.php' ) );
+		$actions['rss_prism_builder'] = '<a href="' . esc_url( $url ) . '">' . esc_html__( 'Edit with RSS Prism Builder', 'rss-prism-builder' ) . '</a>';
+	}
+	return $actions;
+}
+add_filter( 'post_row_actions', 'rss_prism_builder_template_row_actions', 10, 2 );
+
 
 function rss_prism_builder_get_pricing_catalog() {
 	$file = __DIR__ . '/includes/pricing-catalog.php';

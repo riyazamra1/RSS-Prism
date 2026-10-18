@@ -4,13 +4,17 @@ Tags: page-builder, layout, templates
 Requires at least: 6.4
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 0.36.0
+Stable tag: 0.37.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 RSS Prism Builder is a visual layout builder for WordPress, with a live canvas, element inspector, reusable templates, responsive previews, and a growing module library.
 
 == Changelog ==
+
+= 0.37.0 =
+* Routes the WordPress Add New Prism Template action into the visual builder and adds direct Edit with RSS Prism Builder links to template rows and edit screens.
+
 
 = 0.36.0 =
 * Recovers expired page-edit confirmation nonces by redirecting to a fresh, nonce-protected confirmation screen instead of leaving users at a dead end.
