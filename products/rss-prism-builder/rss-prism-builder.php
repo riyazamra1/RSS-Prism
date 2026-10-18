@@ -4,7 +4,7 @@
  * Plugin URI: https://www.rsscctvsolution.eu.cc/
  * Update URI: https://github.com/riyazamra1/RSS-Prism/
  * Description: Free visual page builder. Theme design tools: Dashboard → Appearance → RSS Prism Studio.
- * Version: 0.33.0
+ * Version: 0.32.0
  * Requires at least: 6.4
  * Requires PHP: 7.4
  * Author: Razeen Secure Solution
@@ -16,7 +16,7 @@
 defined( 'ABSPATH' ) || exit;
 
 require_once __DIR__ . '/includes/auto-updates.php';
-define( 'RSS_PRISM_BUILDER_VERSION', '0.33.0' );
+define( 'RSS_PRISM_BUILDER_VERSION', '0.32.0' );
 
 function rss_prism_builder_register_templates() {
 	register_post_type( 'rss_prism_template', array(
@@ -136,7 +136,6 @@ function rss_prism_builder_sanitize_column_elements( $column_elements, $legacy_c
 				'url' => isset( $child['url'] ) ? esc_url_raw( $child['url'] ) : '',
 				'image_url' => isset( $child['image_url'] ) ? esc_url_raw( $child['image_url'] ) : '',
 				'alt' => isset( $child['alt'] ) ? sanitize_text_field( $child['alt'] ) : '',
-				'image_fit' => in_array( $child['image_fit'] ?? 'cover', array( 'cover', 'contain' ), true ) ? $child['image_fit'] : 'cover',
 			);
 		}
 	}
@@ -148,7 +147,7 @@ function rss_prism_builder_render_column_element( $child ) {
 	$text = esc_html( $child['text'] ?? '' );
 	if ( 'heading' === $type ) { return '<h3 class="rss-prism-column-heading">' . $text . '</h3>'; }
 	if ( 'button' === $type && ! empty( $child['url'] ) ) { return '<p><a class="rss-prism-column-button" href="' . esc_url( $child['url'] ) . '">' . $text . '</a></p>'; }
-	if ( 'image' === $type && ! empty( $child['image_url'] ) ) { $fit = ( $child['image_fit'] ?? 'cover' ) === 'contain' ? 'contain' : 'cover'; $height = 'contain' === $fit ? 'auto' : '180px'; return '<figure class="rss-prism-column-image-wrap"><img class="rss-prism-column-image" style="object-fit:' . esc_attr( $fit ) . ';height:' . esc_attr( $height ) . '" src="' . esc_url( $child['image_url'] ) . '" alt="' . esc_attr( $child['alt'] ?? '' ) . '" loading="lazy" decoding="async"></figure>'; }
+	if ( 'image' === $type && ! empty( $child['image_url'] ) ) { return '<figure class="rss-prism-column-image-wrap"><img class="rss-prism-column-image" src="' . esc_url( $child['image_url'] ) . '" alt="' . esc_attr( $child['alt'] ?? '' ) . '" loading="lazy" decoding="async"></figure>'; }
 	return '<p class="rss-prism-column-text">' . nl2br( $text ) . '</p>';
 }
 
