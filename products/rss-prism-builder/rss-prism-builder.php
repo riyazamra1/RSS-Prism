@@ -4,7 +4,7 @@
  * Plugin URI: https://www.rsscctvsolution.eu.cc/
  * Update URI: https://github.com/riyazamra1/RSS-Prism/
  * Description: Free visual page builder. Theme design tools: Dashboard → Appearance → RSS Prism Studio.
- * Version: 0.31.0
+ * Version: 0.32.0
  * Requires at least: 6.4
  * Requires PHP: 7.4
  * Author: Razeen Secure Solution
@@ -16,7 +16,7 @@
 defined( 'ABSPATH' ) || exit;
 
 require_once __DIR__ . '/includes/auto-updates.php';
-define( 'RSS_PRISM_BUILDER_VERSION', '0.31.0' );
+define( 'RSS_PRISM_BUILDER_VERSION', '0.32.0' );
 
 function rss_prism_builder_register_templates() {
 	register_post_type( 'rss_prism_template', array(
@@ -88,6 +88,7 @@ function rss_prism_builder_sanitize_layout( $layout ) {
 			'button_text' => isset( $item['button_text'] ) ? sanitize_hex_color( $item['button_text'] ) : '#ffffff',
 			'button_radius' => min( 40, absint( $item['button_radius'] ?? 6 ) ),
 			'image_width' => min( 100, max( 10, absint( $item['image_width'] ?? 100 ) ) ),
+			'image_fit' => in_array( $item['image_fit'] ?? 'cover', array( 'cover', 'contain' ), true ) ? $item['image_fit'] : 'cover',
 			'columns_count' => min( 3, max( 2, absint( $item['columns_count'] ?? 2 ) ) ),
 			'column_contents' => array_map( 'sanitize_textarea_field', array_slice( is_array( $item['column_contents'] ?? null ) ? $item['column_contents'] : array( 'First column content', 'Second column content', 'Third column content' ), 0, 3 ) ),
 			'column_elements' => rss_prism_builder_sanitize_column_elements( $item['column_elements'] ?? array(), $item['column_contents'] ?? array(), min( 3, max( 2, absint( $item['columns_count'] ?? 2 ) ) ) ),
@@ -417,7 +418,7 @@ function rss_prism_builder_render_canvas_shortcode( $atts ) {
 				$out .= '</div>';
 			}
 		} elseif ( 'image' === $type && ! empty( $item['image_url'] ) ) {
-			$out .= '<figure class="rss-prism-canvas-image ' . esc_attr( 'rss-prism-item-' . $safe_id ) . '" style="' . esc_attr( $style ) . '"><img src="' . esc_url( $item['image_url'] ) . '" alt="' . esc_attr( $item['alt'] ?? '' ) . '" loading="lazy" decoding="async" style="display:block;width:' . min( 100, max( 10, absint( $item['image_width'] ?? 100 ) ) ) . '%;max-width:100%;height:auto;margin-inline:auto"></figure>';
+			$out .= '<figure class="rss-prism-canvas-image ' . esc_attr( 'rss-prism-item-' . $safe_id ) . '" style="' . esc_attr( $style ) . '"><img src="' . esc_url( $item['image_url'] ) . '" alt="' . esc_attr( $item['alt'] ?? '' ) . '" loading="lazy" decoding="async" style="display:block;width:' . min( 100, max( 10, absint( $item['image_width'] ?? 100 ) ) ) . '%;max-width:100%;height:auto;object-fit:' . ( 'contain' === ( $item['image_fit'] ?? 'cover' ) ? 'contain' : 'cover' ) . ';margin-inline:auto"></figure>';
 		}
 	}
 	if ( $responsive_css ) { $out .= '<style>' . $responsive_css . '@media(max-width:640px){.rss-prism-canvas-columns .rss-prism-columns-grid{grid-template-columns:1fr!important}}</style>'; } else { $out .= '<style>@media(max-width:640px){.rss-prism-canvas-columns .rss-prism-columns-grid{grid-template-columns:1fr!important}}</style>'; }
