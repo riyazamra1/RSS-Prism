@@ -59,7 +59,6 @@
 			if (dragged.dataset.source === 'palette') {
 				if (hasElement(zone.dataset.dropzone, dragged.dataset.element)) return;
 				item = createChip(dragged.dataset.element, zone.dataset.dropzone);
-				bindNewChips(zone);
 			}
 			if (target && target !== item) {
 				var rect = target.getBoundingClientRect();
@@ -68,6 +67,7 @@
 			} else {
 				zone.appendChild(item);
 			}
+			if (item !== dragged) bindNewChips(zone);
 			document.querySelectorAll('.rp-studio-dropzone').forEach(updateEmpty);
 		});
 		updateEmpty(zone);
