@@ -4,7 +4,7 @@
  * Plugin URI: https://www.rsscctvsolution.eu.cc/
  * Update URI: https://github.com/riyazamra1/RSS-Prism/
  * Description: Free visual page builder. Theme design tools: Dashboard → Appearance → RSS Prism Studio.
- * Version: 0.35.0
+ * Version: 0.36.0
  * Requires at least: 6.4
  * Requires PHP: 7.4
  * Author: Razeen Secure Solution
@@ -16,7 +16,7 @@
 defined( 'ABSPATH' ) || exit;
 
 require_once __DIR__ . '/includes/auto-updates.php';
-define( 'RSS_PRISM_BUILDER_VERSION', '0.35.0' );
+define( 'RSS_PRISM_BUILDER_VERSION', '0.36.0' );
 
 function rss_prism_builder_register_templates() {
 	register_post_type( 'rss_prism_template', array(
@@ -665,8 +665,14 @@ function rss_prism_builder_render_admin_page() {
 			wp_die( esc_html__( 'You cannot edit this WordPress page with RSS Prism Builder.', 'rss-prism-builder' ), '', array( 'response' => 403 ) );
 		}
 		if ( ! isset( $_POST['_wpnonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['_wpnonce'] ) ), 'rss_prism_edit_page_' . $page_id ) ) {
-			echo '<div class="wrap"><div class="notice notice-error"><p>' . esc_html__( 'This confirmation expired. Please return to the WordPress page editor and click “Edit with RSS Prism Builder” again.', 'rss-prism-builder' ) . '</p></div></div>';
-			return;
+			// Never bypass a stale nonce. Send the user to a fresh confirmation screen
+			// instead of leaving them on a dead-end "link expired" page.
+			wp_safe_redirect( add_query_arg( array(
+				'page' => 'rss-prism-builder',
+				'prepare_edit_page_id' => $page_id,
+				'rss_prism_nonce_refreshed' => '1',
+			), admin_url( 'admin.php' ) ) );
+			exit;
 		}
 		rss_prism_builder_handle_existing_page( $page_id );
 	}
@@ -678,6 +684,9 @@ function rss_prism_builder_render_admin_page() {
 			wp_die( esc_html__( 'You cannot edit this WordPress page with RSS Prism Builder.', 'rss-prism-builder' ), '', array( 'response' => 403 ) );
 		}
 		echo '<div class="wrap"><h1>' . esc_html__( 'Edit page with RSS Prism Builder', 'rss-prism-builder' ) . '</h1>';
+		if ( isset( $_GET['rss_prism_nonce_refreshed'] ) && '1' === sanitize_text_field( wp_unslash( $_GET['rss_prism_nonce_refreshed'] ) ) ) {
+			echo '<div class="notice notice-warning inline"><p>' . esc_html__( 'The previous confirmation expired. A fresh secure confirmation is ready below; continue to open the builder.', 'rss-prism-builder' ) . '</p></div>';
+		}
 		echo '<p>' . esc_html__( 'The builder will back up the current page content before connecting it to a Prism layout.', 'rss-prism-builder' ) . '</p>';
 		echo '<form method="post" action="' . esc_url( admin_url( 'admin.php?page=rss-prism-builder' ) ) . '">';
 		wp_nonce_field( 'rss_prism_edit_page_' . $page_id );
