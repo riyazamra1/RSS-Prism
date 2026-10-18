@@ -17,6 +17,54 @@
 		}
 		return chip;
 	}
+	function addMoveControls(chip) {
+		if (!chip || chip.dataset.source === 'palette' || chip.querySelector('.rp-studio-move-before')) return;
+		var before = document.createElement('span');
+		before.className = 'rp-studio-move-before';
+		before.setAttribute('role', 'button');
+		before.setAttribute('tabindex', '0');
+		before.setAttribute('aria-label', 'Move element left');
+		before.title = 'Move left';
+		before.textContent = '←';
+		var after = document.createElement('span');
+		after.className = 'rp-studio-move-after';
+		after.setAttribute('role', 'button');
+		after.setAttribute('tabindex', '0');
+		after.setAttribute('aria-label', 'Move element right');
+		after.title = 'Move right';
+		after.textContent = '→';
+		chip.appendChild(before);
+		chip.appendChild(after);
+	}
+	function moveChipControl(control) {
+		var chip = control.closest('.rp-studio-chip');
+		if (!chip || chip.dataset.source === 'palette') return;
+		var sibling = control.classList.contains('rp-studio-move-before') ? chip.previousElementSibling : chip.nextElementSibling;
+		while (sibling && !sibling.classList.contains('rp-studio-chip')) {
+			sibling = control.classList.contains('rp-studio-move-before') ? sibling.previousElementSibling : sibling.nextElementSibling;
+		}
+		if (!sibling) return;
+		if (control.classList.contains('rp-studio-move-before')) {
+			chip.parentNode.insertBefore(chip, sibling);
+		} else {
+			chip.parentNode.insertBefore(sibling, chip);
+		}
+	}
+	document.addEventListener('click', function (event) {
+		var control = event.target.closest('.rp-studio-move-before, .rp-studio-move-after');
+		if (!control) return;
+		event.preventDefault();
+		event.stopPropagation();
+		moveChipControl(control);
+	});
+	document.addEventListener('keydown', function (event) {
+		if (event.key !== 'Enter' && event.key !== ' ') return;
+		var control = event.target.closest('.rp-studio-move-before, .rp-studio-move-after');
+		if (!control) return;
+		event.preventDefault();
+		event.stopPropagation();
+		moveChipControl(control);
+	});
 	function hasElement(type, element) {
 		var placed = document.querySelectorAll('[data-builder-rows="' + type + '"] .rp-studio-dropzone .rp-studio-chip');
 		return Array.prototype.some.call(placed, function (chip) { return chip.dataset.element === element; });
@@ -42,6 +90,7 @@
 	function bindNewChips(root) {
 		root.querySelectorAll('.rp-studio-chip:not([data-bound])').forEach(function (chip) {
 			chip.dataset.bound = '1';
+			addMoveControls(chip);
 			chip.addEventListener('dragstart', function (event) { dragged = chip; event.dataTransfer.effectAllowed = 'move'; event.dataTransfer.setData('text/plain', chip.dataset.element); chip.classList.add('is-dragging'); });
 			chip.addEventListener('dragend', function () { if (dragged) dragged.classList.remove('is-dragging'); dragged = null; document.querySelectorAll('.rp-studio-dropzone').forEach(updateEmpty); });
 			chip.addEventListener('click', function (event) { if (event.target.classList.contains('rp-studio-remove')) { chip.remove(); document.querySelectorAll('.rp-studio-dropzone').forEach(updateEmpty); } });
@@ -95,7 +144,7 @@
 			if (input) input.value = JSON.stringify(rows);
 		});
 	});
-	// Palette chips should remain available as templates; clicks add a fresh draggable chip.
+	// Palette chips remain templates; placed elements also get click/tap ordering controls for mobile users.
 	document.querySelectorAll('.rp-studio-palette .rp-studio-chip').forEach(function (chip) { chip.dataset.source = 'palette'; });
-	document.querySelectorAll('.rp-studio-rows .rp-studio-chip').forEach(function (chip) { chip.dataset.bound = '1'; });
+	document.querySelectorAll('.rp-studio-rows .rp-studio-chip').forEach(function (chip) { chip.dataset.bound = '1'; addMoveControls(chip); });
 }());
