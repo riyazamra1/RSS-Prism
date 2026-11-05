@@ -170,7 +170,7 @@ move(selected, selected + 1);
 };
 window.addEventListener('keydown', onKeyDown);
 return () => window.removeEventListener('keydown', onKeyDown);
-}, [items, selected]);
+}, [items, selected, clipboard]);
 const chooseImage = () => {
 if (!window.wp || !wp.media) { setNotice('The WordPress media library is not available on this screen.'); return; }
 const frame = wp.media({ title: 'Choose an image', button: { text: 'Use image' }, library: { type: 'image' }, multiple: false });
