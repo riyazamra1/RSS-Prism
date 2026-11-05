@@ -10,6 +10,7 @@ on:
     paths:
       - 'products/rss-prism-theme/**'
       - '.github/workflows/validate-rss-prism-theme.yml'
+      - '.github/workflows/release-rss-prism-theme.yml'
   workflow_dispatch:
 
 permissions:
