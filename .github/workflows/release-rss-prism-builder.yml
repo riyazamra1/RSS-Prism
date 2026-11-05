@@ -16,6 +16,11 @@ on:
 permissions:
   contents: write
 
+# Serialize product releases so Builder and Theme packages are never published in parallel.
+concurrency:
+  group: rss-prism-release
+  cancel-in-progress: false
+
 jobs:
   package-and-release:
     runs-on: ubuntu-latest
