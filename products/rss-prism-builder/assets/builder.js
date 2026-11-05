@@ -13,6 +13,7 @@ text: { label: 'Text', text: 'Write something useful for your visitors.' },
 button: { label: 'Button', text: 'Learn more' },
 image: { label: 'Image', text: 'Image' },
 columns: { label: 'Columns', text: 'Columns' },
+row: { label: 'Row', text: 'Row layout' },
 container: { label: 'Container', text: 'Content container' },
 divider: { label: 'Divider', text: 'Divider' },
 spacer: { label: 'Spacer', text: 'Spacer' },
@@ -149,7 +150,7 @@ setNotice('Layout JSON exported. Keep this file as a backup before experimenting
 };
 const normalizeImported = (entries, depth = 0) => {
 if (!Array.isArray(entries) || entries.length > (depth === 0 ? 100 : 20)) throw new Error('The layout contains too many elements.');
-const allowed = depth === 0 ? ['section','heading','text','button','image','columns','container','divider','spacer','quote','blurb','callout','gallery'] : ['heading','text','button','image'].concat(depth < 2 ? ['container'] : []);
+const allowed = depth === 0 ? ['section','heading','text','button','image','columns','row','container','divider','spacer','quote','blurb','callout','gallery'] : ['heading','text','button','image'].concat(depth < 2 ? ['container'] : []);
 return entries.map((entry, index) => {
 if (!entry || typeof entry !== 'object' || !allowed.includes(entry.type)) throw new Error('Unsupported element found in the JSON file.');
 const clean = { ...entry, id: 'import-' + Date.now() + '-' + depth + '-' + index + '-' + Math.random().toString(36).slice(2,6) };
@@ -325,6 +326,7 @@ if (child.type === 'button') return h('p', { key }, h('span', { className: 'rss-
 if (child.type === 'image' && child.image_url) return h('p', { key }, h('img', { src: child.image_url, alt: child.alt || '', className: 'rss-prism-live-image' }));
 return h('p', { key }, child.text || 'Text');
 };
+if (entry.type === 'row') return h('div', { ...common, className: common.className + ' rss-prism-live-row', style: { ...style, display: 'flex', flexWrap: 'wrap', alignItems: 'stretch', gap: '12px', background: entry.container_background || '#ffffff', border: '1px solid #e2e4e7', borderRadius: '10px' } }, ...(Array.isArray(entry.container_elements) ? entry.container_elements : []).map((child, childIndex) => h('div', { key: child.id || childIndex, style: { flex: '1 1 180px', minWidth: 0 } }, previewNested(child, childIndex, 0))));
 if (entry.type === 'container') return h('div', { ...common, className: common.className + ' rss-prism-live-container', style: { ...style, background: entry.container_background || '#f7f6f2', border: '1px solid #e2e4e7', borderRadius: '10px' } }, ...(Array.isArray(entry.container_elements) ? entry.container_elements : []).map((child, childIndex) => previewNested(child, childIndex, 0)));
 if (entry.type === 'columns') return h('div', { ...common, className: common.className + ' rss-prism-live-columns', style: { ...style, display: 'grid', gridTemplateColumns: 'repeat(' + Math.min(3, Math.max(2, Number(entry.columns_count || 2))) + ', minmax(0, 1fr))', gap: '12px' } }, ...Array.from({ length: Number(entry.columns_count || 2) }, (_, index) => { const children = normalizedColumnElements(entry)[index]; return h('div', { key: index, className: 'rss-prism-live-column-cell' }, ...children.map((child, childIndex) => child.type === 'heading' ? h('h3', { key: child.id || childIndex }, child.text || 'Heading') : child.type === 'button' ? h('p', { key: child.id || childIndex }, h('span', { className: 'rss-prism-live-button' }, child.text || 'Button')) : child.type === 'image' ? (child.image_url ? h('img', { key: child.id || childIndex, className: 'rss-prism-column-image', src: child.image_url, alt: child.alt || '', loading: 'lazy', style: { objectFit: child.image_fit === 'contain' ? 'contain' : 'cover', height: child.image_fit === 'contain' ? 'auto' : '180px' } }) : h('span', { key: child.id || childIndex, className: 'rss-prism-image-placeholder' }, 'Set image URL in column settings')) : h('p', { key: child.id || childIndex }, child.text || 'Text'))); }));
 if (entry.type === 'gallery') { const urls = String(entry.gallery_urls || '').split(/\n+/).map(url => url.trim()).filter(Boolean).slice(0, 12); return h('div', common, urls.length ? h('div', { className: 'rss-prism-gallery-grid' }, ...urls.map((url, index) => h('img', { key: index, src: url, alt: '', loading: 'lazy' }))) : h('span', { className: 'rss-prism-image-placeholder' }, 'Add image URLs in Element settings')); }
@@ -339,7 +341,7 @@ h('button', { type: 'button', className: 'button', onClick: e => { e.stopPropaga
 h('button', { type: 'button', className: 'button-link-delete', onClick: e => { e.stopPropagation(); remove(i); } }, 'Remove'));
 return h('div', { className: 'rss-prism-builder-layout' },
 h('div', { className: 'rss-prism-builder-toolbar' },
-h('div', { className: 'rss-prism-builder-add' }, h('strong', null, 'Add element'), ...Object.keys(TYPES).map(type => h('button', { key: type, type: 'button', className: 'button rss-prism-palette-item', draggable: true, title: 'Drag onto the page canvas or click to add', onDragStart: e => { e.dataTransfer.setData('text/plain', 'rss-prism-add:' + type); e.dataTransfer.effectAllowed = 'copy'; }, onClick: () => add(type) }, h('span', { className: 'rss-prism-palette-icon', 'aria-hidden': 'true' }, ({section:'▱',heading:'T',text:'¶',button:'▰',image:'▧',columns:'▥',container:'□',divider:'—',spacer:'↕',quote:'❝',blurb:'✦',callout:'↗',gallery:'▦'})[type] || '+'), h('span', null, TYPES[type].label)))),
+h('div', { className: 'rss-prism-builder-add' }, h('strong', null, 'Add element'), ...Object.keys(TYPES).map(type => h('button', { key: type, type: 'button', className: 'button rss-prism-palette-item', draggable: true, title: 'Drag onto the page canvas or click to add', onDragStart: e => { e.dataTransfer.setData('text/plain', 'rss-prism-add:' + type); e.dataTransfer.effectAllowed = 'copy'; }, onClick: () => add(type) }, h('span', { className: 'rss-prism-palette-icon', 'aria-hidden': 'true' }, ({section:'▱',heading:'T',text:'¶',button:'▰',image:'▧',columns:'▥',row:'↔',container:'□',divider:'—',spacer:'↕',quote:'❝',blurb:'✦',callout:'↗',gallery:'▦'})[type] || '+'), h('span', null, TYPES[type].label)))),
 h('div', { className: 'rss-prism-builder-add rss-prism-starters' }, h('strong', null, 'Insert RSS starter layout'), ...[['business','Business landing'],['services','Services'],['about','About RSS'],['projects','RSS projects'],['security','Security solutions'],['contact','Contact page']].map(([kind,label]) => h('button', { key: kind, type: 'button', className: 'button', onClick: () => insertStarter(kind) }, label))),
 h('div', { className: 'rss-prism-global-design' },
 h('strong', null, 'Global design system'),
@@ -360,7 +362,7 @@ field('Content', 'text', item.text, 'textarea'),
 item.type === 'gallery' ? h('div', { className: 'rss-prism-image-controls' }, field('Image URLs (one per line; up to 12)', 'gallery_urls', item.gallery_urls || '', 'textarea'), h('p', { className: 'description' }, 'Paste direct image URLs, one per line. The gallery is responsive on the published page.')) : null,
 item.type === 'image' ? h('div', { className: 'rss-prism-image-controls' }, h('label', { className: 'rss-prism-field' }, h('span', null, 'Image fit'), h('select', { value: item.image_fit || 'cover', onChange: e => update('image_fit', e.target.value) }, h('option', { value: 'cover' }, 'Cover'), h('option', { value: 'contain' }, 'Contain')))) : null,
 item.type === 'button' ? h('div', { className: 'rss-prism-image-controls' }, field('Button URL', 'url', item.url, 'url'), field('Button background', 'button_bg', item.button_bg || '#b88a2b', 'color'), field('Button text color', 'button_text', item.button_text || '#ffffff', 'color'), h('label', { className: 'rss-prism-field' }, h('span', null, 'Corner radius: ' + (item.button_radius ?? 6) + ' px'), h('input', { type: 'range', min: 0, max: 40, value: item.button_radius ?? 6, onChange: e => update('button_radius', Number(e.target.value)) }))) : null,
-item.type === 'container' ? h('div', { className: 'rss-prism-image-controls' },
+['container','row'].includes(item.type) ? h('div', { className: 'rss-prism-image-controls' },
 field('Container background', 'container_background', item.container_background || '#f7f6f2', 'color'),
 h('p', { className: 'description' }, 'Containers can hold up to 20 elements per level, with nesting limited to two levels inside the main container.'),
 nestedEditor(item.container_elements || [], [], 0)
