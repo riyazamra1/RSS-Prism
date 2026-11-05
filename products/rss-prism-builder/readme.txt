@@ -13,6 +13,7 @@ RSS Prism Builder is a visual layout builder for WordPress, with a live canvas, 
 == Changelog ==
 
 = 0.37.1 =
+* Adds a responsive Row layout module with editable nested content, drag ordering, and a wrapping live/published layout.
 * Fixes release asset selection so an unrelated first asset cannot prevent WordPress from finding the valid Builder ZIP.
 * Tightens package validation in the release pipeline.
 
