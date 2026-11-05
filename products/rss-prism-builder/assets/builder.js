@@ -54,6 +54,7 @@ const [preview, setPreview] = useState('desktop');
 const [designPreset, setDesignPreset] = useState('rss-gold');
 const [history, setHistory] = useState([]);
 const [future, setFuture] = useState([]);
+const [clipboard, setClipboard] = useState(null);
 const [autosaveStatus, setAutosaveStatus] = useState('Waiting for changes');
 const [restoreVersions, setRestoreVersions] = useState(() => { try { return JSON.parse(localStorage.getItem('rss-prism-history-' + config.postId) || '[]').slice(0, 20); } catch (error) { return []; } });
 const previousItems = useRef(clone(Array.isArray(config.layout) ? config.layout : []));
@@ -126,6 +127,45 @@ if (target && (target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(targ
 if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'd' && items[selected]) {
 event.preventDefault();
 duplicate(selected);
+return;
+}
+if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'c' && items[selected]) {
+event.preventDefault();
+setClipboard(clone(items[selected]));
+setNotice('Element copied. Select a layer and press Ctrl/⌘ + V to paste it.');
+return;
+}
+if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'x' && items[selected]) {
+event.preventDefault();
+setClipboard(clone(items[selected]));
+remove(selected);
+setNotice('Element cut. Select a layer and press Ctrl/⌘ + V to paste it.');
+return;
+}
+if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'v' && clipboard) {
+event.preventDefault();
+const pasted = clone(clipboard);
+pasted.id = 'item-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7);
+const next = items.slice();
+next.splice(Math.min(selected + 1, next.length), 0, pasted);
+commitItems(next);
+setSelected(Math.min(selected + 1, next.length - 1));
+setNotice('Copied element pasted. Changes will autosave.');
+return;
+}
+if ((event.key === 'Delete' || event.key === 'Backspace') && items[selected] && !event.ctrlKey && !event.metaKey) {
+event.preventDefault();
+remove(selected);
+return;
+}
+if (event.altKey && event.key === 'ArrowUp' && selected > 0) {
+event.preventDefault();
+move(selected, selected - 1);
+return;
+}
+if (event.altKey && event.key === 'ArrowDown' && selected < items.length - 1) {
+event.preventDefault();
+move(selected, selected + 1);
 }
 };
 window.addEventListener('keydown', onKeyDown);
@@ -336,7 +376,7 @@ return h('section', { ...common, ...inlineTextProps }, entry.text || 'Section');
 const canvasItem = (entry, i) => h('div', { key: entry.id || i, className: 'rss-prism-canvas-item' + (i === selected ? ' is-selected' : ''), draggable: true, onDragStart: e => { e.dataTransfer.setData('text/plain', String(i)); e.dataTransfer.effectAllowed = 'move'; }, onDragOver: e => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; }, onDrop: e => { e.preventDefault(); move(Number(e.dataTransfer.getData('text/plain')), i); }, onClick: () => setSelected(i) },
 h('span', { className: 'rss-prism-drag-handle', title: 'Drag to reorder', 'aria-label': 'Drag to reorder' }, '⠿'),
 h('span', { className: 'rss-prism-canvas-kind' }, TYPES[entry.type] ? TYPES[entry.type].label : entry.type),
-h('span', { className: 'rss-prism-canvas-text' }, entry.text || '(empty)'),
+h('span', { className: 'rss-prism-canvas-text' }, entry.text || (entry.type === 'columns' ? (entry.columns_count || 2) + ' columns' : entry.type === 'row' || entry.type === 'container' ? (entry.container_elements || []).length + ' nested elements' : '(empty)')),
 h('button', { type: 'button', className: 'button', onClick: e => { e.stopPropagation(); duplicate(i); } }, 'Duplicate'),
 h('button', { type: 'button', className: 'button-link-delete', onClick: e => { e.stopPropagation(); remove(i); } }, 'Remove'));
 return h('div', { className: 'rss-prism-builder-layout' },
@@ -355,7 +395,7 @@ h('div', { className: 'rss-prism-template-copy' }, h('label', { htmlFor: 'rss-pr
 notice ? h('div', { className: 'notice notice-info rss-prism-builder-notice', role: 'status' }, h('p', null, notice)) : null,
 h('div', { className: 'rss-prism-preview-toolbar' }, h('strong', null, 'Responsive preview'), ...[['desktop','Desktop'],['tablet','Tablet'],['mobile','Mobile']].map(pair => h('button', { key: pair[0], type: 'button', className: 'button ' + (preview === pair[0] ? 'button-primary' : ''), onClick: () => setPreview(pair[0]), 'aria-pressed': preview === pair[0] }, pair[1]))),
 h('div', { className: 'rss-prism-builder-workspace' },
-h('section', { className: 'rss-prism-builder-canvas' }, h('div', { className: 'rss-prism-canvas-heading' }, h('span', null, 'LAYERS'), h('span', null, items.length + ' elements')), items.length ? items.map(canvasItem) : h('p', { className: 'rss-prism-empty' }, 'Start by adding a section, heading, text, or button.')),
+h('section', { className: 'rss-prism-builder-canvas' }, h('div', { className: 'rss-prism-canvas-heading' }, h('span', null, 'PAGE STRUCTURE'), h('span', null, items.length + ' top-level elements')), items.length ? items.map(canvasItem) : h('p', { className: 'rss-prism-empty' }, 'Start by adding a section, heading, text, or button.')),
 h('aside', { className: 'rss-prism-builder-inspector' }, h('h2', null, 'Element settings'), item ? h('div', null,
 h('p', { className: 'rss-prism-inspector-type' }, TYPES[item.type] ? TYPES[item.type].label : item.type),
 field('Content', 'text', item.text, 'textarea'),
