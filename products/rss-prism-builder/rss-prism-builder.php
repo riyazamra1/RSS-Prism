@@ -114,7 +114,7 @@ function rss_prism_builder_sanitize_layout( $layout ) {
 	if ( ! is_array( $layout ) ) { return new WP_Error( 'invalid_layout', __( 'Layout must be a list of elements.', 'rss-prism-builder' ), array( 'status' => 400 ) ); }
 	if ( count( $layout ) > 100 ) { return new WP_Error( 'layout_too_large', __( 'A layout may contain at most 100 elements.', 'rss-prism-builder' ), array( 'status' => 400 ) ); }
 	$clean = array();
-	$allowed = array( 'section', 'heading', 'text', 'button', 'image', 'columns', 'container', 'divider', 'spacer', 'quote', 'blurb', 'callout', 'gallery' );
+	$allowed = array( 'section', 'heading', 'text', 'button', 'image', 'columns', 'row', 'container', 'divider', 'spacer', 'quote', 'blurb', 'callout', 'gallery' );
 	foreach ( $layout as $item ) {
 		if ( ! is_array( $item ) || empty( $item['type'] ) || ! in_array( $item['type'], $allowed, true ) ) { continue; }
 		$padding = isset( $item['padding'] ) ? absint( $item['padding'] ) : 24;
@@ -432,6 +432,11 @@ function rss_prism_builder_render_canvas_shortcode( $atts ) {
 				$out .= '</div>';
 			}
 			$out .= '</div></div>';
+		} elseif ( 'row' === $type ) {
+			$container_bg = sanitize_hex_color( $item['container_background'] ?? '#ffffff' ) ?: '#ffffff';
+			$out .= '<div class="rss-prism-canvas-row ' . esc_attr( 'rss-prism-item-' . $safe_id ) . '" style="' . esc_attr( $style . 'display:flex;flex-wrap:wrap;align-items:stretch;gap:1rem;background:' . $container_bg . ';border:1px solid #e2e4e7;border-radius:10px;' ) . '">';
+			foreach ( rss_prism_builder_sanitize_container_elements( $item['container_elements'] ?? array() ) as $child ) { $out .= '<div class="rss-prism-canvas-row__item" style="flex:1 1 180px;min-width:0;">' . rss_prism_builder_render_container_element( $child ) . '</div>'; }
+			$out .= '</div>';
 		} elseif ( 'container' === $type ) {
 			$container_bg = sanitize_hex_color( $item['container_background'] ?? '#f7f6f2' ) ?: '#f7f6f2';
 			$out .= '<div class="rss-prism-canvas-container ' . esc_attr( 'rss-prism-item-' . $safe_id ) . '" style="' . esc_attr( $style . 'background:' . $container_bg . ';border:1px solid #e2e4e7;border-radius:10px;' ) . '">';
