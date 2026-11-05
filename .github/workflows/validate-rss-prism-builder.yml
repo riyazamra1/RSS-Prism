@@ -6,10 +6,12 @@ on:
     paths:
       - 'products/rss-prism-builder/**'
       - '.github/workflows/validate-rss-prism-builder.yml'
+      - '.github/workflows/release-rss-prism-builder.yml'
   pull_request:
     paths:
       - 'products/rss-prism-builder/**'
       - '.github/workflows/validate-rss-prism-builder.yml'
+      - '.github/workflows/release-rss-prism-builder.yml'
   workflow_dispatch:
 
 permissions:
@@ -26,8 +28,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          VERSION="$(sed -n 's/^[[:space:]]*\* Version: *//p' products/rss-prism-builder/rss-prism-builder.php | head -n1)"
-          [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+([+-][0-9A-Za-z.-]+)?$ ]]
+          VERSION="$(sed -n 's/^[[:space:]]*\\* Version: *//p' products/rss-prism-builder/rss-prism-builder.php | head -n1)"
+          [[ "$VERSION" =~ ^[0-9]+\\.[0-9]+\\.[0-9]+([+-][0-9A-Za-z.-]+)?$ ]]
           grep -Fq "define( 'RSS_PRISM_BUILDER_VERSION', '$VERSION' );" products/rss-prism-builder/rss-prism-builder.php
           echo "Validated Builder version: $VERSION"
 
