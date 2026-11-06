@@ -120,6 +120,8 @@ const remove = index => { commitItems(items.filter((_, i) => i !== index)); setS
 const undo = () => { if (!history.length) return; setFuture(old => [clone(items), ...old]); setItems(history[history.length - 1]); setHistory(old => old.slice(0, -1)); };
 const redo = () => { if (!future.length) return; setHistory(old => [...old, clone(items)]); setItems(future[0]); setFuture(old => old.slice(1)); };
 const duplicate = index => { const next = items.slice(); const copy = clone(next[index]); copy.id = 'item-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7); next.splice(index + 1, 0, copy); commitItems(next); setSelected(index + 1); };
+const copyElement = index => { if (!items[index]) return; setClipboard(clone(items[index])); setNotice('Element copied. Select a layer and choose Paste.'); };
+const pasteElement = index => { if (!clipboard) return; const pasted = clone(clipboard); pasted.id = 'item-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7); const next = items.slice(); const position = Math.max(0, Math.min(Number.isInteger(index) ? index + 1 : next.length, next.length)); next.splice(position, 0, pasted); commitItems(next); setSelected(position); setNotice('Element pasted. Changes will autosave.'); };
 useEffect(() => {
 const onKeyDown = event => {
 const target = event.target;
@@ -377,6 +379,7 @@ const canvasItem = (entry, i) => h('div', { key: entry.id || i, className: 'rss-
 h('span', { className: 'rss-prism-drag-handle', title: 'Drag to reorder', 'aria-label': 'Drag to reorder' }, '⠿'),
 h('span', { className: 'rss-prism-canvas-kind' }, TYPES[entry.type] ? TYPES[entry.type].label : entry.type),
 h('span', { className: 'rss-prism-canvas-text' }, entry.text || (entry.type === 'columns' ? (entry.columns_count || 2) + ' columns' : entry.type === 'row' || entry.type === 'container' ? (entry.container_elements || []).length + ' nested elements' : '(empty)')),
+h('button', { type: 'button', className: 'button', onClick: e => { e.stopPropagation(); copyElement(i); } }, 'Copy'),
 h('button', { type: 'button', className: 'button', onClick: e => { e.stopPropagation(); duplicate(i); } }, 'Duplicate'),
 h('button', { type: 'button', className: 'button-link-delete', onClick: e => { e.stopPropagation(); remove(i); } }, 'Remove'));
 return h('div', { className: 'rss-prism-builder-layout' },
@@ -395,7 +398,7 @@ h('div', { className: 'rss-prism-template-copy' }, h('label', { htmlFor: 'rss-pr
 notice ? h('div', { className: 'notice notice-info rss-prism-builder-notice', role: 'status' }, h('p', null, notice)) : null,
 h('div', { className: 'rss-prism-preview-toolbar' }, h('strong', null, 'Responsive preview'), ...[['desktop','Desktop'],['tablet','Tablet'],['mobile','Mobile']].map(pair => h('button', { key: pair[0], type: 'button', className: 'button ' + (preview === pair[0] ? 'button-primary' : ''), onClick: () => setPreview(pair[0]), 'aria-pressed': preview === pair[0] }, pair[1]))),
 h('div', { className: 'rss-prism-builder-workspace' },
-h('section', { className: 'rss-prism-builder-canvas' }, h('div', { className: 'rss-prism-canvas-heading' }, h('span', null, 'PAGE STRUCTURE'), h('span', null, items.length + ' top-level elements')), items.length ? items.map(canvasItem) : h('p', { className: 'rss-prism-empty' }, 'Start by adding a section, heading, text, or button.')),
+h('section', { className: 'rss-prism-builder-canvas' }, h('div', { className: 'rss-prism-canvas-heading' }, h('span', null, 'PAGE STRUCTURE'), h('span', null, items.length + ' top-level elements')), h('div', { className: 'rss-prism-layer-actions' }, h('button', { type: 'button', className: 'button button-small', disabled: !clipboard, onClick: () => pasteElement(selected) }, 'Paste after selected'), h('button', { type: 'button', className: 'button button-small', disabled: !item, onClick: () => copyElement(selected) }, 'Copy selected')), items.length ? items.map(canvasItem) : h('p', { className: 'rss-prism-empty' }, 'Start by adding a section, heading, text, or button.')),
 h('aside', { className: 'rss-prism-builder-inspector' }, h('h2', null, 'Element settings'), item ? h('div', null,
 h('p', { className: 'rss-prism-inspector-type' }, TYPES[item.type] ? TYPES[item.type].label : item.type),
 field('Content', 'text', item.text, 'textarea'),
