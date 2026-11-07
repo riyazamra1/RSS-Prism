@@ -36,6 +36,14 @@ const responsive = {};
 return { border_radius: 0, spacer_height: 48, divider_color: '#d9d9d9', divider_width: 100, quote_author: '', blurb_icon: '✦', blurb_body: 'Describe the benefit or service in a sentence or two.', callout_body: 'Tell visitors what to do next and why it matters.', callout_label: 'Get started', gallery_urls: '', id: 'item-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7), type, text: TYPES[type].text, url: '', image_url: '', image_fit: 'cover', alt: '', button_bg: '#b88a2b', button_text: '#ffffff', button_radius: 6, image_width: 100, columns_count: 2, column_contents: ['First column content', 'Second column content', 'Third column content'], column_elements: [[{ id: 'child-' + Date.now() + '-a', type: 'text', text: 'First column content', url: '' }], [{ id: 'child-' + Date.now() + '-b', type: 'text', text: 'Second column content', url: '' }], [{ id: 'child-' + Date.now() + '-c', type: 'text', text: 'Third column content', url: '' }]], container_background: '#f7f6f2', container_elements: [{ id: 'nested-' + Date.now() + '-h', type: 'heading', text: 'Container heading', url: '' }, { id: 'nested-' + Date.now() + '-p', type: 'text', text: 'Add content inside this container.', url: '' }], background: type === 'section' ? '#f7f6f2' : '', text_color: '#202124', font_size: fontSize, align: 'left', padding: 24, responsive };
 };
 const clone = value => JSON.parse(JSON.stringify(value));
+const regenerateElementIds = entry => {
+if (!entry || typeof entry !== 'object') return entry;
+const makeId = prefix => prefix + '-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 9);
+entry.id = makeId('item');
+if (Array.isArray(entry.container_elements)) entry.container_elements.forEach(regenerateElementIds);
+if (Array.isArray(entry.column_elements)) entry.column_elements.forEach(column => { if (Array.isArray(column)) column.forEach(regenerateElementIds); });
+return entry;
+};
 const normalizedColumnElements = entry => Array.from({ length: Number(entry.columns_count || 2) }, (_, index) => {
 const children = entry.column_elements && entry.column_elements[index];
 if (Array.isArray(children) && children.length) return clone(children);
@@ -119,9 +127,9 @@ const move = (from, to) => { if (to < 0 || to >= items.length || from === to) re
 const remove = index => { commitItems(items.filter((_, i) => i !== index)); setSelected(Math.max(0, Math.min(selected, items.length - 2))); };
 const undo = () => { if (!history.length) return; setFuture(old => [clone(items), ...old]); setItems(history[history.length - 1]); setHistory(old => old.slice(0, -1)); };
 const redo = () => { if (!future.length) return; setHistory(old => [...old, clone(items)]); setItems(future[0]); setFuture(old => old.slice(1)); };
-const duplicate = index => { const next = items.slice(); const copy = clone(next[index]); copy.id = 'item-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7); next.splice(index + 1, 0, copy); commitItems(next); setSelected(index + 1); };
+const duplicate = index => { const next = items.slice(); const copy = regenerateElementIds(clone(next[index])); next.splice(index + 1, 0, copy); commitItems(next); setSelected(index + 1); };
 const copyElement = index => { if (!items[index]) return; setClipboard(clone(items[index])); setNotice('Element copied. Select a layer and choose Paste.'); };
-const pasteElement = index => { if (!clipboard) return; const pasted = clone(clipboard); pasted.id = 'item-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7); const next = items.slice(); const position = Math.max(0, Math.min(Number.isInteger(index) ? index + 1 : next.length, next.length)); next.splice(position, 0, pasted); commitItems(next); setSelected(position); setNotice('Element pasted. Changes will autosave.'); };
+const pasteElement = index => { if (!clipboard) return; const pasted = regenerateElementIds(clone(clipboard)); const next = items.slice(); const position = Math.max(0, Math.min(Number.isInteger(index) ? index + 1 : next.length, next.length)); next.splice(position, 0, pasted); commitItems(next); setSelected(position); setNotice('Element pasted. Changes will autosave.'); };
 useEffect(() => {
 const onKeyDown = event => {
 const target = event.target;
@@ -146,8 +154,7 @@ return;
 }
 if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'v' && clipboard) {
 event.preventDefault();
-const pasted = clone(clipboard);
-pasted.id = 'item-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7);
+const pasted = regenerateElementIds(clone(clipboard));
 const next = items.slice();
 next.splice(Math.min(selected + 1, next.length), 0, pasted);
 commitItems(next);
@@ -325,7 +332,7 @@ mutateNested(parentPath, list => { if (!Number.isInteger(source.index) || source
 h('div', { className: 'rss-prism-nested-child-toolbar' }, h('strong', null, (child.type === 'container' ? 'Nested container ' : 'Nested element ') + (index + 1)),
 h('button', { type: 'button', className: 'button-link', disabled: index === 0, onClick: () => mutateNested(parentPath, list => { const moved = list.splice(index, 1)[0]; list.splice(index - 1, 0, moved); }) }, 'Move up'),
 h('button', { type: 'button', className: 'button-link', disabled: index === children.length - 1, onClick: () => mutateNested(parentPath, list => { const moved = list.splice(index, 1)[0]; list.splice(index + 1, 0, moved); }) }, 'Move down'),
-h('button', { type: 'button', className: 'button-link', onClick: () => mutateNested(parentPath, list => { const copy = clone(list[index]); copy.id = 'nested-' + Date.now() + '-' + Math.random().toString(36).slice(2, 6); list.splice(index + 1, 0, copy); }) }, 'Duplicate')),
+h('button', { type: 'button', className: 'button-link', onClick: () => mutateNested(parentPath, list => { const copy = regenerateElementIds(clone(list[index])); list.splice(index + 1, 0, copy); }) }, 'Duplicate')),
 h('label', { className: 'rss-prism-field' }, h('span', null, 'Type'), h('select', { value: child.type || 'text', onChange: e => mutateNested(parentPath, list => { list[index].type = e.target.value; if (e.target.value === 'container') { list[index].container_background = list[index].container_background || '#f7f6f2'; list[index].container_elements = Array.isArray(list[index].container_elements) ? list[index].container_elements : [{ id: 'nested-' + Date.now(), type: 'text', text: 'Nested content', url: '' }]; } }) },
 ...([['heading','Heading'],['text','Text'],['button','Button'],['image','Image']].concat(depth < 2 ? [['container','Nested container']] : [])).map(([value,label]) => h('option', { key: value, value }, label)))),
 child.type === 'container' ? h('div', { className: 'rss-prism-image-controls' },
