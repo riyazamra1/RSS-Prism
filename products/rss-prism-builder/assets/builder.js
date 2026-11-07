@@ -64,21 +64,51 @@ const [history, setHistory] = useState([]);
 const [future, setFuture] = useState([]);
 const [clipboard, setClipboard] = useState(null);
 const [expandedNodes, setExpandedNodes] = useState({});
+const [selectedPath, setSelectedPath] = useState([]);
 const [autosaveStatus, setAutosaveStatus] = useState('Waiting for changes');
 const [restoreVersions, setRestoreVersions] = useState(() => { try { return JSON.parse(localStorage.getItem('rss-prism-history-' + config.postId) || '[]').slice(0, 20); } catch (error) { return []; } });
 const previousItems = useRef(clone(Array.isArray(config.layout) ? config.layout : []));
 const firstAutosave = useRef(true);
 const commitItems = next => { setHistory(old => [...old.slice(-29), clone(items)]); setFuture([]); setItems(typeof next === 'function' ? next(items) : next); };
-const item = items[selected] || null;
+const resolvePath = (rootEntry, path) => {
+let target = rootEntry;
+(path || []).forEach(step => {
+if (!target) return;
+if (step.kind === 'container') target = (target.container_elements || [])[step.index] || null;
+else if (step.kind === 'column') target = ((target.column_elements || [])[step.columnIndex] || [])[step.index] || null;
+});
+return target;
+};
+const item = items[selected] ? (resolvePath(items[selected], selectedPath) || items[selected]) : null;
 const update = (key, value) => commitItems(old => old.map((entry, i) => {
 if (i !== selected) return entry;
+const patch = target => {
 if (['font_size', 'padding', 'align'].includes(key)) {
-const responsive = clone(entry.responsive || {});
-['desktop', 'tablet', 'mobile'].forEach(device => { if (!responsive[device]) responsive[device] = { font_size: entry.font_size || 16, padding: entry.padding ?? 24, align: entry.align || 'left' }; });
+const responsive = clone(target.responsive || {});
+['desktop', 'tablet', 'mobile'].forEach(device => { if (!responsive[device]) responsive[device] = { font_size: target.font_size || 16, padding: target.padding ?? 24, align: target.align || 'left' }; });
 responsive[preview] = { ...responsive[preview], [key]: value };
-return { ...entry, [key]: value, responsive };
+return { ...target, [key]: value, responsive };
 }
-return { ...entry, [key]: value };
+return { ...target, [key]: value };
+};
+if (!selectedPath.length) return patch(entry);
+const root = clone(entry);
+let target = root;
+for (const step of selectedPath) {
+if (step.kind === 'container') {
+target.container_elements = Array.isArray(target.container_elements) ? target.container_elements : [];
+target = target.container_elements[step.index];
+} else if (step.kind === 'column') {
+target.column_elements = Array.isArray(target.column_elements) ? target.column_elements : [];
+target.column_elements[step.columnIndex] = Array.isArray(target.column_elements[step.columnIndex]) ? target.column_elements[step.columnIndex] : [];
+target = target.column_elements[step.columnIndex][step.index];
+}
+if (!target) return entry;
+}
+const changed = patch(target);
+Object.keys(target).forEach(name => { delete target[name]; });
+Object.assign(target, changed);
+return root;
 }));
 const add = type => { const next = [...items, fresh(type)]; commitItems(next); setSelected(next.length - 1); setNotice(''); };
 
@@ -386,24 +416,25 @@ return h('section', { ...common, ...inlineTextProps }, entry.text || 'Section');
 };
 const toggleNode = key => setExpandedNodes(old => ({ ...old, [key]: old[key] === false }));
 const navigatorNode = (entry, topIndex, path = [], depth = 0, label = '') => {
-const key = [topIndex, ...path].join('-');
+const key = [topIndex, ...path.map(step => step.kind === 'column' ? 'c' + step.columnIndex + '-' + step.index : 'n' + step.index)].join('-');
 const nested = Array.isArray(entry.container_elements) ? entry.container_elements : [];
 const columns = entry.type === 'columns' ? normalizedColumnElements(entry) : [];
 const hasChildren = nested.length > 0 || columns.some(column => column.length);
 const expanded = expandedNodes[key] !== false;
-const title = label || ((TYPES[entry.type] ? TYPES[entry.type].label : entry.type) + ' ' + (path.length ? path[path.length - 1] + 1 : topIndex + 1));
+const title = label || ((TYPES[entry.type] ? TYPES[entry.type].label : entry.type) + ' ' + (path.length ? path[path.length - 1].index + 1 : topIndex + 1));
+const isActive = topIndex === selected && JSON.stringify(path) === JSON.stringify(selectedPath);
 return h('div', { className: 'rss-prism-nav-node depth-' + depth, key: entry.id || key },
-h('div', { className: 'rss-prism-nav-row' + (!path.length && topIndex === selected ? ' is-selected' : ''), style: { paddingLeft: (10 + depth * 18) + 'px' } },
+h('div', { className: 'rss-prism-nav-row' + (isActive ? ' is-selected' : ''), style: { paddingLeft: (10 + depth * 18) + 'px' } },
 hasChildren ? h('button', { type: 'button', className: 'rss-prism-nav-toggle', 'aria-label': (expanded ? 'Collapse ' : 'Expand ') + title, 'aria-expanded': expanded, onClick: () => toggleNode(key) }, expanded ? '▾' : '▸') : h('span', { className: 'rss-prism-nav-toggle-placeholder' }, '·'),
-h('button', { type: 'button', className: 'rss-prism-nav-select', onClick: () => { setSelected(topIndex); if (path.length) setNotice('Selected nested element inside ' + (TYPES[items[topIndex].type] ? TYPES[items[topIndex].type].label : items[topIndex].type) + '. Edit its parent element settings to manage its content.'); } },
+h('button', { type: 'button', className: 'rss-prism-nav-select', onClick: () => { setSelected(topIndex); setSelectedPath(path); setNotice(path.length ? 'Nested element selected. Its own settings are now available in the inspector.' : 'Element selected.'); } },
 h('span', { className: 'rss-prism-nav-icon' }, entry.type === 'columns' ? '▥' : entry.type === 'row' ? '↔' : entry.type === 'container' ? '□' : '•'),
 h('span', { className: 'rss-prism-nav-name' }, title),
 h('span', { className: 'rss-prism-nav-type' }, TYPES[entry.type] ? TYPES[entry.type].label : entry.type))),
 hasChildren && expanded ? h('div', { className: 'rss-prism-nav-children' },
-...nested.map((child, index) => navigatorNode(child, topIndex, [...path, index], depth + 1)),
+...nested.map((child, index) => navigatorNode(child, topIndex, [...path, { kind: 'container', index }], depth + 1)),
 ...columns.flatMap((column, columnIndex) => [
 h('div', { className: 'rss-prism-nav-column-label', key: key + '-column-' + columnIndex, style: { paddingLeft: (28 + (depth + 1) * 18) + 'px' } }, 'Column ' + (columnIndex + 1)),
-...column.map((child, childIndex) => navigatorNode(child, topIndex, [...path, 100 + columnIndex, childIndex], depth + 2, (TYPES[child.type] ? TYPES[child.type].label : child.type) + ' ' + (childIndex + 1)))
+...column.map((child, childIndex) => navigatorNode(child, topIndex, [...path, { kind: 'column', columnIndex, index: childIndex }], depth + 2, (TYPES[child.type] ? TYPES[child.type].label : child.type) + ' ' + (childIndex + 1)))
 ])
 ) : null);
 };
