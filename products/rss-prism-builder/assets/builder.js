@@ -63,6 +63,7 @@ const [designPreset, setDesignPreset] = useState('rss-gold');
 const [history, setHistory] = useState([]);
 const [future, setFuture] = useState([]);
 const [clipboard, setClipboard] = useState(null);
+const [expandedNodes, setExpandedNodes] = useState({});
 const [autosaveStatus, setAutosaveStatus] = useState('Waiting for changes');
 const [restoreVersions, setRestoreVersions] = useState(() => { try { return JSON.parse(localStorage.getItem('rss-prism-history-' + config.postId) || '[]').slice(0, 20); } catch (error) { return []; } });
 const previousItems = useRef(clone(Array.isArray(config.layout) ? config.layout : []));
@@ -383,6 +384,29 @@ if (entry.type === 'gallery') { const urls = String(entry.gallery_urls || '').sp
 if (entry.type === 'image') return h('div', common, entry.image_url ? h('img', { src: entry.image_url, alt: entry.alt || '', className: 'rss-prism-live-image', style: { width: Math.min(100, Math.max(10, Number(entry.image_width ?? 100))) + '%', objectFit: entry.image_fit === 'contain' ? 'contain' : 'cover', height: entry.image_fit === 'contain' ? 'auto' : '240px' } }) : h('span', { className: 'rss-prism-image-placeholder' }, 'Choose an image in Element settings'));
 return h('section', { ...common, ...inlineTextProps }, entry.text || 'Section');
 };
+const toggleNode = key => setExpandedNodes(old => ({ ...old, [key]: old[key] === false }));
+const navigatorNode = (entry, topIndex, path = [], depth = 0, label = '') => {
+const key = [topIndex, ...path].join('-');
+const nested = Array.isArray(entry.container_elements) ? entry.container_elements : [];
+const columns = entry.type === 'columns' ? normalizedColumnElements(entry) : [];
+const hasChildren = nested.length > 0 || columns.some(column => column.length);
+const expanded = expandedNodes[key] !== false;
+const title = label || ((TYPES[entry.type] ? TYPES[entry.type].label : entry.type) + ' ' + (path.length ? path[path.length - 1] + 1 : topIndex + 1));
+return h('div', { className: 'rss-prism-nav-node depth-' + depth, key: entry.id || key },
+h('div', { className: 'rss-prism-nav-row' + (!path.length && topIndex === selected ? ' is-selected' : ''), style: { paddingLeft: (10 + depth * 18) + 'px' } },
+hasChildren ? h('button', { type: 'button', className: 'rss-prism-nav-toggle', 'aria-label': (expanded ? 'Collapse ' : 'Expand ') + title, 'aria-expanded': expanded, onClick: () => toggleNode(key) }, expanded ? '▾' : '▸') : h('span', { className: 'rss-prism-nav-toggle-placeholder' }, '·'),
+h('button', { type: 'button', className: 'rss-prism-nav-select', onClick: () => { setSelected(topIndex); if (path.length) setNotice('Selected nested element inside ' + (TYPES[items[topIndex].type] ? TYPES[items[topIndex].type].label : items[topIndex].type) + '. Edit its parent element settings to manage its content.'); } },
+h('span', { className: 'rss-prism-nav-icon' }, entry.type === 'columns' ? '▥' : entry.type === 'row' ? '↔' : entry.type === 'container' ? '□' : '•'),
+h('span', { className: 'rss-prism-nav-name' }, title),
+h('span', { className: 'rss-prism-nav-type' }, TYPES[entry.type] ? TYPES[entry.type].label : entry.type))),
+hasChildren && expanded ? h('div', { className: 'rss-prism-nav-children' },
+...nested.map((child, index) => navigatorNode(child, topIndex, [...path, index], depth + 1)),
+...columns.flatMap((column, columnIndex) => [
+h('div', { className: 'rss-prism-nav-column-label', key: key + '-column-' + columnIndex, style: { paddingLeft: (28 + (depth + 1) * 18) + 'px' } }, 'Column ' + (columnIndex + 1)),
+...column.map((child, childIndex) => navigatorNode(child, topIndex, [...path, 100 + columnIndex, childIndex], depth + 2, (TYPES[child.type] ? TYPES[child.type].label : child.type) + ' ' + (childIndex + 1)))
+])
+) : null);
+};
 const canvasItem = (entry, i) => h('div', { key: entry.id || i, className: 'rss-prism-canvas-item' + (i === selected ? ' is-selected' : ''), draggable: true, onDragStart: e => { e.dataTransfer.setData('text/plain', String(i)); e.dataTransfer.effectAllowed = 'move'; }, onDragOver: e => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; }, onDrop: e => { e.preventDefault(); move(Number(e.dataTransfer.getData('text/plain')), i); }, onClick: () => setSelected(i) },
 h('span', { className: 'rss-prism-drag-handle', title: 'Drag to reorder', 'aria-label': 'Drag to reorder' }, '⠿'),
 h('span', { className: 'rss-prism-canvas-kind' }, TYPES[entry.type] ? TYPES[entry.type].label : entry.type),
@@ -406,7 +430,7 @@ h('div', { className: 'rss-prism-template-copy' }, h('label', { htmlFor: 'rss-pr
 notice ? h('div', { className: 'notice notice-info rss-prism-builder-notice', role: 'status' }, h('p', null, notice)) : null,
 h('div', { className: 'rss-prism-preview-toolbar' }, h('strong', null, 'Responsive preview'), ...[['desktop','Desktop'],['tablet','Tablet'],['mobile','Mobile']].map(pair => h('button', { key: pair[0], type: 'button', className: 'button ' + (preview === pair[0] ? 'button-primary' : ''), onClick: () => setPreview(pair[0]), 'aria-pressed': preview === pair[0] }, pair[1]))),
 h('div', { className: 'rss-prism-builder-workspace' },
-h('section', { className: 'rss-prism-builder-canvas' }, h('div', { className: 'rss-prism-canvas-heading' }, h('span', null, 'PAGE STRUCTURE'), h('span', null, items.length + ' top-level elements')), h('div', { className: 'rss-prism-layer-actions' }, h('button', { type: 'button', className: 'button button-small', disabled: !clipboard, onClick: () => pasteElement(selected) }, 'Paste after selected'), h('button', { type: 'button', className: 'button button-small', disabled: !item, onClick: () => copyElement(selected) }, 'Copy selected')), items.length ? items.map(canvasItem) : h('p', { className: 'rss-prism-empty' }, 'Start by adding a section, heading, text, or button.')),
+h('section', { className: 'rss-prism-builder-canvas' }, h('div', { className: 'rss-prism-canvas-heading' }, h('span', null, 'NAVIGATOR'), h('span', null, items.length + ' top-level elements')), h('div', { className: 'rss-prism-layer-actions' }, h('button', { type: 'button', className: 'button button-small', onClick: () => setExpandedNodes({}) }, 'Expand all'), h('button', { type: 'button', className: 'button button-small', onClick: () => setExpandedNodes(Object.fromEntries(items.map((entry, index) => [String(index), false]))) }, 'Collapse all'), h('button', { type: 'button', className: 'button button-small', disabled: !clipboard, onClick: () => pasteElement(selected) }, 'Paste after selected'), h('button', { type: 'button', className: 'button button-small', disabled: !item, onClick: () => copyElement(selected) }, 'Copy selected')), items.length ? h('div', { className: 'rss-prism-navigator-tree' }, ...items.map((entry, index) => navigatorNode(entry, index))) : h('p', { className: 'rss-prism-empty' }, 'Start by adding a section, heading, text, or button.')),
 h('aside', { className: 'rss-prism-builder-inspector' }, h('h2', null, 'Element settings'), item ? h('div', null,
 h('p', { className: 'rss-prism-inspector-type' }, TYPES[item.type] ? TYPES[item.type].label : item.type),
 field('Content', 'text', item.text, 'textarea'),
