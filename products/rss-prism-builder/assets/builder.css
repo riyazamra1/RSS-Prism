@@ -58,3 +58,18 @@
 .rss-prism-column-image-wrap{margin:12px 0;max-width:100%;overflow:hidden;border-radius:8px}.rss-prism-column-image{display:block;width:100%;height:auto;max-width:100%;object-fit:cover;border-radius:8px}
 
 .rss-prism-layer-actions{display:flex;flex-wrap:wrap;gap:6px;padding:9px 10px;border-bottom:1px solid #e7e9ed;background:#fff}.rss-prism-layer-actions .button{font-size:11px;min-height:26px}
+
+/* Hierarchical navigator */
+.rss-prism-navigator-tree{padding:8px 0;max-height:720px;overflow:auto}
+.rss-prism-nav-node{min-width:0}
+.rss-prism-nav-row{display:flex;align-items:center;gap:6px;min-height:34px;border-bottom:1px solid #edf0f2}
+.rss-prism-nav-row.is-selected{background:#f0f6fc;box-shadow:inset 3px 0 #2271b1}
+.rss-prism-nav-toggle,.rss-prism-nav-toggle-placeholder{flex:0 0 22px;width:22px;height:24px;display:inline-flex;align-items:center;justify-content:center;border:0;background:transparent;color:#50575e;cursor:pointer}
+.rss-prism-nav-select{display:flex;align-items:center;gap:8px;min-width:0;flex:1;padding:5px 6px;border:0;background:transparent;text-align:left;cursor:pointer;color:#1d2327}
+.rss-prism-nav-select:hover{background:#f6f7f7}
+.rss-prism-nav-icon{width:18px;flex:0 0 18px;text-align:center;color:#8a6d2f}
+.rss-prism-nav-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;font-size:12px}
+.rss-prism-nav-type{font-size:10px;color:#646970;white-space:nowrap}
+.rss-prism-nav-column-label{padding-top:5px;padding-bottom:5px;font-size:11px;font-weight:600;color:#646970;background:#f8f9fa}
+.rss-prism-nav-children{border-left:1px solid #dcdcde;margin-left:20px}
+@media(max-width:782px){.rss-prism-nav-type{display:none}.rss-prism-navigator-tree{max-height:420px}}
