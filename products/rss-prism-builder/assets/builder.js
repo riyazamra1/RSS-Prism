@@ -110,7 +110,8 @@ Object.keys(target).forEach(name => { delete target[name]; });
 Object.assign(target, changed);
 return root;
 }));
-const add = type => { const next = [...items, fresh(type)]; commitItems(next); setSelected(next.length - 1); setNotice(''); };
+const selectTop = index => { setSelectedPath([]); setSelected(index); };
+const add = type => { const next = [...items, fresh(type)]; commitItems(next); selectTop(next.length - 1); setNotice(''); };
 
 const applyDesignPreset = key => {
 const preset = DESIGN_PRESETS[key];
@@ -152,15 +153,15 @@ if (type === 'button') entry.url = kind === 'contact' ? 'mailto:rsscctvsolution@
 return entry;
 });
 const next = [...items, ...additions];
-commitItems(next); setSelected(items.length); setNotice('“' + ({business:'Business landing',services:'Services',contact:'Contact page',about:'About RSS',projects:'RSS projects',security:'Security solutions'}[kind] || 'Starter layout') + '” sections added. Review the content and save the layout.');
+commitItems(next); selectTop(items.length); setNotice('“' + ({business:'Business landing',services:'Services',contact:'Contact page',about:'About RSS',projects:'RSS projects',security:'Security solutions'}[kind] || 'Starter layout') + '” sections added. Review the content and save the layout.');
 };
-const move = (from, to) => { if (to < 0 || to >= items.length || from === to) return; const next = items.slice(); const [entry] = next.splice(from, 1); next.splice(to, 0, entry); commitItems(next); setSelected(to); };
-const remove = index => { commitItems(items.filter((_, i) => i !== index)); setSelected(Math.max(0, Math.min(selected, items.length - 2))); };
+const move = (from, to) => { if (to < 0 || to >= items.length || from === to) return; const next = items.slice(); const [entry] = next.splice(from, 1); next.splice(to, 0, entry); commitItems(next); selectTop(to); };
+const remove = index => { commitItems(items.filter((_, i) => i !== index)); selectTop(Math.max(0, Math.min(selected, items.length - 2))); };
 const undo = () => { if (!history.length) return; setFuture(old => [clone(items), ...old]); setItems(history[history.length - 1]); setHistory(old => old.slice(0, -1)); };
 const redo = () => { if (!future.length) return; setHistory(old => [...old, clone(items)]); setItems(future[0]); setFuture(old => old.slice(1)); };
-const duplicate = index => { const next = items.slice(); const copy = regenerateElementIds(clone(next[index])); next.splice(index + 1, 0, copy); commitItems(next); setSelected(index + 1); };
+const duplicate = index => { const next = items.slice(); const copy = regenerateElementIds(clone(next[index])); next.splice(index + 1, 0, copy); commitItems(next); selectTop(index + 1); };
 const copyElement = index => { if (!items[index]) return; setClipboard(clone(items[index])); setNotice('Element copied. Select a layer and choose Paste.'); };
-const pasteElement = index => { if (!clipboard) return; const pasted = regenerateElementIds(clone(clipboard)); const next = items.slice(); const position = Math.max(0, Math.min(Number.isInteger(index) ? index + 1 : next.length, next.length)); next.splice(position, 0, pasted); commitItems(next); setSelected(position); setNotice('Element pasted. Changes will autosave.'); };
+const pasteElement = index => { if (!clipboard) return; const pasted = regenerateElementIds(clone(clipboard)); const next = items.slice(); const position = Math.max(0, Math.min(Number.isInteger(index) ? index + 1 : next.length, next.length)); next.splice(position, 0, pasted); commitItems(next); selectTop(position); setNotice('Element pasted. Changes will autosave.'); };
 useEffect(() => {
 const onKeyDown = event => {
 const target = event.target;
@@ -189,7 +190,7 @@ const pasted = regenerateElementIds(clone(clipboard));
 const next = items.slice();
 next.splice(Math.min(selected + 1, next.length), 0, pasted);
 commitItems(next);
-setSelected(Math.min(selected + 1, next.length - 1));
+selectTop(Math.min(selected + 1, next.length - 1));
 setNotice('Copied element pasted. Changes will autosave.');
 return;
 }
@@ -260,7 +261,7 @@ const entries = Array.isArray(parsed) ? parsed : parsed && parsed.format === 'rs
 if (!Array.isArray(entries)) throw new Error('This is not a supported RSS Prism layout JSON file.');
 const next = normalizeImported(entries);
 if (!window.confirm('Replace the current unsaved layout with ' + next.length + ' imported elements? Export a backup first if needed.')) return;
-commitItems(next); setSelected(0); setNotice('Imported ' + next.length + ' top-level elements. Review the layout and save it to WordPress.');
+commitItems(next); selectTop(0); setNotice('Imported ' + next.length + ' top-level elements. Review the layout and save it to WordPress.');
 } catch (error) { setNotice(error.message || 'Could not read this layout JSON file.'); }
 };
 reader.onerror = () => setNotice('Could not read the selected file.');
@@ -304,7 +305,7 @@ const restoreVersion = version => {
 if (!version || !Array.isArray(version.layout)) return;
 if (!window.confirm('Restore this saved browser-history version? Current changes will be added to undo history.')) return;
 commitItems(clone(version.layout));
-setSelected(0);
+selectTop(0);
 setNotice('Version restored in the editor. Autosave will store it to WordPress shortly.');
 };
 const createWordPressPage = async () => {
@@ -438,7 +439,7 @@ h('div', { className: 'rss-prism-nav-column-label', key: key + '-column-' + colu
 ])
 ) : null);
 };
-const canvasItem = (entry, i) => h('div', { key: entry.id || i, className: 'rss-prism-canvas-item' + (i === selected ? ' is-selected' : ''), draggable: true, onDragStart: e => { e.dataTransfer.setData('text/plain', String(i)); e.dataTransfer.effectAllowed = 'move'; }, onDragOver: e => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; }, onDrop: e => { e.preventDefault(); move(Number(e.dataTransfer.getData('text/plain')), i); }, onClick: () => setSelected(i) },
+const canvasItem = (entry, i) => h('div', { key: entry.id || i, className: 'rss-prism-canvas-item' + (i === selected ? ' is-selected' : ''), draggable: true, onDragStart: e => { e.dataTransfer.setData('text/plain', String(i)); e.dataTransfer.effectAllowed = 'move'; }, onDragOver: e => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; }, onDrop: e => { e.preventDefault(); move(Number(e.dataTransfer.getData('text/plain')), i); }, onClick: () => selectTop(i) },
 h('span', { className: 'rss-prism-drag-handle', title: 'Drag to reorder', 'aria-label': 'Drag to reorder' }, '⠿'),
 h('span', { className: 'rss-prism-canvas-kind' }, TYPES[entry.type] ? TYPES[entry.type].label : entry.type),
 h('span', { className: 'rss-prism-canvas-text' }, entry.text || (entry.type === 'columns' ? (entry.columns_count || 2) + ' columns' : entry.type === 'row' || entry.type === 'container' ? (entry.container_elements || []).length + ' nested elements' : '(empty)')),
