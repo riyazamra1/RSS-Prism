@@ -6,10 +6,12 @@ on:
     paths:
       - 'products/rss-prism-builder/**'
       - '.github/workflows/validate-rss-prism-builder.yml'
+      - '.github/workflows/release-rss-prism-builder.yml'
   pull_request:
     paths:
       - 'products/rss-prism-builder/**'
       - '.github/workflows/validate-rss-prism-builder.yml'
+      - '.github/workflows/release-rss-prism-builder.yml'
   workflow_dispatch:
 
 permissions:

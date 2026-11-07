@@ -86,8 +86,8 @@ final class RSS_Prism_Builder_Auto_Updates {
 						'github.com' === strtolower( $parts['host'] ) &&
 						$expected_path === $parts['path'] ) {
 						$zip_url = $candidate;
+						break;
 					}
-					break;
 				}
 			}
 			if ( '' === $zip_url ) {
