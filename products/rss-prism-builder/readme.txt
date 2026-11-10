@@ -4,13 +4,16 @@ Tags: page-builder, layout, templates
 Requires at least: 6.4
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 0.37.8
+Stable tag: 0.37.9
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 RSS Prism Builder is a visual layout builder for WordPress, with a live canvas, element inspector, reusable templates, responsive previews, and a growing module library.
 
 == Changelog ==
+= 0.37.9 =
+* Make live-canvas nested Row/Container and Column child selection keyboard accessible with focusable controls and Enter/Space activation.
+
 = 0.37.8 =
 * Allow selecting nested Row/Container elements and Column children directly on the live canvas.
 * Add visible hover and selection outlines for nested canvas elements and preserve parent-path selection for nested inspector editing.
