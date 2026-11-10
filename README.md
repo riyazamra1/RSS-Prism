@@ -6,12 +6,12 @@ RSS Prism is the WordPress design platform from Razeen Secure Solution (RSS).
 
 ## Current release
 
-**RSS Prism Theme 1.3.9** is the installable multipurpose theme in `products/rss-prism-theme/`. It includes a customizable homepage, responsive navigation, colour and width controls, header/footer options, grid/list archive layouts, widget areas, and templates for pages, posts, archives, search, comments, and 404 pages.
+**RSS Prism Theme 1.3.14** is the installable multipurpose theme in `products/rss-prism-theme/`. It includes a customizable homepage, responsive navigation, colour and width controls, header/footer options, grid/list archive layouts, widget areas, and templates for pages, posts, archives, search, comments, and 404 pages.
 
 ## Product family
 
 - **RSS Prism Theme** — free, installable multipurpose WordPress theme.
-- **RSS Prism Builder 0.22.5** — a separate visual layout-builder plugin with draggable section, heading, text, button, image, content-container, and 2/3-column layout elements; six RSS business, services, about, projects, security, and contact starter layouts; searchable template library with draft/published status labels; Media Library selection; adjustable image width; configurable CTA button colours/corner radius; responsive typography/spacing; editable and reorderable nested heading/text/button elements within columns; recursively editable containers (bounded to two nested levels); reusable draft-template copies; undo/redo; and live preview. It includes an activation welcome screen, a free-feature overview, a clearly marked premium roadmap, automatic saving, browser recovery history, and REST endpoint hardening. Premium checkout is not live; no premium features are currently being sold. It remains an early MVP, not a complete Elementor-equivalent builder.
+- **RSS Prism Builder 0.37.11** — a separate visual layout-builder plugin with a live canvas, hierarchical Navigator, direct nested-element selection, responsive previews, inline editing, autosave/recovery, undo/redo, reusable templates, Media Library selection, Sections, Rows, Containers, Columns, Heading, Text, Button, Image, Gallery, Divider, Spacer, Quote, Blurb, and Call to Action modules. Nested Row/Container elements can be reordered and moved between top-level layout trees; cross-column drag/drop and broader design controls remain in progress. Premium checkout is not live; no premium features are currently being sold. It is still under active development and is not yet a complete Elementor-equivalent builder.
 - **RSS Prism Studio** — planned template library.
 - **RSS Prism Licensing API (foundation)** — Cloudflare Worker and D1 schema for email-bound key verification, validity checks, and one-site/five-site activation tracking. This is not yet deployed and does not issue licences or process payments.
 
