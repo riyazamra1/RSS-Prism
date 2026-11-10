@@ -87,7 +87,7 @@ Implemented in the current working branch:
 - Hierarchical Navigator for containers/rows and columns, nested child selection, and keyboard activation for nested canvas elements.
 - Recursive ID regeneration for cloned nested layouts.
 - Top-level drag/reorder plus nested-editor and live-canvas drag/drop. Nested elements can be reordered among siblings or moved into a nested Container within the same top-level Row/Container tree. Moves reject self/descendant cycles and preserve the moved subtree. Cross-top-level and cross-column drag/drop remain outstanding.
-- Builder 0.37.9 and 0.37.10 syntax/package validation passed in GitHub Actions; Builder 0.37.11 cross-tree drag/drop is awaiting CI.
+- Builder 0.37.9, 0.37.10, and 0.37.11 syntax/package validation passed in GitHub Actions, including the cross-tree nested drag/drop implementation.
 - Theme metadata/thumbnail-source, PHP syntax, and installable ZIP validation passed in GitHub Actions.
 - Updater package validation and release workflow serialization have been improved.
 
