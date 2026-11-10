@@ -86,13 +86,13 @@ Implemented in the current working branch:
 - Sections, headings, text, buttons, images, columns, rows, containers, divider, spacer, quote, blurb, callout, and gallery modules.
 - Hierarchical Navigator for containers/rows and columns, nested child selection, and keyboard activation for nested canvas elements.
 - Recursive ID regeneration for cloned nested layouts.
-- Top-level drag/reorder and nested-editor drag reorder within a single parent list; cross-parent nested drag/drop is not yet implemented.
+- Top-level drag/reorder plus nested-editor and live-canvas drag/drop. Nested elements can be reordered among siblings or moved into a nested Container within the same top-level Row/Container tree. Moves reject self/descendant cycles and preserve the moved subtree. Cross-top-level and cross-column drag/drop remain outstanding.
 - Builder 0.37.9 syntax/package validation passed in GitHub Actions.
 - Theme metadata/thumbnail-source, PHP syntax, and installable ZIP validation passed in GitHub Actions.
 - Updater package validation and release workflow serialization have been improved.
 
 Still outstanding:
-- Cross-parent and direct canvas drag/drop across nested levels, with robust path/selection handling.
+- Cross-top-level and cross-column drag/drop, plus more complete touch-friendly drag handles and drop-target feedback.
 - Broader module library and full Inspector coverage (including advanced typography, hover/focus, backgrounds, shadows, and responsive visibility/layout controls).
 - Full global component workflow and expanded template library.
 - Real staging WordPress regression testing, especially actual Dashboard automatic update installation and theme welcome dismissal.
