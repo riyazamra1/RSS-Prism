@@ -370,6 +370,8 @@ if (from === to && sourceIndex < insertAt) insertAt -= 1;
 insertAt = Math.max(0, Math.min(insertAt, to.length));
 to.splice(insertAt, 0, moving);
 update('container_elements', rootChildren);
+setSelectedPath([]);
+setNotice('Nested element moved. Its complete content was preserved.');
 };
 const chooseNestedImage = (parentPath, childIndex) => {
 if (!window.wp || !wp.media) { setNotice('The WordPress Media Library is not available on this screen.'); return; }
@@ -437,7 +439,7 @@ const key = child.id || childIndex;
 const path = [...parentPath, { kind: 'container', index: childIndex }];
 const active = selected === i && JSON.stringify(selectedPath) === JSON.stringify(path);
 const selectNested = e => { if (e) e.stopPropagation(); setSelected(i); setSelectedPath(path); setInlineEditing(false); setNotice('Nested element selected. Its own settings are available in the Inspector.'); };
-const nestedCommon = { key, role: 'button', tabIndex: 0, className: 'rss-prism-live-nested-element' + (active ? ' is-selected' : ''), onClick: selectNested, onKeyDown: e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectNested(e); } }, onDragOver: e => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; }, onDrop: e => { e.preventDefault(); e.stopPropagation(); let source; try { source = JSON.parse(e.dataTransfer.getData('text/plain')); } catch (error) { return; } if (!source || source.kind !== 'rss-prism-nested' || !Array.isArray(source.path)) return; if (child.type === 'container') moveNested(source.path, source.index, path, (child.container_elements || []).length); else moveNested(source.path, source.index, parentPath, childIndex); }, title: child.type === 'container' ? 'Select this nested container; drop an element here to move it inside' : 'Select this nested element and edit its settings; drop to reorder' };
+const nestedCommon = { key, role: 'button', tabIndex: 0, className: 'rss-prism-live-nested-element' + (active ? ' is-selected' : ''), onClick: selectNested, onKeyDown: e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectNested(e); } }, onDragOver: e => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; }, onDrop: e => { e.preventDefault(); e.stopPropagation(); if (selectedPath.length) return; let source; try { source = JSON.parse(e.dataTransfer.getData('text/plain')); } catch (error) { return; } if (!source || source.kind !== 'rss-prism-nested' || !Array.isArray(source.path)) return; if (child.type === 'container') moveNested(source.path, source.index, path, (child.container_elements || []).length); else moveNested(source.path, source.index, parentPath, childIndex); }, title: child.type === 'container' ? 'Select this nested container; drop an element here to move it inside' : 'Select this nested element and edit its settings; drop to reorder' };
 if (child.type === 'container' && depth < 2) return h('div', { ...nestedCommon, className: nestedCommon.className + ' rss-prism-live-container rss-prism-live-container--nested', style: { background: child.container_background || '#f7f6f2', border: '1px solid #e2e4e7', borderRadius: '8px', padding: '12px', margin: '12px 0' } }, ...(Array.isArray(child.container_elements) ? child.container_elements : []).map((nested, nestedIndex) => previewNested(nested, nestedIndex, depth + 1, path)));
 if (child.type === 'heading') return h('h3', nestedCommon, child.text || 'Heading');
 if (child.type === 'button') return h('p', nestedCommon, h('span', { className: 'rss-prism-live-button' }, child.text || 'Button'));
