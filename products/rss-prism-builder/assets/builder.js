@@ -367,7 +367,6 @@ targetPath.slice(0, sourcePath.length).every((part, index) => part === sourcePat
 targetPath[sourcePath.length] === sourceIndex) return;
 let insertAt = Math.max(0, Math.min(Number(targetIndex) || 0, to.length));
 from.splice(sourceIndex, 1);
-if (from === to && sourceIndex < insertAt) insertAt -= 1;
 insertAt = Math.max(0, Math.min(insertAt, to.length));
 to.splice(insertAt, 0, moving);
 commitItems(nextItems);
