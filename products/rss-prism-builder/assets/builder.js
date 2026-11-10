@@ -335,8 +335,40 @@ const field = (label, key, value, type = 'text') => h('label', { className: 'rss
 const mutateNested = (parentPath, callback) => {
 const rootChildren = clone(item.container_elements || []);
 let target = rootChildren;
-parentPath.forEach(index => { target = target[index] && Array.isArray(target[index].container_elements) ? target[index].container_elements : []; });
+for (const index of parentPath || []) {
+const parent = target[index];
+if (!parent || !Array.isArray(parent.container_elements)) return;
+target = parent.container_elements;
+}
 callback(target);
+update('container_elements', rootChildren);
+};
+const moveNested = (sourcePath, sourceIndex, targetPath, targetIndex) => {
+const rootChildren = clone(item.container_elements || []);
+const getList = path => {
+let list = rootChildren;
+for (const index of path || []) {
+const parent = list[index];
+if (!parent || !Array.isArray(parent.container_elements)) return null;
+list = parent.container_elements;
+}
+return list;
+};
+const from = getList(sourcePath);
+const to = getList(targetPath);
+if (!from || !to || !Number.isInteger(sourceIndex) || sourceIndex < 0 || sourceIndex >= from.length) return;
+const moving = from[sourceIndex];
+if (!moving) return;
+const sourceParentPath = [...(sourcePath || [])];
+const targetParentPath = [...(targetPath || [])];
+if (moving.type === 'container' && targetParentPath.length > sourceParentPath.length &&
+targetParentPath.slice(0, sourceParentPath.length).every((part, index) => part === sourceParentPath[index]) &&
+targetParentPath[sourceParentPath.length] === sourceIndex) return;
+let insertAt = Math.max(0, Math.min(Number(targetIndex) || 0, to.length));
+from.splice(sourceIndex, 1);
+if (from === to && sourceIndex < insertAt) insertAt -= 1;
+insertAt = Math.max(0, Math.min(insertAt, to.length));
+to.splice(insertAt, 0, moving);
 update('container_elements', rootChildren);
 };
 const chooseNestedImage = (parentPath, childIndex) => {
@@ -354,11 +386,11 @@ frame.open();
 };
 const nestedEditor = (children, parentPath, depth) => h('div', { className: 'rss-prism-nested-editor rss-prism-nested-depth-' + depth },
 ...(children || []).map((child, index) => h('div', { className: 'rss-prism-nested-child', key: child.id || index, draggable: true,
-onDragStart: e => { e.dataTransfer.setData('text/plain', JSON.stringify({ path: parentPath, index })); e.dataTransfer.effectAllowed = 'move'; },
+onDragStart: e => { e.dataTransfer.setData('text/plain', JSON.stringify({ kind: 'rss-prism-nested', path: parentPath, index })); e.dataTransfer.effectAllowed = 'move'; },
 onDragOver: e => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; },
-onDrop: e => { e.preventDefault(); let source; try { source = JSON.parse(e.dataTransfer.getData('text/plain')); } catch (error) { return; }
-if (!source || JSON.stringify(source.path) !== JSON.stringify(parentPath) || source.index === index) return;
-mutateNested(parentPath, list => { if (!Number.isInteger(source.index) || source.index < 0 || source.index >= list.length) return; const moved = list.splice(source.index, 1)[0]; list.splice(index, 0, moved); });
+onDrop: e => { e.preventDefault(); e.stopPropagation(); let source; try { source = JSON.parse(e.dataTransfer.getData('text/plain')); } catch (error) { return; }
+if (!source || source.kind !== 'rss-prism-nested' || !Array.isArray(source.path)) return;
+moveNested(source.path, source.index, parentPath, index);
 }
 },
 h('div', { className: 'rss-prism-nested-child-toolbar' }, h('strong', null, (child.type === 'container' ? 'Nested container ' : 'Nested element ') + (index + 1)),
@@ -405,7 +437,7 @@ const key = child.id || childIndex;
 const path = [...parentPath, { kind: 'container', index: childIndex }];
 const active = selected === i && JSON.stringify(selectedPath) === JSON.stringify(path);
 const selectNested = e => { if (e) e.stopPropagation(); setSelected(i); setSelectedPath(path); setInlineEditing(false); setNotice('Nested element selected. Its own settings are available in the Inspector.'); };
-const nestedCommon = { key, role: 'button', tabIndex: 0, className: 'rss-prism-live-nested-element' + (active ? ' is-selected' : ''), onClick: selectNested, onKeyDown: e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectNested(e); } }, title: 'Select this nested element and edit its settings' };
+const nestedCommon = { key, role: 'button', tabIndex: 0, className: 'rss-prism-live-nested-element' + (active ? ' is-selected' : ''), onClick: selectNested, onKeyDown: e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectNested(e); } }, onDragOver: e => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; }, onDrop: e => { e.preventDefault(); e.stopPropagation(); let source; try { source = JSON.parse(e.dataTransfer.getData('text/plain')); } catch (error) { return; } if (!source || source.kind !== 'rss-prism-nested' || !Array.isArray(source.path)) return; if (child.type === 'container') moveNested(source.path, source.index, path, (child.container_elements || []).length); else moveNested(source.path, source.index, parentPath, childIndex); }, title: child.type === 'container' ? 'Select this nested container; drop an element here to move it inside' : 'Select this nested element and edit its settings; drop to reorder' };
 if (child.type === 'container' && depth < 2) return h('div', { ...nestedCommon, className: nestedCommon.className + ' rss-prism-live-container rss-prism-live-container--nested', style: { background: child.container_background || '#f7f6f2', border: '1px solid #e2e4e7', borderRadius: '8px', padding: '12px', margin: '12px 0' } }, ...(Array.isArray(child.container_elements) ? child.container_elements : []).map((nested, nestedIndex) => previewNested(nested, nestedIndex, depth + 1, path)));
 if (child.type === 'heading') return h('h3', nestedCommon, child.text || 'Heading');
 if (child.type === 'button') return h('p', nestedCommon, h('span', { className: 'rss-prism-live-button' }, child.text || 'Button'));
