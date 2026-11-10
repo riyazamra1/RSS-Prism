@@ -375,25 +375,7 @@ setSelected(targetRootIndex);
 setSelectedPath([]);
 setNotice('Nested element moved. Its complete content was preserved.');
 };
-const from = getList(sourcePath);
-const to = getList(targetPath);
-if (!from || !to || !Number.isInteger(sourceIndex) || sourceIndex < 0 || sourceIndex >= from.length) return;
-const moving = from[sourceIndex];
-if (!moving) return;
-const sourceParentPath = [...(sourcePath || [])];
-const targetParentPath = [...(targetPath || [])];
-if (moving.type === 'container' && targetParentPath.length > sourceParentPath.length &&
-targetParentPath.slice(0, sourceParentPath.length).every((part, index) => part === sourceParentPath[index]) &&
-targetParentPath[sourceParentPath.length] === sourceIndex) return;
-let insertAt = Math.max(0, Math.min(Number(targetIndex) || 0, to.length));
-from.splice(sourceIndex, 1);
-if (from === to && sourceIndex < insertAt) insertAt -= 1;
-insertAt = Math.max(0, Math.min(insertAt, to.length));
-to.splice(insertAt, 0, moving);
-update('container_elements', rootChildren);
-setSelectedPath([]);
-setNotice('Nested element moved. Its complete content was preserved.');
-};
+
 const chooseNestedImage = (parentPath, childIndex) => {
 if (!window.wp || !wp.media) { setNotice('The WordPress Media Library is not available on this screen.'); return; }
 const frame = wp.media({ title: 'Choose an image for this element', button: { text: 'Use image' }, library: { type: 'image' }, multiple: false });
