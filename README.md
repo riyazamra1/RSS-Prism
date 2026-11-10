@@ -17,6 +17,10 @@ RSS Prism is the WordPress design platform from Razeen Secure Solution (RSS).
 
 Only the Free plan is currently offered. Paid prices and plans are not active and are not displayed by the public pricing shortcode. Historical proposed prices are kept separately in `pricing/archived-proposals.json` for internal reference only; they are not offers or checkout prices.
 
+## Product requirements
+
+The canonical Builder, Theme, automatic-update, and quality-gate requirements are maintained in [`docs/BUILDER-REQUIREMENTS.md`](docs/BUILDER-REQUIREMENTS.md). The document distinguishes implemented capabilities from outstanding work and is the acceptance baseline for ongoing development.
+
 ## Repository layout
 
 - `products/rss-prism-theme/` — installable WordPress theme.
