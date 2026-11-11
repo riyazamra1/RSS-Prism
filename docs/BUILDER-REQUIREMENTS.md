@@ -79,20 +79,20 @@ For each Builder/Theme change:
 6. Verify the actual WordPress dashboard flow for save, preview, publish, theme welcome dismissal, and automatic updates in a staging WordPress site before marking those flows complete.
 7. Report CI and live-site verification separately. Never treat a successful package build as a production release or a live update test.
 
-## Current implementation snapshot (2026-11-10)
+## Current implementation snapshot (2026-11-11)
 
 Implemented in the current working branch:
 - Live canvas, inline editing, responsive preview modes, autosave/recovery, undo/redo, templates, and a contextual Inspector foundation.
 - Sections, headings, text, buttons, images, columns, rows, containers, divider, spacer, quote, blurb, callout, and gallery modules.
 - Hierarchical Navigator for containers/rows and columns, nested child selection, and keyboard activation for nested canvas elements.
 - Recursive ID regeneration for cloned nested layouts.
-- Top-level drag/reorder plus nested-editor and live-canvas drag/drop. Nested elements can be reordered among siblings or moved into a nested Container within the same top-level Row/Container tree. Moves reject self/descendant cycles and preserve the moved subtree. Cross-top-level and cross-column drag/drop remain outstanding.
-- Builder 0.37.9, 0.37.10, and 0.37.11 syntax/package validation passed in GitHub Actions, including the cross-tree nested drag/drop implementation.
+- Top-level drag/reorder plus nested-editor and live-canvas drag/drop. Nested elements can be reordered among siblings, moved into nested Containers, and moved between columns and separate top-level Row/Container trees. Cross-column moves remove the source child and insert it at the validated destination index; empty columns are drop targets. Moves preserve the complete subtree and reject invalid self/descendant cycles. Pointer/touch QA remains outstanding.
+- Builder 0.37.9, 0.37.10, and 0.37.11 syntax/package validation passed in GitHub Actions for earlier commits. The current cross-column drag/drop changes pass a JavaScript parse check, but no GitHub Actions run or browser-level WordPress test has yet verified those latest commits.
 - Theme metadata/thumbnail-source, PHP syntax, and installable ZIP validation passed in GitHub Actions.
 - Updater package validation and release workflow serialization have been improved.
 
 Still outstanding:
-- Cross-column drag/drop, plus more complete touch-friendly drag handles and drop-target feedback.
+- Browser-level regression testing of cross-column and empty-column drag/drop, plus more complete touch-friendly drag handles and drop-target feedback.
 - Broader module library and full Inspector coverage (including advanced typography, hover/focus, backgrounds, shadows, and responsive visibility/layout controls).
 - Full global component workflow and expanded template library.
 - Real staging WordPress regression testing, especially actual Dashboard automatic update installation and theme welcome dismissal.
