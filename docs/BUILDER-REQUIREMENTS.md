@@ -21,7 +21,7 @@ The Builder must remain a separate plugin from the Theme. Builder layouts and co
 - Support hierarchical Sections, Rows, Columns, Containers, and nested content.
 - Provide a hierarchical Navigator/Layers panel with expand/collapse, selection, useful labels, and synchronized canvas/Inspector selection.
 - Support drag-and-drop insertion and reordering at top-level and nested levels. A move must preserve the complete element subtree and unique IDs, reject invalid parent/descendant drops, and update the selected path safely.
-- Provide non-drag alternatives such as Move up/Move down for accessibility and touch use.
+- Provide non-drag alternatives such as Move up/Move down for top-level and nested elements, for accessibility and touch use.
 - Support responsive row/column wrapping, configurable gaps, widths, alignment, and stacking behavior.
 
 ### Modules
@@ -86,7 +86,7 @@ Implemented in the current working branch:
 - Sections, headings, text, buttons, images, columns, rows, containers, divider, spacer, quote, blurb, callout, and gallery modules.
 - Hierarchical Navigator for containers/rows and columns, nested child selection, and keyboard activation for nested canvas elements.
 - Recursive ID regeneration for cloned nested layouts.
-- Top-level drag/reorder plus nested-editor and live-canvas drag/drop. Nested elements can be reordered among siblings, moved into nested Containers, and moved between columns and separate top-level Row/Container trees. Cross-column moves remove the source child and insert it at the validated destination index; empty columns are drop targets. Moves preserve the complete subtree and reject invalid self/descendant cycles. Pointer/touch QA remains outstanding.
+- Top-level drag/reorder plus nested-editor and live-canvas drag/drop. Nested elements can be reordered among siblings, moved into nested Containers, and moved between columns and separate top-level Row/Container trees. Cross-column moves remove the source child and insert it at the validated destination index; empty columns are drop targets. Moves preserve the complete subtree and reject invalid self/descendant cycles. Top-level and nested Move up/Move down controls provide a non-drag alternative. Pointer/touch QA remains outstanding.
 - Builder 0.37.9, 0.37.10, and 0.37.11 syntax/package validation passed in GitHub Actions for earlier commits. The current cross-column drag/drop changes pass a JavaScript parse check, but no GitHub Actions run or browser-level WordPress test has yet verified those latest commits.
 - Theme metadata/thumbnail-source, PHP syntax, and installable ZIP validation passed in GitHub Actions.
 - Updater package validation and release workflow serialization have been improved.
