@@ -489,6 +489,8 @@ const canvasItem = (entry, i) => h('div', { key: entry.id || i, className: 'rss-
 h('span', { className: 'rss-prism-drag-handle', title: 'Drag to reorder', 'aria-label': 'Drag to reorder' }, '⠿'),
 h('span', { className: 'rss-prism-canvas-kind' }, TYPES[entry.type] ? TYPES[entry.type].label : entry.type),
 h('span', { className: 'rss-prism-canvas-text' }, entry.text || (entry.type === 'columns' ? (entry.columns_count || 2) + ' columns' : entry.type === 'row' || entry.type === 'container' ? (entry.container_elements || []).length + ' nested elements' : '(empty)')),
+h('button', { type: 'button', className: 'button-link', disabled: i === 0, title: 'Move element up', onClick: e => { e.stopPropagation(); move(i, i - 1); } }, 'Move up'),
+h('button', { type: 'button', className: 'button-link', disabled: i === items.length - 1, title: 'Move element down', onClick: e => { e.stopPropagation(); move(i, i + 1); } }, 'Move down'),
 h('button', { type: 'button', className: 'button', onClick: e => { e.stopPropagation(); copyElement(i); } }, 'Copy'),
 h('button', { type: 'button', className: 'button', onClick: e => { e.stopPropagation(); duplicate(i); } }, 'Duplicate'),
 h('button', { type: 'button', className: 'button-link-delete', onClick: e => { e.stopPropagation(); remove(i); } }, 'Remove'));
