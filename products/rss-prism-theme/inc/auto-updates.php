@@ -118,8 +118,17 @@ if ( ! class_exists( 'RSS_Prism_Auto_Updates' ) ) {
 				$package = '';
 				if ( ! empty( $item['assets'] ) && is_array( $item['assets'] ) ) {
 					foreach ( $item['assets'] as $asset ) {
-						if ( isset( $asset['name'], $asset['browser_download_url'] ) && self::PACKAGE_NAME === $asset['name'] && 0 === strpos( $asset['browser_download_url'], 'https://github.com/riyazamra1/RSS-Prism/releases/download/' ) ) {
-							$package = esc_url_raw( $asset['browser_download_url'] );
+						if ( ! isset( $asset['name'], $asset['browser_download_url'] ) || self::PACKAGE_NAME !== $asset['name'] ) {
+							continue;
+						}
+						$candidate = esc_url_raw( $asset['browser_download_url'] );
+						$parts = wp_parse_url( $candidate );
+						$expected_path = '/riyazamra1/RSS-Prism/releases/download/' . $item['tag_name'] . '/' . self::PACKAGE_NAME;
+						if ( is_array( $parts ) && isset( $parts['scheme'], $parts['host'], $parts['path'] ) &&
+							'https' === strtolower( $parts['scheme'] ) &&
+							'github.com' === strtolower( $parts['host'] ) &&
+							$expected_path === $parts['path'] ) {
+							$package = $candidate;
 							break;
 						}
 					}

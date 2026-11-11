@@ -4,13 +4,58 @@ Tags: page-builder, layout, templates
 Requires at least: 6.4
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 0.37.0
+Stable tag: 0.37.11
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 RSS Prism Builder is a visual layout builder for WordPress, with a live canvas, element inspector, reusable templates, responsive previews, and a growing module library.
 
 == Changelog ==
+= 0.37.11 =
+* Allow nested Row/Container elements to move between different top-level layout trees on the live canvas.
+* Preserve full nested subtrees and reject self/descendant cycles during cross-tree moves.
+
+= 0.37.10 =
+* Support moving nested Row/Container elements between sibling containers by dropping onto a nested container or before a sibling.
+* Reject moves that would place a container inside itself or one of its descendants.
+* Preserve nested element subtrees and reset stale Navigator selection paths after a move.
+
+= 0.37.9 =
+* Make live-canvas nested Row/Container and Column child selection keyboard accessible with focusable controls and Enter/Space activation.
+
+= 0.37.8 =
+* Allow selecting nested Row/Container elements and Column children directly on the live canvas.
+* Add visible hover and selection outlines for nested canvas elements and preserve parent-path selection for nested inspector editing.
+
+= 0.37.7 =
+* Allow selecting nested container and column children directly in the Navigator and editing the selected child's own inspector settings.
+* Preserve the top-level selection when switching layers and apply nested inspector changes to the correct child object.
+
+= 0.37.6 =
+* Add an expandable hierarchical Navigator for top-level elements, nested containers, rows, columns and column children.
+* Add Expand all and Collapse all controls and nested-layer selection context.
+
+= 0.37.5 =
+* Regenerate IDs recursively when duplicating or pasting elements, including nested containers and column children.
+* Prevent duplicate nested identifiers from copied layouts.
+
+= 0.37.4 =
+* Add duplicate controls for nested elements inside rows and containers.
+
+= 0.37.3 =
+* Add visible Copy and Paste after selected controls in the Page Structure panel.
+* Style the page-structure clipboard controls for desktop and mobile layouts.
+
+= 0.37.2 =
+* Add keyboard copy, cut, paste, delete, and layer-reordering shortcuts.
+* Improve page-structure layer labels for nested layouts.
+
+
+= 0.37.1 =
+* Adds a responsive Row layout module with editable nested content, drag ordering, and a wrapping live/published layout.
+* Fixes release asset selection so an unrelated first asset cannot prevent WordPress from finding the valid Builder ZIP.
+* Tightens package validation in the release pipeline.
+
 
 = 0.37.0 =
 * Routes the WordPress Add New Prism Template action into the visual builder and adds direct Edit with RSS Prism Builder links to template rows and edit screens.
