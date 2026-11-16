@@ -16,6 +16,11 @@ on:
 permissions:
   contents: write
 
+# Serialize product releases so Builder and Theme packages are never published in parallel.
+concurrency:
+  group: rss-prism-release
+  cancel-in-progress: false
+
 jobs:
   package-and-release:
     runs-on: ubuntu-latest
@@ -37,7 +42,8 @@ jobs:
           fi
           [[ "$TAG" == rss-prism-builder-v* ]]
           [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+([+-][0-9A-Za-z.-]+)?$ ]]
-          grep -q "Version: $VERSION" products/rss-prism-builder/rss-prism-builder.php
+          grep -Fq "* Version: $VERSION" products/rss-prism-builder/rss-prism-builder.php
+          grep -Fq "define( 'RSS_PRISM_BUILDER_VERSION', '$VERSION' );" products/rss-prism-builder/rss-prism-builder.php
           test -f products/rss-prism-builder/includes/auto-updates.php
           echo "VERSION=$VERSION" >> "$GITHUB_ENV"
           echo "RELEASE_TAG=$TAG" >> "$GITHUB_ENV"
@@ -53,7 +59,12 @@ jobs:
           cd dist
           zip -qr ../rss-prism-builder.zip rss-prism-builder -x '*/.git/*' '*/node_modules/*' '*/vendor/*' '*/.DS_Store'
           unzip -t ../rss-prism-builder.zip
-          unzip -l ../rss-prism-builder.zip | grep -q 'rss-prism-builder/includes/auto-updates.php'
+          unzip -l ../rss-prism-builder.zip | grep -Fq 'rss-prism-builder/rss-prism-builder.php'
+          unzip -l ../rss-prism-builder.zip | grep -Fq 'rss-prism-builder/includes/auto-updates.php'
+          unzip -p ../rss-prism-builder.zip rss-prism-builder/rss-prism-builder.php | grep -Fq "* Version: $VERSION"
+          # The updater accepts only this exact tag and asset URL shape.
+          [[ "$RELEASE_TAG" == "rss-prism-builder-v$VERSION" ]]
+          echo "Validated install package: rss-prism-builder.zip ($VERSION; $RELEASE_TAG)"
 
       - name: Publish release asset
         uses: softprops/action-gh-release@v2

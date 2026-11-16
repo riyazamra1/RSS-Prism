@@ -292,48 +292,10 @@ function rss_prism_ajax_dismiss_welcome(){
 }
 add_action('wp_ajax_rss_prism_dismiss_welcome','rss_prism_ajax_dismiss_welcome');
 
-/**
- * Persist the welcome-card dismissal immediately, with a normal-link fallback.
- * The fallback remains usable if JavaScript or the AJAX endpoint is unavailable.
+/** The Hide link uses the nonce-protected admin-post fallback directly.
+ * A normal WordPress navigation is more reliable than an AJAX-only dismissal.
  */
-function rss_prism_persist_welcome_dismiss() {
-	if ( ! is_admin() || ! current_user_can( 'switch_themes' ) || 'themes.php' !== ( $GLOBALS['pagenow'] ?? '' ) ) {
-		return;
-	}
-	?>
-	<script>
-	(function () {
-		document.addEventListener('click', function (event) {
-			var link = event.target.closest('.rp-welcome-hide');
-			if (!link) return;
-			event.preventDefault();
-			var notice = link.closest('.rp-welcome-notice');
-			link.setAttribute('aria-disabled', 'true');
-			link.textContent = <?php echo wp_json_encode( __( 'Hiding…', 'rss-prism' ) ); ?>;
-			var body = new URLSearchParams({
-				action: 'rss_prism_dismiss_welcome',
-				nonce: link.getAttribute('data-nonce') || ''
-			});
-			fetch(ajaxurl, {
-				method: 'POST',
-				credentials: 'same-origin',
-				headers: {'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'},
-				body: body.toString()
-			}).then(function (response) {
-				if (!response.ok) throw new Error('Dismiss request failed');
-				return response.json();
-			}).then(function (result) {
-				if (!result || !result.success) throw new Error('Dismiss request rejected');
-				if (notice) notice.remove();
-			}).catch(function () {
-				window.location.href = link.href;
-			});
-		});
-	})();
-	</script>
-	<?php
-}
-add_action( 'admin_footer-themes.php', 'rss_prism_persist_welcome_dismiss' );
+
 
 
 function rss_prism_admin_welcome_styles($hook){

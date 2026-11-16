@@ -1,5 +1,8 @@
 === RSS Prism ===
 
+Version 1.3.14: validates the exact official theme ZIP asset path in the native updater and makes the welcome-card Hide action use the nonce-protected WordPress admin request directly.
+
+
 Version 1.3.9: aligns the customer release metadata and generated theme preview; release packaging now checks out the exact source commit.
 
 Update 1.3.6: clarifies Customizer section descriptions, separates footer layout from footer appearance, and orders the related controls together.
@@ -11,7 +14,7 @@ Contributors: razeen-secure-solution
 Requires at least: 6.4
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 1.3.13
+Stable tag: 1.3.14
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
