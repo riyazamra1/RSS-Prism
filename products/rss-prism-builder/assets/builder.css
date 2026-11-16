@@ -76,3 +76,11 @@
 
 /* Nested live-canvas selection */
 .rss-prism-live-nested-element{position:relative;cursor:pointer;outline:2px solid transparent;outline-offset:2px;transition:outline-color .12s ease,box-shadow .12s ease}.rss-prism-live-nested-element:hover{outline-color:#d9c18b}.rss-prism-live-nested-element.is-selected{outline:2px solid #2271b1;outline-offset:2px;box-shadow:0 0 0 3px #2271b122}.rss-prism-live-nested-element:focus-visible{outline:2px solid #2271b1;outline-offset:2px}
+
+/* Video module: preserve the 16:9 frame in both the editor and published output. */
+.rss-prism-live-video { min-width: 0; }
+.rss-prism-live-video .rss-prism-video-frame,
+.rss-prism-canvas-video .rss-prism-video-frame { position: relative; width: 100%; aspect-ratio: 16 / 9; overflow: hidden; background: #111; border-radius: 8px; }
+.rss-prism-live-video .rss-prism-video-frame { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; color: #fff; font-size: 13px; }
+.rss-prism-live-video .rss-prism-video-frame small { max-width: 90%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; opacity: .7; }
+.rss-prism-canvas-video iframe { position: absolute; inset: 0; display: block; width: 100%; height: 100%; border: 0; }
