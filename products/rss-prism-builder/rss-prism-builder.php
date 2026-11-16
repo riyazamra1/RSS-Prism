@@ -114,7 +114,7 @@ function rss_prism_builder_sanitize_layout( $layout ) {
 	if ( ! is_array( $layout ) ) { return new WP_Error( 'invalid_layout', __( 'Layout must be a list of elements.', 'rss-prism-builder' ), array( 'status' => 400 ) ); }
 	if ( count( $layout ) > 100 ) { return new WP_Error( 'layout_too_large', __( 'A layout may contain at most 100 elements.', 'rss-prism-builder' ), array( 'status' => 400 ) ); }
 	$clean = array();
-	$allowed = array( 'section', 'heading', 'text', 'button', 'image', 'columns', 'row', 'container', 'divider', 'spacer', 'quote', 'blurb', 'callout', 'gallery' );
+	$allowed = array( 'section', 'heading', 'text', 'button', 'image', 'columns', 'row', 'container', 'divider', 'spacer', 'quote', 'blurb', 'callout', 'gallery', 'video' );
 	foreach ( $layout as $item ) {
 		if ( ! is_array( $item ) || empty( $item['type'] ) || ! in_array( $item['type'], $allowed, true ) ) { continue; }
 		$padding = isset( $item['padding'] ) ? absint( $item['padding'] ) : 24;
@@ -148,6 +148,7 @@ function rss_prism_builder_sanitize_layout( $layout ) {
 			'callout_body' => isset( $item['callout_body'] ) ? sanitize_textarea_field( $item['callout_body'] ) : '',
 			'callout_label' => isset( $item['callout_label'] ) ? sanitize_text_field( $item['callout_label'] ) : 'Get started',
 			'gallery_urls' => isset( $item['gallery_urls'] ) ? sanitize_textarea_field( $item['gallery_urls'] ) : '',
+			'video_url' => isset( $item['video_url'] ) ? esc_url_raw( $item['video_url'] ) : '',
 			'text_color' => isset( $item['text_color'] ) ? sanitize_hex_color( $item['text_color'] ) : '',
 			'font_size' => min( 96, max( 10, absint( $item['font_size'] ?? 16 ) ) ),
 			'align' => isset( $item['align'] ) && in_array( $item['align'], array( 'left', 'center', 'right' ), true ) ? $item['align'] : 'left',
@@ -386,6 +387,31 @@ function rss_prism_builder_save_layout( WP_REST_Request $request ) {
 	return rest_ensure_response( array( 'saved' => true, 'post_id' => $post_id, 'count' => count( $layout ) ) );
 }
 
+
+/** Convert supported YouTube/Vimeo links to safe, provider-specific embed URLs. */
+function rss_prism_builder_get_video_embed_url( $url ) {
+	$url = esc_url_raw( $url );
+	$parts = wp_parse_url( $url );
+	if ( ! is_array( $parts ) || ! in_array( strtolower( $parts['scheme'] ?? '' ), array( 'http', 'https' ), true ) ) { return ''; }
+	$host = strtolower( $parts['host'] ?? '' );
+	$path = trim( $parts['path'] ?? '', '/' );
+	$query = array();
+	if ( ! empty( $parts['query'] ) ) { parse_str( $parts['query'], $query ); }
+	if ( in_array( $host, array( 'youtu.be', 'www.youtu.be' ), true ) ) {
+		$id = explode( '/', $path )[0] ?? '';
+		return preg_match( '/^[A-Za-z0-9_-]{11}$/', $id ) ? 'https://www.youtube-nocookie.com/embed/' . $id : '';
+	}
+	if ( in_array( $host, array( 'youtube.com', 'www.youtube.com', 'm.youtube.com', 'youtube-nocookie.com', 'www.youtube-nocookie.com' ), true ) ) {
+		$id = $query['v'] ?? '';
+		if ( preg_match( '#^(?:embed|shorts)/([A-Za-z0-9_-]{11})$#', $path, $match ) ) { $id = $match[1]; }
+		return preg_match( '/^[A-Za-z0-9_-]{11}$/', $id ) ? 'https://www.youtube-nocookie.com/embed/' . $id : '';
+	}
+	if ( in_array( $host, array( 'vimeo.com', 'www.vimeo.com', 'player.vimeo.com' ), true ) ) {
+		if ( preg_match( '#^(?:video/)?([0-9]{1,12})$#', $path, $match ) ) { return 'https://player.vimeo.com/video/' . $match[1]; }
+	}
+	return '';
+}
+
 function rss_prism_builder_render_canvas_shortcode( $atts ) {
 	$atts = shortcode_atts( array( 'id' => 0 ), $atts, 'rss_prism_canvas' );
 	$post_id = absint( $atts['id'] );
@@ -463,6 +489,11 @@ function rss_prism_builder_render_canvas_shortcode( $atts ) {
 				$out .= '<div class="rss-prism-canvas-gallery ' . esc_attr( 'rss-prism-item-' . $safe_id ) . '" style="' . esc_attr( $style ) . '">';
 				foreach ( $urls as $url ) { $safe_url = esc_url( $url ); if ( $safe_url ) { $out .= '<figure><img src="' . $safe_url . '" alt="" loading="lazy" decoding="async"></figure>'; } }
 				$out .= '</div>';
+			}
+		} elseif ( 'video' === $type ) {
+			$embed_url = rss_prism_builder_get_video_embed_url( $item['video_url'] ?? '' );
+			if ( $embed_url ) {
+				$out .= '<div class="rss-prism-canvas-video ' . esc_attr( 'rss-prism-item-' . $safe_id ) . '" style="' . esc_attr( $style ) . '"><div class="rss-prism-video-frame"><iframe src="' . esc_url( $embed_url ) . '" title="Embedded video" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe></div></div>';
 			}
 		} elseif ( 'image' === $type && ! empty( $item['image_url'] ) ) {
 			$out .= '<figure class="rss-prism-canvas-image ' . esc_attr( 'rss-prism-item-' . $safe_id ) . '" style="' . esc_attr( $style ) . '"><img src="' . esc_url( $item['image_url'] ) . '" alt="' . esc_attr( $item['alt'] ?? '' ) . '" loading="lazy" decoding="async" style="display:block;width:' . min( 100, max( 10, absint( $item['image_width'] ?? 100 ) ) ) . '%;max-width:100%;height:' . ( 'contain' === ( $item['image_fit'] ?? 'cover' ) ? 'auto' : '240px' ) . ';object-fit:' . ( 'contain' === ( $item['image_fit'] ?? 'cover' ) ? 'contain' : 'cover' ) . ';margin-inline:auto"></figure>';
