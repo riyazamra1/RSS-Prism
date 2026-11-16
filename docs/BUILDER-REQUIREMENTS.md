@@ -79,7 +79,7 @@ For each Builder/Theme change:
 6. Verify the actual WordPress dashboard flow for save, preview, publish, theme welcome dismissal, and automatic updates in a staging WordPress site before marking those flows complete.
 7. Report CI and live-site verification separately. Never treat a successful package build as a production release or a live update test.
 
-## Current implementation snapshot (2026-11-11)
+## Current implementation snapshot (2026-11-16)
 
 Implemented in the current working branch:
 - Live canvas, inline editing, responsive preview modes, autosave/recovery, undo/redo, templates, and a contextual Inspector foundation.
@@ -87,7 +87,7 @@ Implemented in the current working branch:
 - Hierarchical Navigator for containers/rows and columns, nested child selection, and keyboard activation for nested canvas elements.
 - Recursive ID regeneration for cloned nested layouts.
 - Top-level drag/reorder plus nested-editor and live-canvas drag/drop. Nested elements can be reordered among siblings, moved into nested Containers, and moved between columns and separate top-level Row/Container trees. Cross-column moves remove the source child and insert it at the validated destination index; empty columns are drop targets. Moves preserve the complete subtree and reject invalid self/descendant cycles. Top-level and nested Move up/Move down controls provide a non-drag alternative. Pointer/touch QA remains outstanding.
-- Builder 0.37.9, 0.37.10, and 0.37.11 syntax/package validation passed in GitHub Actions for earlier commits. The current cross-column drag/drop changes pass a JavaScript parse check, but no GitHub Actions run or browser-level WordPress test has yet verified those latest commits.
+- Builder 0.37.9–0.37.11 syntax/package validation passed in GitHub Actions on earlier commits. The 0.37.12 video-module implementation passed JavaScript parsing and an intermediate Builder package-validation run; final version metadata/package checks are still pending. No browser-level WordPress test has yet verified the new module or cross-column interactions.
 - Theme metadata/thumbnail-source, PHP syntax, and installable ZIP validation passed in GitHub Actions.
 - Updater package validation and release workflow serialization have been improved.
 
