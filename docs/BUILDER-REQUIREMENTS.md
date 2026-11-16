@@ -83,7 +83,7 @@ For each Builder/Theme change:
 
 Implemented in the current working branch:
 - Live canvas, inline editing, responsive preview modes, autosave/recovery, undo/redo, templates, and a contextual Inspector foundation.
-- Sections, headings, text, buttons, images, columns, rows, containers, divider, spacer, quote, blurb, callout, and gallery modules.
+- Sections, headings, text, buttons, images, columns, rows, containers, divider, spacer, quote, blurb, callout, gallery, and YouTube/Vimeo video modules. Video URLs are sanitized and restricted to recognized YouTube/Vimeo hosts and valid provider video IDs before rendering privacy-enhanced/lazy-loaded embeds.
 - Hierarchical Navigator for containers/rows and columns, nested child selection, and keyboard activation for nested canvas elements.
 - Recursive ID regeneration for cloned nested layouts.
 - Top-level drag/reorder plus nested-editor and live-canvas drag/drop. Nested elements can be reordered among siblings, moved into nested Containers, and moved between columns and separate top-level Row/Container trees. Cross-column moves remove the source child and insert it at the validated destination index; empty columns are drop targets. Moves preserve the complete subtree and reject invalid self/descendant cycles. Top-level and nested Move up/Move down controls provide a non-drag alternative. Pointer/touch QA remains outstanding.
@@ -93,7 +93,7 @@ Implemented in the current working branch:
 
 Still outstanding:
 - Browser-level regression testing of cross-column and empty-column drag/drop, plus more complete touch-friendly drag handles and drop-target feedback.
-- Broader module library and full Inspector coverage (including advanced typography, hover/focus, backgrounds, shadows, and responsive visibility/layout controls).
+- Broader module library (icons, lists, accordions, tabs, forms, and other common modules) and full Inspector coverage (including advanced typography, hover/focus, backgrounds, shadows, and responsive visibility/layout controls).
 - Full global component workflow and expanded template library.
 - Real staging WordPress regression testing, especially actual Dashboard automatic update installation and theme welcome dismissal.
 - Final release review and publication. No release or live WordPress end-to-end update verification is claimed by this document.
