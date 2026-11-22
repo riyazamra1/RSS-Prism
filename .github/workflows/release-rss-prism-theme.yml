@@ -26,6 +26,8 @@ jobs:
       - name: Check out source
         uses: actions/checkout@v4
         with:
+          ref: ${{ github.event.inputs.tag || github.sha }}
+
       - name: Checkout encrypted-source decryption helper
         uses: actions/checkout@v4
         with:
@@ -43,7 +45,6 @@ jobs:
           python3 -m pip install --disable-pip-version-check cryptography
           python3 .rss-prism-security-tools/scripts/rss-prism-decrypt-source.py --root .
 
-          ref: ${{ github.event.inputs.tag || github.sha }}
 
       - name: Determine release version
         shell: bash
