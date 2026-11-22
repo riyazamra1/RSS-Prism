@@ -29,7 +29,6 @@ import os
 import re
 import shutil
 import subprocess
-import sys
 from pathlib import Path
 
 REPO_URL = "https://github.com/riyazamra1/RSS-Prism.git"
@@ -55,7 +54,6 @@ def main():
     raw_key = os.environ.get("RSS_PRISM_ENCRYPTION_KEY", "")
     if not re.fullmatch(r"[0-9a-fA-F]{64}", raw_key):
         raise SystemExit("ERROR: RSS_PRISM_ENCRYPTION_KEY must be exactly 64 hex characters.")
-    key = bytes.fromhex(raw_key)
     if shutil.which("git") is None or shutil.which("git-filter-repo") is None:
         raise SystemExit("ERROR: install git and git-filter-repo first.")
     try:
@@ -108,8 +106,9 @@ return _rss_prism_file_info(filename, mode, blob_id, value)
 
     print("[4/5] Verifying rewritten path inventory...")
     listing = run(["git", "rev-list", "--objects", "--all"], cwd=mirror, capture=True).stdout
-    paths = [line.split(" ", 1)[1] for line in listing.splitlines() if " " in line]
-    source_paths = [p for p in paths if p.startswith("products/rss-prism-builder/") or p.startswith("products/rss-prism-theme/")]
+    entries = [line.split(" ", 1) for line in listing.splitlines() if " " in line]
+    source_entries = [(oid, path) for oid, path in entries if path.startswith("products/rss-prism-builder/") or path.startswith("products/rss-prism-theme/")]
+    source_paths = [path for _, path in source_entries]
     bad = [p for p in source_paths if not p.endswith(".rssenc")]
     if not source_paths:
         raise SystemExit("ERROR: no product source paths found after rewrite; do not publish this mirror.")
@@ -117,10 +116,10 @@ return _rss_prism_file_info(filename, mode, blob_id, value)
         raise SystemExit("ERROR: plaintext-path entries remain; do not publish. Example: " + bad[0])
 
     # Verify at least one encrypted object has the expected envelope marker.
-    sample_path = next((p for p in source_paths if p.endswith(".rssenc")), None)
-    if sample_path is None:
+    sample_oid = next((oid for oid, path in source_entries if path.endswith(".rssenc")), None)
+    if sample_oid is None:
         raise SystemExit("ERROR: no encrypted product files found.")
-    sample = run(["git", "show", f"HEAD:{sample_path}"], cwd=mirror, capture=True).stdout.encode()
+    sample = subprocess.run(["git", "cat-file", "blob", sample_oid], cwd=mirror, check=True, stdout=subprocess.PIPE).stdout
     if not sample.startswith(PREFIX):
         raise SystemExit("ERROR: encrypted envelope verification failed.")
 
