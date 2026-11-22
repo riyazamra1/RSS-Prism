@@ -26,6 +26,23 @@ jobs:
       - name: Check out source
         uses: actions/checkout@v4
         with:
+      - name: Checkout encrypted-source decryption helper
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: .rss-prism-security-tools
+          sparse-checkout: scripts/rss-prism-decrypt-source.py
+          sparse-checkout-cone-mode: false
+
+      - name: Decrypt product source for packaging
+        env:
+          RSS_PRISM_ENCRYPTION_KEY: ${{ secrets.RSS_PRISM_ENCRYPTION_KEY }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m pip install --disable-pip-version-check cryptography
+          python3 .rss-prism-security-tools/scripts/rss-prism-decrypt-source.py --root .
+
           ref: ${{ github.event.inputs.tag || github.sha }}
 
       - name: Determine release version
