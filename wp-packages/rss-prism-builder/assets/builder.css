@@ -1,0 +1,1854 @@
+/* RSS Prism Visual Builder — Divi-style Visual Canvas, Dock & Light/Dark Theme */
+:root {
+  --divi-blue: #2b87da;
+  --divi-blue-dark: #1d6eb8;
+  --divi-teal: #29c4a9;
+  --divi-teal-dark: #1ea88f;
+  --divi-slate: #4c5866;
+  --divi-slate-dark: #323c47;
+  --divi-purple: #6c2eb9;
+  --divi-purple-dark: #552296;
+  --rp-gold: #b88a2b;
+  --rp-line: #dfe2e7;
+
+  /* Semantic Builder UI Tokens — Light Mode */
+  --rp-b-page-bg: #f5f6f8;
+  --rp-b-surface: #ffffff;
+  --rp-b-surface-elevated: #f8fafc;
+  --rp-b-surface-hover: #f1f5f9;
+  --rp-b-border: #dfe2e7;
+  --rp-b-border-strong: #cbd5e1;
+  --rp-b-border-subtle: #e5e7eb;
+  --rp-b-ink: #1e232c;
+  --rp-b-ink-secondary: #334155;
+  --rp-b-muted: #64748b;
+  --rp-b-input-bg: #ffffff;
+  --rp-b-input-border: #d1d5db;
+  --rp-b-input-text: #1e293b;
+  --rp-b-accent-soft: #f5f3ff;
+  --rp-b-accent-border: #ede9fe;
+  --rp-b-accent-ink: #6c2eb9;
+  --rp-b-blue-soft: #eff6ff;
+  --rp-b-notice-bg: #f0f7ff;
+  --rp-b-notice-ink: #1e3a5f;
+  --rp-b-shadow: 0 4px 16px rgba(25, 30, 40, 0.05);
+  --rp-b-frame-shadow: 0 12px 36px rgba(20, 26, 36, 0.08);
+  --rp-b-modal-shadow: 0 24px 60px rgba(0, 0, 0, 0.28);
+  --rp-b-dock-bg: #ffffff;
+  --rp-b-dock-border: #dfe2e7;
+  --rp-b-dock-sep: #e2e8f0;
+  --rp-b-dock-ink: #334155;
+  --rp-b-dock-hover-bg: #f1f5f9;
+  --rp-b-dock-hover-ink: #0f172a;
+  --rp-b-dock-status: #64748b;
+  --rp-b-dock-status-saved: #0f766e;
+  --rp-b-dock-status-error: #dc2626;
+  --rp-b-dock-shadow: 0 12px 32px rgba(15, 23, 42, 0.14);
+  --rp-b-layers-head-bg: #232830;
+  --rp-b-canvas-bg: #ffffff;
+  --rp-b-wireframe-frame-bg: #ffffff;
+  --rp-b-btn-bg: #ffffff;
+  --rp-b-btn-border: #cbd5e1;
+  --rp-b-btn-ink: #1e293b;
+  --rp-b-btn-hover-bg: #f8fafc;
+  --rp-b-btn-hover-border: #94a3b8;
+  --rp-b-switch-track: #eef1f5;
+  --rp-b-switch-active-bg: #ffffff;
+  --rp-b-switch-active-ink: #111827;
+}
+
+:root[data-rp-builder-theme="dark"] {
+  --rp-line: #293548;
+  --rp-b-page-bg: #0b1120;
+  --rp-b-surface: #111827;
+  --rp-b-surface-elevated: #1a2334;
+  --rp-b-surface-hover: #243045;
+  --rp-b-border: #293548;
+  --rp-b-border-strong: #3b4b64;
+  --rp-b-border-subtle: #253144;
+  --rp-b-ink: #f1f5f9;
+  --rp-b-ink-secondary: #cbd5e1;
+  --rp-b-muted: #94a3b8;
+  --rp-b-input-bg: #0f172a;
+  --rp-b-input-border: #334155;
+  --rp-b-input-text: #f1f5f9;
+  --rp-b-accent-soft: rgba(139, 92, 246, 0.18);
+  --rp-b-accent-border: rgba(139, 92, 246, 0.32);
+  --rp-b-accent-ink: #c4b5fd;
+  --rp-b-blue-soft: rgba(43, 135, 218, 0.22);
+  --rp-b-notice-bg: #152238;
+  --rp-b-notice-ink: #bfdbfe;
+  --rp-b-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  --rp-b-frame-shadow: 0 18px 48px rgba(0, 0, 0, 0.5);
+  --rp-b-modal-shadow: 0 24px 64px rgba(0, 0, 0, 0.68);
+  --rp-b-dock-bg: #141c2c;
+  --rp-b-dock-border: #334155;
+  --rp-b-dock-sep: rgba(255, 255, 255, 0.14);
+  --rp-b-dock-ink: #cbd5e1;
+  --rp-b-dock-hover-bg: rgba(255, 255, 255, 0.12);
+  --rp-b-dock-hover-ink: #ffffff;
+  --rp-b-dock-status: #94a3b8;
+  --rp-b-dock-status-saved: #5eead4;
+  --rp-b-dock-status-error: #fca5a5;
+  --rp-b-dock-shadow: 0 14px 42px rgba(0, 0, 0, 0.55);
+  --rp-b-layers-head-bg: #1a2334;
+  --rp-b-canvas-bg: #ffffff;
+  --rp-b-wireframe-frame-bg: #111827;
+  --rp-b-btn-bg: #1a2334;
+  --rp-b-btn-border: #334155;
+  --rp-b-btn-ink: #e2e8f0;
+  --rp-b-btn-hover-bg: #263348;
+  --rp-b-btn-hover-border: #475569;
+  --rp-b-switch-track: #0b1120;
+  --rp-b-switch-active-bg: #243045;
+  --rp-b-switch-active-ink: #f8fafc;
+}
+
+body.rp-builder-page {
+  background: var(--rp-b-page-bg);
+  color: var(--rp-b-ink);
+  transition: background-color 0.18s ease, color 0.18s ease;
+}
+
+:root[data-rp-builder-theme="dark"] body.rp-builder-page {
+  color-scheme: dark;
+  letter-spacing: 0.01em;
+}
+
+.rp-builder-page .button {
+  background: var(--rp-b-btn-bg);
+  border-color: var(--rp-b-btn-border);
+  color: var(--rp-b-btn-ink);
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.rp-builder-page .button:hover {
+  background: var(--rp-b-btn-hover-bg);
+  border-color: var(--rp-b-btn-hover-border);
+  color: var(--rp-b-ink);
+}
+
+.rp-builder-page .button.button-primary {
+  background: #2271b1;
+  border-color: #2271b1;
+  color: #ffffff;
+}
+
+.rp-builder-page .button.button-primary:hover {
+  background: #135e96;
+  border-color: #135e96;
+  color: #ffffff;
+}
+
+:root[data-rp-builder-theme="dark"] .rp-builder-page .button-link {
+  color: #7dd3fc;
+}
+
+:root[data-rp-builder-theme="dark"] .rp-builder-page .button-link-delete {
+  color: #fca5a5;
+}
+
+.rp-builder-page .notice {
+  background: var(--rp-b-surface);
+  border-color: var(--rp-b-border);
+  color: var(--rp-b-ink);
+}
+
+.rp-builder-page .description {
+  color: var(--rp-b-muted);
+}
+
+.rss-prism-admin-wrap {
+  max-width: none;
+  margin: 0;
+  padding: 0 20px 100px;
+}
+
+.rp-builder-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+  padding: 12px 18px;
+  margin: 14px 0;
+  background: var(--rp-b-surface);
+  border: 1px solid var(--rp-b-border);
+  border-radius: 12px;
+  box-shadow: var(--rp-b-shadow);
+  transition: background-color 0.18s ease, border-color 0.18s ease;
+}
+
+.rp-builder-topbar__left,
+.rp-builder-topbar__right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.rp-builder-topbar h1 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--rp-b-ink);
+}
+
+.rp-builder-editing-meta {
+  font-size: 13px;
+  color: var(--rp-b-muted);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.rp-builder-editing-meta strong {
+  color: var(--rp-b-ink-secondary);
+  font-weight: 600;
+}
+
+/* Segmented Light / Dark Mode Switcher */
+.rp-theme-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 9px;
+  background: var(--rp-b-switch-track);
+  border: 1px solid var(--rp-b-border);
+  flex-shrink: 0;
+}
+
+.rp-theme-switch__btn {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--rp-b-muted);
+  min-height: 30px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: inherit;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.rp-theme-switch__btn:hover {
+  color: var(--rp-b-ink);
+}
+
+.rp-theme-switch__btn.is-active {
+  background: var(--rp-b-switch-active-bg);
+  color: var(--rp-b-switch-active-ink);
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.14);
+}
+
+.rp-theme-switch__btn:focus-visible {
+  outline: 2px solid var(--divi-purple);
+  outline-offset: 1px;
+}
+
+.rp-theme-switch__btn svg,
+.rp-divi-dock-btn svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+.rss-prism-template-select {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 10px 14px;
+  background: var(--rp-b-surface);
+  border: 1px solid var(--rp-b-border);
+  border-radius: 10px;
+  margin-bottom: 14px;
+  transition: background-color 0.18s ease, border-color 0.18s ease;
+}
+
+.rss-prism-template-select label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--rp-b-ink-secondary);
+}
+
+.rss-prism-template-select input[type="search"],
+.rss-prism-template-select select {
+  min-height: 34px;
+  padding: 4px 10px;
+  border: 1px solid var(--rp-b-input-border);
+  background: var(--rp-b-input-bg);
+  color: var(--rp-b-input-text);
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+.rss-prism-builder-layout {
+  position: relative;
+  margin: 0 auto 90px;
+}
+
+.rss-prism-builder-notice {
+  margin: 0 0 12px;
+  padding: 10px 14px;
+  border: 1px solid var(--rp-b-border);
+  border-left: 4px solid var(--divi-blue);
+  background: var(--rp-b-notice-bg);
+  border-radius: 8px;
+  color: var(--rp-b-notice-ink);
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.rss-prism-builder-notice button {
+  background: transparent;
+  border: 0;
+  font-size: 16px;
+  cursor: pointer;
+  color: inherit;
+}
+
+/* Main Divi-like stage */
+.rp-divi-stage {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.rp-divi-stage.has-docked-inspector {
+  grid-template-columns: minmax(0, 1fr) 360px;
+}
+
+.rp-divi-stage.has-layers-open {
+  grid-template-columns: 260px minmax(0, 1fr);
+}
+
+.rp-divi-stage.has-layers-open.has-docked-inspector {
+  grid-template-columns: 250px minmax(0, 1fr) 350px;
+}
+
+/* Canvas Area */
+.rss-prism-preview-frame {
+  background: var(--rp-b-canvas-bg);
+  color: #1e232c;
+  border: 1px solid var(--rp-b-border);
+  border-radius: 12px;
+  box-shadow: var(--rp-b-frame-shadow);
+  padding: 28px 26px 44px;
+  min-height: 620px;
+  transition: width 0.2s ease, background-color 0.18s ease, border-color 0.18s ease;
+  margin-inline: auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.rss-prism-preview-frame.is-wireframe,
+.rss-prism-preview-frame.is-empty {
+  background: var(--rp-b-wireframe-frame-bg);
+  color: var(--rp-b-ink);
+}
+
+.rss-prism-preview-desktop { width: 100%; }
+.rss-prism-preview-tablet { width: 768px; max-width: 100%; }
+.rss-prism-preview-mobile { width: 390px; max-width: 100%; }
+.rss-prism-preview-tablet .rss-prism-live-columns { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+.rss-prism-preview-mobile .rss-prism-live-columns { grid-template-columns: 1fr !important; }
+
+.rss-prism-preview-caption {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: -28px -26px 24px;
+  padding: 10px 16px;
+  background: var(--rp-b-surface-elevated);
+  border-bottom: 1px solid var(--rp-b-border-subtle);
+  border-radius: 12px 12px 0 0;
+  font-size: 11px;
+  color: var(--rp-b-muted);
+}
+
+.rss-prism-preview-caption strong {
+  color: var(--rp-b-accent-ink);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* Color-coded Divi Hover Frames */
+.rp-divi-node {
+  position: relative;
+  margin-bottom: 14px;
+  transition: outline-color 0.12s ease, box-shadow 0.12s ease;
+}
+
+.rp-divi-node--section { --divi-color: var(--divi-blue); }
+.rp-divi-node--row { --divi-color: var(--divi-teal); }
+.rp-divi-node--module { --divi-color: var(--divi-slate); }
+
+.rp-divi-node:hover > .rp-divi-outline,
+.rp-divi-node.is-selected > .rp-divi-outline {
+  opacity: 1;
+  pointer-events: none;
+}
+
+.rp-divi-outline {
+  position: absolute;
+  inset: -2px;
+  border: 2px solid var(--divi-color);
+  border-radius: 4px;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 4;
+  transition: opacity 0.12s ease;
+}
+
+.rp-divi-node.is-selected > .rp-divi-outline {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--divi-color) 18%, transparent);
+}
+
+/* Floating Action Pill on Hover / Selection */
+.rp-divi-pill {
+  position: absolute;
+  top: -16px;
+  left: 10px;
+  z-index: 10;
+  display: none;
+  align-items: center;
+  gap: 2px;
+  padding: 3px 6px;
+  border-radius: 999px;
+  background: var(--divi-color);
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.rp-divi-node:hover > .rp-divi-pill,
+.rp-divi-node.is-selected > .rp-divi-pill {
+  display: inline-flex;
+}
+
+.rp-divi-pill__label {
+  padding: 0 6px 0 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 10px;
+  opacity: 0.92;
+}
+
+.rp-divi-pill button {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: #fff;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 13px;
+  line-height: 1;
+}
+
+.rp-divi-pill button:hover {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+/* Bottom Centered + Insert Button on Elements */
+.rp-divi-insert-dot {
+  position: absolute;
+  left: 50%;
+  bottom: -13px;
+  transform: translateX(-50%);
+  z-index: 10;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  background: var(--divi-color);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+}
+
+.rp-divi-node:hover > .rp-divi-insert-dot,
+.rp-divi-node.is-selected > .rp-divi-insert-dot {
+  display: inline-flex;
+}
+
+.rp-divi-insert-dot:hover {
+  transform: translateX(-50%) scale(1.12);
+}
+
+/* Column Layout Quick Popover */
+.rp-divi-col-picker {
+  position: absolute;
+  top: 18px;
+  left: 10px;
+  z-index: 25;
+  background: #2b323d;
+  color: #fff;
+  padding: 10px;
+  border-radius: 8px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.26);
+  display: grid;
+  grid-template-columns: repeat(5, 44px);
+  gap: 6px;
+}
+
+.rp-divi-col-option {
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 5px;
+  padding: 6px 4px;
+  cursor: pointer;
+  display: flex;
+  gap: 2px;
+  height: 28px;
+  align-items: stretch;
+}
+
+.rp-divi-col-option.is-active,
+.rp-divi-col-option:hover {
+  border-color: var(--divi-teal);
+  background: rgba(41, 196, 169, 0.22);
+}
+
+.rp-divi-col-option span {
+  background: #cbd5e1;
+  border-radius: 2px;
+  display: block;
+}
+
+/* Wireframe View */
+.rp-wireframe-canvas {
+  display: grid;
+  gap: 10px;
+}
+
+.rp-wireframe-block {
+  border-radius: 6px;
+  border-left: 5px solid var(--divi-color);
+  background: var(--rp-b-surface-elevated);
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  cursor: pointer;
+  border-top: 1px solid var(--rp-b-border);
+  border-right: 1px solid var(--rp-b-border);
+  border-bottom: 1px solid var(--rp-b-border);
+}
+
+.rp-wireframe-block.is-selected {
+  box-shadow: 0 0 0 2px var(--divi-color);
+  background: var(--rp-b-surface);
+}
+
+.rp-wireframe-block__meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.rp-wireframe-badge {
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: var(--divi-color);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  flex-shrink: 0;
+}
+
+.rp-wireframe-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--rp-b-ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rp-wireframe-actions {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.rp-wireframe-actions button {
+  padding: 4px 8px;
+  font-size: 11px;
+  border: 1px solid var(--rp-b-btn-border);
+  background: var(--rp-b-btn-bg);
+  color: var(--rp-b-btn-ink);
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.rp-wireframe-actions button:hover {
+  border-color: var(--divi-color);
+  color: var(--divi-color);
+}
+
+/* Live Elements */
+.rss-prism-live-element {
+  position: relative;
+  cursor: pointer;
+  overflow-wrap: anywhere;
+}
+
+.rss-prism-live-element.is-inline-editing {
+  outline: 2px solid var(--divi-blue);
+  background-clip: padding-box;
+  cursor: text;
+  user-select: text;
+  white-space: pre-wrap;
+}
+
+.rss-prism-live-button {
+  display: inline-block;
+  padding: 0.7rem 1.2rem;
+  background: #b88a2b;
+  color: #fff;
+  border-radius: 6px;
+  font-size: 15px;
+  font-weight: 600;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.14);
+}
+
+.rss-prism-live-image {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  border-radius: 6px;
+}
+
+.rss-prism-image-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 110px;
+  padding: 1rem;
+  border: 1px dashed #b88a2b;
+  background: #fbf8ef;
+  color: #765516;
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+.rss-prism-live-column-cell {
+  min-width: 0;
+  padding: 1rem;
+  border: 1px dashed #d7dde6;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.65);
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.rss-prism-column-image {
+  display: block;
+  width: 100%;
+  border-radius: 6px;
+  margin: 8px 0;
+}
+
+.rss-prism-gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.rss-prism-gallery-grid img {
+  display: block;
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.rss-prism-blurb-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: rgba(184, 138, 43, 0.14);
+  color: #9a701d;
+  font-size: 22px;
+}
+
+.rss-prism-live-callout {
+  background: #f7f3e8;
+  border: 1px solid #e8ddc2;
+}
+
+.rss-prism-live-spacer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed #cbd5e1;
+  color: #64748b;
+  font-size: 11px;
+}
+
+/* Empty State */
+.rp-divi-empty-canvas {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 360px;
+  border: 2px dashed var(--rp-b-border-strong);
+  border-radius: 12px;
+  padding: 32px;
+  text-align: center;
+  gap: 14px;
+  color: var(--rp-b-muted);
+}
+
+.rp-divi-empty-canvas h3 {
+  margin: 0;
+  color: var(--rp-b-ink);
+}
+
+.rp-divi-add-row-cta {
+  display: flex;
+  justify-content: center;
+  margin-top: 24px;
+}
+
+.rp-divi-plus-circle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--divi-blue);
+  color: #fff;
+  font-weight: 650;
+  font-size: 13px;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(43, 135, 218, 0.3);
+}
+
+.rp-divi-plus-circle:hover {
+  background: var(--divi-blue-dark);
+}
+
+/* Layers Drawer */
+.rss-prism-builder-canvas {
+  background: var(--rp-b-surface);
+  border: 1px solid var(--rp-b-border);
+  border-radius: 12px;
+  box-shadow: var(--rp-b-shadow);
+  max-height: calc(100vh - 180px);
+  overflow: auto;
+  position: sticky;
+  top: 16px;
+}
+
+.rss-prism-canvas-heading {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 14px;
+  background: var(--rp-b-layers-head-bg);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.rss-prism-canvas-item {
+  display: grid;
+  grid-template-columns: 18px 1fr auto;
+  gap: 6px;
+  align-items: center;
+  margin: 6px 8px;
+  padding: 8px;
+  border: 1px solid var(--rp-b-border-subtle);
+  border-radius: 7px;
+  cursor: pointer;
+  background: var(--rp-b-surface-elevated);
+}
+
+.rss-prism-canvas-item:hover { background: var(--rp-b-surface-hover); border-color: var(--rp-b-border-strong); }
+.rss-prism-canvas-item.is-selected { background: var(--rp-b-blue-soft); border-color: var(--divi-blue); }
+
+.rss-prism-drag-handle { color: var(--rp-b-muted); cursor: grab; }
+.rss-prism-canvas-kind { font-size: 9px; text-transform: uppercase; font-weight: 700; color: var(--rp-b-accent-ink); }
+.rss-prism-canvas-text { grid-column: 2 / 4; font-size: 12px; color: var(--rp-b-ink-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Settings Modal / Docked Inspector */
+.rp-divi-settings-modal {
+  background: var(--rp-b-surface);
+  color: var(--rp-b-ink);
+  border: 1px solid var(--rp-b-border);
+  border-radius: 12px;
+  box-shadow: var(--rp-b-frame-shadow);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100vh - 150px);
+  position: sticky;
+  top: 16px;
+}
+
+.rp-divi-settings-modal.is-floating {
+  position: fixed;
+  right: 24px;
+  top: 84px;
+  width: min(400px, calc(100vw - 32px));
+  max-height: calc(100vh - 170px);
+  z-index: 60;
+}
+
+.rp-divi-settings__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 13px 16px;
+  background: var(--divi-purple);
+  color: #fff;
+}
+
+.rp-divi-settings__header h2 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.rp-divi-settings__head-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.rp-divi-settings__head-actions button {
+  background: rgba(255, 255, 255, 0.18);
+  border: 0;
+  color: #fff;
+  border-radius: 5px;
+  padding: 4px 8px;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.rp-divi-settings__tabs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  background: var(--divi-purple-dark);
+}
+
+.rp-divi-settings__tabs button {
+  padding: 10px 8px;
+  border: 0;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+}
+
+.rp-divi-settings__tabs button.is-active {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+  border-bottom-color: #29c4a9;
+}
+
+.rp-divi-settings__body {
+  padding: 14px 16px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.rp-divi-settings__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border-top: 1px solid var(--rp-b-border-subtle);
+  background: var(--rp-b-surface-elevated);
+}
+
+.rss-prism-field {
+  display: grid;
+  gap: 5px;
+  margin: 11px 0;
+}
+
+.rss-prism-field span {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--rp-b-ink-secondary);
+}
+
+.rss-prism-field input:not([type="range"]),
+.rss-prism-field textarea,
+.rss-prism-field select {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 36px;
+  padding: 7px 10px;
+  border: 1px solid var(--rp-b-input-border);
+  background: var(--rp-b-input-bg);
+  color: var(--rp-b-input-text);
+  border-radius: 6px;
+  font-size: 13px;
+  font-family: inherit;
+}
+
+.rss-prism-field input[type="color"] {
+  height: 36px;
+  padding: 2px;
+}
+
+.rss-prism-field input[type="range"] {
+  width: 100%;
+  accent-color: var(--divi-purple);
+}
+
+.rss-prism-image-controls {
+  padding: 10px 12px;
+  margin: 10px 0;
+  border: 1px solid var(--rp-b-border-subtle);
+  border-radius: 8px;
+  background: var(--rp-b-surface-elevated);
+}
+
+.rss-prism-inspector-image {
+  display: block;
+  max-width: 100%;
+  max-height: 150px;
+  object-fit: contain;
+  margin: 10px auto 0;
+  border-radius: 6px;
+}
+
+.rss-prism-nested-editor {
+  padding-left: 8px;
+  border-left: 2px solid var(--rp-b-border-strong);
+}
+
+.rss-prism-nested-child,
+.rss-prism-nested-column-editor {
+  padding: 10px;
+  margin: 8px 0;
+  border: 1px solid var(--rp-b-border);
+  border-radius: 7px;
+  background: var(--rp-b-surface-elevated);
+}
+
+.rss-prism-nested-child-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+  font-size: 12px;
+}
+
+.rss-prism-nested-add-actions {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+/* Divi Floating Bottom Dock */
+.rp-divi-dock {
+  position: fixed;
+  left: 50%;
+  bottom: 14px;
+  transform: translateX(-50%);
+  z-index: 80;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  max-width: calc(100vw - 24px);
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: var(--rp-b-dock-bg);
+  color: var(--rp-b-dock-ink);
+  box-shadow: var(--rp-b-dock-shadow);
+  border: 1px solid var(--rp-b-dock-border);
+  transition: background-color 0.18s ease, border-color 0.18s ease;
+}
+
+.rp-divi-dock__group {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding-right: 8px;
+  border-right: 1px solid var(--rp-b-dock-sep);
+}
+
+.rp-divi-dock__group:last-child {
+  padding-right: 0;
+  border-right: 0;
+}
+
+.rp-divi-dock-btn {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--rp-b-dock-ink);
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+}
+
+.rp-divi-dock-btn:hover:not(:disabled) {
+  background: var(--rp-b-dock-hover-bg);
+  color: var(--rp-b-dock-hover-ink);
+}
+
+.rp-divi-dock-btn.is-active {
+  background: var(--divi-purple);
+  color: #fff;
+}
+
+.rp-divi-dock-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.rp-divi-dock-btn--save {
+  background: #29c4a9;
+  color: #0d2b25;
+  font-weight: 700;
+}
+
+.rp-divi-dock-btn--save:hover:not(:disabled) {
+  background: #35d6ba;
+  color: #0d2b25;
+}
+
+.rp-divi-dock-status {
+  font-size: 11px;
+  color: var(--rp-b-dock-status);
+  padding: 0 6px;
+}
+
+.rp-divi-dock-status.is-saved { color: var(--rp-b-dock-status-saved); }
+.rp-divi-dock-status.is-error { color: var(--rp-b-dock-status-error); }
+
+/* Divi Modals (Module Picker, Library/Presets, Publish/History) */
+.rp-divi-modal-backdrop,
+.rp-media-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(15, 23, 42, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+}
+
+.rp-divi-modal,
+.rp-media-modal {
+  width: min(680px, 100%);
+  max-height: 85vh;
+  background: var(--rp-b-surface);
+  color: var(--rp-b-ink);
+  border: 1px solid var(--rp-b-border);
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--rp-b-modal-shadow);
+}
+
+.rp-divi-modal__head,
+.rp-media-modal__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  background: var(--divi-purple);
+  color: #fff;
+}
+
+.rp-divi-modal__head h3,
+.rp-media-modal__head h3 {
+  margin: 0;
+  font-size: 15px;
+  color: #fff;
+}
+
+.rp-divi-modal__close,
+.rp-media-close {
+  background: transparent;
+  border: 0;
+  color: #fff;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.rp-divi-modal__tabs {
+  display: flex;
+  background: var(--divi-purple-dark);
+  padding: 0 14px;
+  gap: 8px;
+}
+
+.rp-divi-modal__tabs button {
+  border: 0;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.78);
+  padding: 10px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+}
+
+.rp-divi-modal__tabs button.is-active {
+  color: #fff;
+  border-bottom-color: var(--divi-teal);
+}
+
+.rp-divi-modal__body,
+.rp-media-modal__body {
+  padding: 16px 18px;
+  overflow-y: auto;
+}
+
+.rp-divi-search {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 9px 12px;
+  border: 1px solid var(--rp-b-input-border);
+  background: var(--rp-b-input-bg);
+  color: var(--rp-b-input-text);
+  border-radius: 8px;
+  font-size: 13px;
+  margin-bottom: 14px;
+}
+
+.rp-divi-module-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.rp-divi-module-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 12px;
+  border: 1px solid var(--rp-b-border);
+  border-radius: 9px;
+  background: var(--rp-b-surface-elevated);
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.15s, background 0.15s, transform 0.12s;
+}
+
+.rp-divi-module-card:hover {
+  border-color: var(--divi-purple);
+  background: var(--rp-b-accent-soft);
+  transform: translateY(-1px);
+}
+
+.rp-divi-module-card__icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background: var(--rp-b-accent-border);
+  color: var(--rp-b-accent-ink);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 14px;
+}
+
+.rp-divi-module-card strong {
+  font-size: 13px;
+  color: var(--rp-b-ink);
+}
+
+.rp-divi-module-card span {
+  font-size: 11px;
+  color: var(--rp-b-muted);
+}
+
+/* Media Picker Modal */
+.rp-media-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.rp-media-item {
+  border: 2px solid var(--rp-b-border);
+  border-radius: 8px;
+  background: var(--rp-b-surface-elevated);
+  padding: 8px;
+  cursor: pointer;
+  display: grid;
+  gap: 6px;
+  text-align: center;
+}
+
+.rp-media-item.is-active {
+  border-color: var(--divi-blue);
+  background: var(--rp-b-blue-soft);
+}
+
+.rp-media-item img {
+  width: 100%;
+  height: 90px;
+  object-fit: cover;
+  border-radius: 5px;
+}
+
+.rp-media-item span {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--rp-b-ink-secondary);
+}
+
+.rp-media-custom {
+  display: grid;
+  gap: 10px;
+  padding-top: 12px;
+  border-top: 1px solid var(--rp-b-border-subtle);
+}
+
+.rp-media-custom label {
+  display: grid;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--rp-b-ink-secondary);
+}
+
+.rp-media-custom input {
+  padding: 8px 10px;
+  border: 1px solid var(--rp-b-input-border);
+  background: var(--rp-b-input-bg);
+  color: var(--rp-b-input-text);
+  border-radius: 6px;
+}
+
+.rp-media-modal__foot {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 12px 18px;
+  background: var(--rp-b-surface-elevated);
+  border-top: 1px solid var(--rp-b-border-subtle);
+}
+
+/* Restore History & Publish Forms in Modal */
+.rp-divi-panel-section {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--rp-b-border-subtle);
+}
+
+.rp-divi-panel-section:last-child {
+  border-bottom: 0;
+}
+
+.rp-divi-panel-section h4 {
+  margin: 0 0 8px;
+  font-size: 13px;
+  color: var(--rp-b-ink);
+}
+
+.rss-prism-restore-history ol {
+  margin: 8px 0 0;
+  padding-left: 18px;
+  display: grid;
+  gap: 6px;
+}
+
+.rss-prism-restore-history li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.rss-prism-design-presets {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.rss-prism-design-preset.button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border: 1px solid var(--rp-b-btn-border);
+  border-radius: 7px;
+  background: var(--rp-b-btn-bg);
+  color: var(--rp-b-btn-ink);
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.rss-prism-design-preset.is-active {
+  border-color: var(--divi-purple);
+  background: var(--rp-b-accent-soft);
+}
+
+.rss-prism-design-swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+/* Divi Keyframe Animations */
+@keyframes rp-anim-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes rp-anim-slide-up { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
+@keyframes rp-anim-slide-down { from { opacity: 0; transform: translateY(-24px); } to { opacity: 1; transform: none; } }
+@keyframes rp-anim-slide-left { from { opacity: 0; transform: translateX(28px); } to { opacity: 1; transform: none; } }
+@keyframes rp-anim-slide-right { from { opacity: 0; transform: translateX(-28px); } to { opacity: 1; transform: none; } }
+@keyframes rp-anim-zoom { from { opacity: 0; transform: scale(0.92); } to { opacity: 1; transform: scale(1); } }
+@keyframes rp-anim-bounce { 0% { opacity: 0; transform: translateY(28px); } 65% { opacity: 1; transform: translateY(-6px); } 100% { transform: none; } }
+@keyframes rp-anim-flip { from { opacity: 0; transform: perspective(600px) rotateX(-25deg); } to { opacity: 1; transform: none; } }
+
+/* Hidden-on-Device Dimming & Badge */
+.rp-divi-node.is-hidden-device > .rss-prism-live-element {
+  opacity: 0.4 !important;
+  filter: grayscale(0.45);
+}
+
+.rp-divi-node.is-hidden-device > .rp-divi-outline {
+  opacity: 0.7;
+  border-style: dashed;
+}
+
+.rp-divi-hidden-badge {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  z-index: 9;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: rgba(30, 41, 59, 0.85);
+  color: #f8fafc;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  pointer-events: none;
+}
+
+/* Hover Lift Effect */
+.rp-divi-hover-lift {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.rp-divi-hover-lift:hover {
+  transform: translateY(calc(var(--rp-lift, 0) * -1px));
+}
+
+/* Divi Right-Click Context Menu */
+.rp-divi-context-menu {
+  position: fixed;
+  z-index: 160;
+  min-width: 224px;
+  background: #232830;
+  color: #f1f5f9;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 10px;
+  padding: 6px;
+  box-shadow: 0 18px 44px rgba(10, 15, 25, 0.38);
+  font-size: 12.5px;
+}
+
+.rp-divi-context-menu__head {
+  padding: 5px 10px 7px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #94a3b8;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 4px;
+}
+
+.rp-divi-context-menu button {
+  width: 100%;
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: #e2e8f0;
+  padding: 7px 10px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  cursor: pointer;
+  font-size: 12.5px;
+  text-align: left;
+}
+
+.rp-divi-context-menu button:hover:not(:disabled) {
+  background: var(--divi-purple);
+  color: #fff;
+}
+
+.rp-divi-context-menu button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.rp-divi-context-menu button.is-danger:hover:not(:disabled) {
+  background: #dc2626;
+}
+
+.rp-divi-context-menu__sep {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.1);
+  margin: 5px 4px;
+}
+
+.rp-divi-context-menu__kbd {
+  font-size: 10px;
+  color: #94a3b8;
+}
+
+/* Settings Inspector Helpers */
+.rp-divi-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.rp-divi-grid-2 .rss-prism-field {
+  margin: 4px 0;
+}
+
+.rp-divi-subitem-card {
+  padding: 10px;
+  border: 1px solid var(--rp-b-border);
+  border-radius: 8px;
+  background: var(--rp-b-surface-elevated);
+  margin-bottom: 8px;
+}
+
+.rp-divi-subitem-card__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--rp-b-ink-secondary);
+}
+
+.rp-divi-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 10px;
+  border: 1px solid var(--rp-b-border);
+  border-radius: 7px;
+  background: var(--rp-b-surface-elevated);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--rp-b-ink-secondary);
+  margin: 7px 0;
+  cursor: pointer;
+}
+
+.rp-divi-toggle-row input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--divi-purple);
+  margin: 0;
+}
+
+.rp-divi-section-heading {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--rp-b-accent-ink);
+  margin: 14px 0 6px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--rp-b-accent-border);
+}
+
+.rp-b-muted-copy {
+  font-size: 12px;
+  color: var(--rp-b-muted);
+}
+
+.rp-b-anim-tag {
+  font-size: 10px;
+  color: var(--rp-b-accent-ink);
+  font-weight: 700;
+}
+
+/* Live Preview Styles for New Divi Modules */
+.rp-live-accordion {
+  display: grid;
+  gap: 8px;
+}
+
+.rp-live-accordion-item {
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #fff;
+  overflow: hidden;
+}
+
+.rp-live-accordion-trigger {
+  width: 100%;
+  appearance: none;
+  border: 0;
+  background: #f8fafc;
+  padding: 11px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-weight: 700;
+  font-size: 14px;
+  color: #1e293b;
+  cursor: pointer;
+  text-align: left;
+}
+
+.rp-live-accordion-body {
+  padding: 10px 14px 12px;
+  font-size: 14px;
+  color: #475569;
+  border-top: 1px solid #e2e8f0;
+  white-space: pre-wrap;
+}
+
+.rp-live-tabs-nav {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 8px;
+  margin-bottom: 12px;
+}
+
+.rp-live-tab-btn {
+  padding: 7px 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background: #f8fafc;
+  color: #1e293b;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.rp-live-tab-btn.is-active {
+  background: var(--divi-blue);
+  border-color: var(--divi-blue);
+  color: #fff;
+}
+
+.rp-live-pricing {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.rp-live-pricing.is-featured {
+  box-shadow: 0 12px 30px rgba(43, 135, 218, 0.14);
+}
+
+.rp-live-pricing-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.rp-live-pricing-price {
+  font-size: 2.1em;
+  font-weight: 800;
+  line-height: 1.1;
+  margin: 8px 0;
+}
+
+.rp-live-pricing-features {
+  list-style: disc;
+  padding-left: 20px;
+  margin: 12px 0 16px;
+  text-align: left;
+}
+
+.rp-live-testimonial {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.rp-live-testimonial-stars {
+  color: #f59e0b;
+  font-size: 15px;
+  margin-bottom: 8px;
+  letter-spacing: 2px;
+}
+
+.rp-live-testimonial-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.rp-live-testimonial-meta img {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.rp-live-bar-track {
+  height: 12px;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.rp-live-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.25s ease;
+}
+
+.rp-live-video-wrap {
+  position: relative;
+  padding-bottom: 56.25%;
+  height: 0;
+  overflow: hidden;
+  border-radius: 10px;
+  background: #0f172a;
+}
+
+.rp-live-video-wrap iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.rp-live-countdown-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(56px, 1fr));
+  gap: 10px;
+  max-width: 420px;
+  margin-inline: auto;
+}
+
+.rp-live-countdown-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 10px 6px;
+  text-align: center;
+}
+
+.rp-live-countdown-box strong {
+  display: block;
+  font-size: 1.7em;
+  line-height: 1.1;
+  color: #0f172a;
+}
+
+.rp-live-countdown-box span {
+  font-size: 10px;
+  text-transform: uppercase;
+  color: #64748b;
+  letter-spacing: 0.06em;
+}
+
+.rp-live-icon-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.rp-live-icon-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.rp-live-contact-form {
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: #fff;
+  display: grid;
+  gap: 10px;
+}
+
+.rp-live-contact-form input,
+.rp-live-contact-form textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 9px 11px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 13px;
+}
+
+.rp-live-social-follow {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.rp-live-social-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 7px 14px;
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.9em;
+  text-decoration: none;
+}
+
+.rp-live-compare-box {
+  position: relative;
+  overflow: hidden;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  height: 240px;
+  background: #f1f5f9;
+}
+
+.rp-live-compare-before {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-right: 3px solid #fff;
+}
+
+.rp-live-compare-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.rp-live-compare-fallback {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 13px;
+  color: #334155;
+  background: #cbd5e1;
+}
+
+.rp-live-compare-fallback--after {
+  background: #e2e8f0;
+}
+
+.rp-live-slide-stage {
+  padding: 36px 26px;
+  border-radius: 12px;
+  color: #fff;
+}
+
+.rp-live-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 14px;
+}
+
+.rp-live-card-item {
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: #fff;
+  padding: 14px;
+  display: grid;
+  gap: 6px;
+}
+
+@media (max-width: 980px) {
+  .rp-divi-stage.has-docked-inspector,
+  .rp-divi-stage.has-layers-open,
+  .rp-divi-stage.has-layers-open.has-docked-inspector {
+    grid-template-columns: 1fr;
+  }
+  .rp-divi-module-grid,
+  .rp-media-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .rp-divi-dock {
+    border-radius: 14px;
+    padding: 8px 10px;
+  }
+}
+
+@media (max-width: 600px) {
+  .rp-divi-module-grid,
+  .rp-media-grid {
+    grid-template-columns: 1fr;
+  }
+  .rss-prism-gallery-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

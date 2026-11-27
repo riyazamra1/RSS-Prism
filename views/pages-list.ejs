@@ -1,0 +1,56 @@
+<%- include('partials/theme-head', { pageTitle: 'Pages & Templates', bodyClasses: 'rp-pages-list', extraCss: ['/assets/builder/builder.css'] }) %>
+<%- include('partials/theme-header') %>
+
+<main id="content" class="site-content">
+  <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:24px">
+    <div>
+      <p class="rp-eyebrow" style="margin:0 0 6px">RSS PRISM WORKSPACE</p>
+      <h1 style="margin:0">Pages &amp; Prism Templates</h1>
+    </div>
+    <a class="button button-primary button-hero" href="/builder?new_template=1">＋ New Template in Visual Builder</a>
+  </div>
+
+  <% if (previewTemplate) { %>
+    <section class="entry-card" style="margin-bottom:28px">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid #e5e7eb">
+        <strong>Template #<%= previewTemplate.id %> Live Render: <%= previewTemplate.title %></strong>
+        <a class="button button-primary" href="/builder?post_id=<%= previewTemplate.id %>">Edit in Visual Builder</a>
+      </div>
+      <%- previewHtml %>
+    </section>
+  <% } %>
+
+  <h2>Created Pages (<%= pagesList.length %>)</h2>
+  <div class="entry-grid" style="margin-bottom:36px">
+    <% pagesList.forEach(function(pg){ %>
+      <article class="entry-card">
+        <div class="entry-card__body">
+          <div class="entry-meta">Page #<%= pg.id %> · Template #<%= pg.templateId %></div>
+          <h3 class="entry-title"><a href="/pages/<%= pg.id %>"><%= pg.title %></a></h3>
+          <div style="display:flex;gap:10px;margin-top:12px">
+            <a class="button button-primary" href="/pages/<%= pg.id %>">View Page</a>
+            <a class="button" href="/builder?post_id=<%= pg.templateId %>">Edit Layout</a>
+          </div>
+        </div>
+      </article>
+    <% }); %>
+  </div>
+
+  <h2>Saved Prism Templates (<%= templatesList.length %>)</h2>
+  <div class="entry-grid">
+    <% templatesList.forEach(function(tpl){ %>
+      <article class="entry-card">
+        <div class="entry-card__body">
+          <div class="entry-meta">Template #<%= tpl.id %> · <%= tpl.status %> · <%= tpl.layout.length %> elements</div>
+          <h3 class="entry-title"><a href="/builder?post_id=<%= tpl.id %>"><%= tpl.title %></a></h3>
+          <div style="display:flex;gap:10px;margin-top:12px">
+            <a class="button button-primary" href="/builder?post_id=<%= tpl.id %>">Open in Builder</a>
+            <a class="button" href="/pages?template_id=<%= tpl.id %>">Render Preview</a>
+          </div>
+        </div>
+      </article>
+    <% }); %>
+  </div>
+</main>
+
+<%- include('partials/theme-footer') %>

@@ -1,0 +1,204 @@
+<%- include('partials/theme-head', { pageTitle: 'Theme Studio', bodyClasses: 'rp-studio-page', extraCss: ['/assets/theme/theme-studio.css'] }) %>
+
+<main class="wrap rp-studio-wrap" style="margin-inline:auto;padding:0 20px 40px">
+  <% if (saved) { %>
+    <div class="notice notice-success"><p>RSS Prism header, footer, and customizer settings saved.</p></div>
+  <% } %>
+
+  <div class="rp-studio-heading">
+    <div>
+      <span class="rp-studio-kicker">RSS PRISM · DESIGN STUDIO</span>
+      <h1>Theme Customizer &amp; Header/Footer Studio</h1>
+      <p>Arrange your header and footer visually, customize brand colors and typography, then preview your changes on the live site.</p>
+    </div>
+    <div class="rp-studio-actions">
+      <a class="button" href="/builder">Open Visual Page Builder</a>
+      <a class="button button-primary" href="/" target="_blank" rel="noopener noreferrer">Open site preview ↗</a>
+    </div>
+  </div>
+
+  <div class="rp-studio-plan">
+    <strong>FREE PLAN</strong>
+    <span>Header/footer layout, colours, typography and responsive behaviour are available. The RSS Prism footer credit stays enabled on the free plan.</span>
+  </div>
+
+  <form method="post" action="/studio/save" id="rp-studio-form">
+    <input type="hidden" name="rss_prism_header_rows_json" id="rp-header-rows-json" value="<%= JSON.stringify(studio.headerRows) %>">
+    <input type="hidden" name="rss_prism_footer_rows_json" id="rp-footer-rows-json" value="<%= JSON.stringify(studio.footerRows) %>">
+
+    <div class="rp-studio-workspace">
+      <section class="rp-studio-panel">
+        <div class="rp-studio-tabs" role="tablist">
+          <button type="button" class="is-active" data-studio-tab="header">Header Builder</button>
+          <button type="button" data-studio-tab="footer">Footer Builder</button>
+          <button type="button" data-studio-tab="theme">Brand &amp; Styles</button>
+        </div>
+
+        <div class="rp-studio-editor is-active" data-studio-editor="header">
+          <h2>Build your header</h2>
+          <p>Drag elements between rows to change their order. Empty rows are hidden on your website.</p>
+          <div class="rp-studio-available">
+            <strong>Add elements by category</strong>
+            <div class="rp-studio-palette-group">
+              <strong>Identity &amp; navigation</strong>
+              <div class="rp-studio-palette">
+                <button type="button" class="rp-studio-chip" draggable="true" data-element="brand" data-source="palette"><%= labels.brand %> <span>+</span></button>
+                <button type="button" class="rp-studio-chip" draggable="true" data-element="menu" data-source="palette"><%= labels.menu %> <span>+</span></button>
+              </div>
+            </div>
+            <div class="rp-studio-palette-group">
+              <strong>Actions &amp; utilities</strong>
+              <div class="rp-studio-palette">
+                <button type="button" class="rp-studio-chip" draggable="true" data-element="button" data-source="palette"><%= labels.button %> <span>+</span></button>
+                <button type="button" class="rp-studio-chip" draggable="true" data-element="search" data-source="palette"><%= labels.search %> <span>+</span></button>
+                <button type="button" class="rp-studio-chip" draggable="true" data-element="social" data-source="palette"><%= labels.social %> <span>+</span></button>
+              </div>
+            </div>
+          </div>
+
+          <div class="rp-studio-rows" data-builder-rows="header">
+            <% studio.headerRows.forEach(function(elements, index){ %>
+              <div class="rp-studio-row" data-row="<%= index %>">
+                <div class="rp-studio-row-head">
+                  <strong>Header row <%= index + 1 %></strong>
+                  <span><%= index === 0 ? 'Brand area' : index === 1 ? 'Main navigation' : 'Utility row' %></span>
+                </div>
+                <div class="rp-studio-dropzone" data-dropzone="header">
+                  <% elements.forEach(function(el){ %>
+                    <button type="button" class="rp-studio-chip" draggable="true" data-element="<%= el %>"><%= labels[el] || el %> <span class="rp-studio-remove" aria-label="Remove element">×</span></button>
+                  <% }); %>
+                  <span class="rp-studio-empty">Drop elements here</span>
+                </div>
+              </div>
+            <% }); %>
+          </div>
+        </div>
+
+        <div class="rp-studio-editor" data-studio-editor="footer">
+          <h2>Build your footer</h2>
+          <p>Organise identity, navigation, widgets, copyright and the required free-theme credit.</p>
+          <div class="rp-studio-available">
+            <strong>Add elements by category</strong>
+            <div class="rp-studio-palette-group">
+              <strong>Identity &amp; content</strong>
+              <div class="rp-studio-palette">
+                <button type="button" class="rp-studio-chip" draggable="true" data-element="brand" data-source="palette"><%= labels.brand %> <span>+</span></button>
+                <button type="button" class="rp-studio-chip" draggable="true" data-element="description" data-source="palette"><%= labels.description %> <span>+</span></button>
+                <button type="button" class="rp-studio-chip" draggable="true" data-element="widgets" data-source="palette"><%= labels.widgets %> <span>+</span></button>
+              </div>
+            </div>
+            <div class="rp-studio-palette-group">
+              <strong>Navigation &amp; links</strong>
+              <div class="rp-studio-palette">
+                <button type="button" class="rp-studio-chip" draggable="true" data-element="menu" data-source="palette"><%= labels.menu %> <span>+</span></button>
+                <button type="button" class="rp-studio-chip" draggable="true" data-element="social" data-source="palette"><%= labels.social %> <span>+</span></button>
+              </div>
+            </div>
+            <div class="rp-studio-palette-group">
+              <strong>Copyright &amp; credits</strong>
+              <div class="rp-studio-palette">
+                <button type="button" class="rp-studio-chip" draggable="true" data-element="copyright" data-source="palette"><%= labels.copyright %> <span>+</span></button>
+                <button type="button" class="rp-studio-chip" draggable="true" data-element="credit" data-source="palette"><%= labels.credit %> <span>+</span></button>
+              </div>
+            </div>
+          </div>
+
+          <div class="rp-studio-rows" data-builder-rows="footer">
+            <% studio.footerRows.forEach(function(elements, index){ %>
+              <div class="rp-studio-row" data-row="<%= index %>">
+                <div class="rp-studio-row-head">
+                  <strong>Footer row <%= index + 1 %></strong>
+                  <span><%= index === 2 ? 'Bottom bar' : index === 0 ? 'Top row' : 'Content row' %></span>
+                </div>
+                <div class="rp-studio-dropzone" data-dropzone="footer">
+                  <% elements.forEach(function(el){ %>
+                    <button type="button" class="rp-studio-chip" draggable="true" data-element="<%= el %>"><%= labels[el] || el %>
+                      <% if (el === 'credit') { %>
+                        <span class="rp-studio-lock" title="Required for free users">●</span>
+                      <% } else { %>
+                        <span class="rp-studio-remove" aria-label="Remove element">×</span>
+                      <% } %>
+                    </button>
+                  <% }); %>
+                  <span class="rp-studio-empty">Drop elements here</span>
+                </div>
+              </div>
+            <% }); %>
+          </div>
+        </div>
+
+        <div class="rp-studio-editor" data-studio-editor="theme">
+          <h2>Brand &amp; Theme Customizer</h2>
+          <p>Adjust global colours, width, header/footer surface styles, and homepage hero copy.</p>
+          <div class="rp-studio-fields">
+            <label>Accent colour <input type="color" name="accentColor" value="<%= customizer.accentColor %>"></label>
+            <label>Page background <input type="color" name="backgroundColor" value="<%= customizer.backgroundColor %>"></label>
+            <label>Content width (720–1600 px) <input type="number" name="contentWidth" min="720" max="1600" step="20" value="<%= customizer.contentWidth %>"></label>
+            <label>Header style
+              <select name="headerStyle" style="min-height:40px;border:1px solid #d9d9d4;border-radius:8px;padding:6px 10px">
+                <option value="standard" <%= customizer.headerStyle === 'standard' ? 'selected' : '' %>>Standard horizontal</option>
+                <option value="centered" <%= customizer.headerStyle === 'centered' ? 'selected' : '' %>>Centered logo</option>
+                <option value="dark" <%= customizer.headerStyle === 'dark' ? 'selected' : '' %>>Dark header</option>
+              </select>
+            </label>
+            <label>Footer style
+              <select name="footerStyle" style="min-height:40px;border:1px solid #d9d9d4;border-radius:8px;padding:6px 10px">
+                <option value="light" <%= customizer.footerStyle === 'light' ? 'selected' : '' %>>Light</option>
+                <option value="dark" <%= customizer.footerStyle === 'dark' ? 'selected' : '' %>>Dark</option>
+                <option value="accent" <%= customizer.footerStyle === 'accent' ? 'selected' : '' %>>Accent colour</option>
+              </select>
+            </label>
+            <label>Button shape
+              <select name="buttonShape" style="min-height:40px;border:1px solid #d9d9d4;border-radius:8px;padding:6px 10px">
+                <option value="pill" <%= customizer.buttonShape === 'pill' ? 'selected' : '' %>>Pill</option>
+                <option value="soft" <%= customizer.buttonShape === 'soft' ? 'selected' : '' %>>Soft corners</option>
+                <option value="square" <%= customizer.buttonShape === 'square' ? 'selected' : '' %>>Square</option>
+              </select>
+            </label>
+            <label>Hero title <input type="text" name="heroTitle" value="<%= customizer.heroTitle %>"></label>
+          </div>
+        </div>
+
+        <div class="rp-studio-controls">
+          <h2>Header button &amp; social link</h2>
+          <div class="rp-studio-fields">
+            <label>Button label <input type="text" name="rss_prism_header_button_label" maxlength="60" value="<%= studio.headerButtonLabel %>"></label>
+            <label>Button URL <input type="text" name="rss_prism_header_button_url" value="<%= studio.headerButtonUrl %>"></label>
+            <label>Social profile URL (optional) <input type="url" name="rss_prism_social_url" value="<%= studio.socialUrl %>"></label>
+          </div>
+        </div>
+      </section>
+
+      <aside class="rp-studio-preview-panel">
+        <div class="rp-studio-preview-head">
+          <div>
+            <strong>Live site preview</strong>
+            <span>Changes appear after saving</span>
+          </div>
+          <div class="rp-studio-device-icons" role="group" aria-label="Preview sizes">
+            <button type="button" class="is-active" data-preview-width="100%" aria-label="Desktop preview">▰</button>
+            <button type="button" data-preview-width="768px" aria-label="Tablet preview">▯</button>
+            <button type="button" data-preview-width="390px" aria-label="Mobile preview">▯</button>
+          </div>
+        </div>
+        <iframe title="Website preview" src="/?rp_studio_preview=1" loading="lazy"></iframe>
+      </aside>
+    </div>
+
+    <div class="rp-studio-savebar">
+      <span>Your layout and customizer settings are saved in the workspace store.</span>
+      <button type="submit" class="button button-primary button-hero">Save header, footer &amp; theme</button>
+    </div>
+  </form>
+</main>
+
+<script>
+  window.rssPrismStudio = {
+    header: <%- JSON.stringify(studio.headerRows) %>,
+    footer: <%- JSON.stringify(studio.footerRows) %>,
+    labels: <%- JSON.stringify(labels) %>
+  };
+</script>
+<script src="/assets/theme/theme-studio.js"></script>
+</body>
+</html>

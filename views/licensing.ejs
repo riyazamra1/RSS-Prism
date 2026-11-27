@@ -1,0 +1,74 @@
+<%- include('partials/theme-head', { pageTitle: 'Licensing & Pricing', bodyClasses: 'rp-licensing-page', extraCss: ['/assets/builder/pricing.css'] }) %>
+<%- include('partials/theme-header') %>
+
+<main id="content" class="site-content">
+  <p class="rp-eyebrow" style="margin-bottom:6px">PUBLIC PRICING CATALOG</p>
+  <h1 style="margin-top:0">RSS Prism Plans &amp; Licensing Console</h1>
+  <p class="description" style="font-size:14px;margin-bottom:20px"><%= plansCatalog.note %></p>
+
+  <section class="rss-prism-pricing" aria-label="RSS Prism plans">
+    <div class="rss-prism-pricing__grid">
+      <% plansCatalog.plans.forEach(function(plan){ %>
+        <article class="rss-prism-plan rss-prism-plan--<%= plan.id %>">
+          <h3 class="rss-prism-plan__name"><%= plan.name %></h3>
+          <p class="rss-prism-plan__price">
+            <%= plan.id === 'free' ? 'Free' : '$' + plan.price.USD %>
+            <span><%= plan.billing === 'free' ? 'Included' : plan.billing %></span>
+          </p>
+          <p class="rss-prism-plan__sites"><%= plan.site_limit_label %></p>
+          <ul class="rss-prism-plan__features">
+            <% plan.includes.forEach(function(feat){ %>
+              <li><%= feat %></li>
+            <% }); %>
+          </ul>
+        </article>
+      <% }); %>
+    </div>
+  </section>
+
+  <hr style="border:0;border-top:1px solid #e5e7eb;margin:36px 0">
+
+  <section class="entry-card">
+    <div class="entry-card__body">
+      <p class="rp-eyebrow" style="margin:0 0 6px">RSS PRISM PREMIUM ADD-ON · FOUNDATION</p>
+      <h2 style="margin-top:0">RSS Prism Premium Licence Activation</h2>
+      <p class="description" style="font-size:13px">Enter a licence key and the matching purchase email address. Requests are verified against the local Licensing Worker API (<code>/v1/license/verify</code>, <code>/v1/license/activate</code>, <code>/v1/license/deactivate</code>).</p>
+
+      <% if (noticeMessage) { %>
+        <div class="notice notice-info"><p><%= noticeMessage %></p></div>
+      <% } %>
+
+      <table style="width:100%;border-collapse:collapse;margin:16px 0;max-width:720px">
+        <tbody>
+          <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #e5e7eb;width:210px">Status</th><td style="padding:8px;border-bottom:1px solid #e5e7eb"><strong><%= statusLabels[licenseState.status] || licenseState.status %></strong></td></tr>
+          <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #e5e7eb">Website activations</th><td style="padding:8px;border-bottom:1px solid #e5e7eb"><%= licenseState.activeActivations %> / <%= licenseState.activationLimit %></td></tr>
+          <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #e5e7eb">Valid until</th><td style="padding:8px;border-bottom:1px solid #e5e7eb"><%= licenseState.validUntil || 'Not available' %></td></tr>
+          <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #e5e7eb">Licensing API Health</th><td style="padding:8px;border-bottom:1px solid #e5e7eb"><code>GET /health</code> · active (in-memory D1 foundation)</td></tr>
+        </tbody>
+      </table>
+
+      <form method="post" action="/licensing/action" style="max-width:640px;display:grid;gap:12px">
+        <label style="display:grid;gap:4px;font-size:13px;font-weight:600">
+          Site URL
+          <input type="url" name="site_url" value="<%= siteUrl %>" required style="padding:8px 10px;border:1px solid #cbd5e1;border-radius:7px">
+        </label>
+        <label style="display:grid;gap:4px;font-size:13px;font-weight:600">
+          Licence key
+          <input type="text" name="license_key" value="<%= licenseState.licenseKey %>" placeholder="RSSP-XXXX-XXXX-XXXX" required style="padding:8px 10px;border:1px solid #cbd5e1;border-radius:7px">
+        </label>
+        <label style="display:grid;gap:4px;font-size:13px;font-weight:600">
+          Purchase email
+          <input type="email" name="email" value="<%= licenseState.email %>" placeholder="buyer@example.com" required style="padding:8px 10px;border:1px solid #cbd5e1;border-radius:7px">
+        </label>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">
+          <button class="button button-primary" type="submit" name="rss_prism_action" value="activate">Activate on this website</button>
+          <button class="button" type="submit" name="rss_prism_action" value="verify">Verify key and email</button>
+          <button class="button" type="submit" name="rss_prism_action" value="deactivate">Deactivate this website</button>
+        </div>
+      </form>
+      <p class="description" style="margin-top:14px">No licence or purchase is created from this form. Activation only succeeds when the licensing database contains a matching, active licence.</p>
+    </div>
+  </section>
+</main>
+
+<%- include('partials/theme-footer') %>

@@ -1,0 +1,45 @@
+<a class="skip-link" href="#content">Skip to content</a>
+<header class="site-header site-header--<%= customizer.headerStyle %> rp-header-logo--<%= customizer.logoPosition %> rp-header-menu--<%= customizer.menuStyle %> rp-header-align--<%= customizer.menuAlignment %> rp-header-surface--<%= customizer.headerSurface %><%= customizer.headerBorder ? '' : ' rp-header-no-border' %><%= customizer.stickyHeader ? ' is-sticky' : '' %>">
+  <div class="site-header__inner">
+    <button class="rp-menu-toggle" type="button" aria-expanded="false" aria-controls="primary-menu">☰ Menu</button>
+    <div class="rp-header-builder rp-header-builder--<%= customizer.headerStyle %>">
+      <% studio.headerRows.forEach(function(elements, rowIndex) { if (!elements || !elements.length) return; %>
+        <div class="rp-header-builder__row rp-header-builder__row--<%= rowIndex %>">
+          <% elements.forEach(function(el) { %>
+            <div class="rp-header-builder__item rp-header-builder__item--<%= el %>">
+              <% if (el === 'brand') { %>
+                <div class="rp-studio-brand">
+                  <a class="rp-studio-site-title" href="/">RSS Prism</a>
+                </div>
+              <% } else if (el === 'menu') { %>
+                <nav class="main-navigation" id="primary-menu" aria-label="Primary navigation">
+                  <ul>
+                    <li class="<%= activeRoute === 'home' ? 'current-menu-item' : '' %>"><a href="/">Home</a></li>
+                    <li><a href="/#about-rss">About RSS</a></li>
+                    <li><a href="/#projects">Projects</a></li>
+                    <li><a href="/#security">Security</a></li>
+                    <li class="<%= activeRoute === 'pages' ? 'current-menu-item' : '' %>"><a href="/pages">Pages</a></li>
+                    <li class="<%= activeRoute === 'builder' ? 'current-menu-item' : '' %>"><a href="/builder">Builder</a></li>
+                  </ul>
+                </nav>
+              <% } else if (el === 'button') { %>
+                <% if (studio.headerButtonLabel && studio.headerButtonUrl) { %>
+                  <a class="rp-header-cta" href="<%= studio.headerButtonUrl %>"><%= studio.headerButtonLabel %></a>
+                <% } %>
+              <% } else if (el === 'search') { %>
+                <form role="search" method="get" class="search-form" action="/">
+                  <label><span class="screen-reader-text">Search for:</span><input type="search" class="search-field" placeholder="Search…" value="<%= typeof searchQuery !== 'undefined' ? searchQuery : '' %>" name="s"></label>
+                  <button type="submit" class="search-submit">Search</button>
+                </form>
+              <% } else if (el === 'social') { %>
+                <% if (studio.socialUrl) { %>
+                  <a class="rp-social-link" href="<%= studio.socialUrl %>" rel="me noopener noreferrer" target="_blank">Follow RSS</a>
+                <% } %>
+              <% } %>
+            </div>
+          <% }); %>
+        </div>
+      <% }); %>
+    </div>
+  </div>
+</header>

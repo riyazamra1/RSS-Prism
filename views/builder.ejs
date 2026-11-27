@@ -1,0 +1,111 @@
+<%- include('partials/theme-head', { pageTitle: 'Visual Builder', bodyClasses: 'rp-builder-page', extraCss: ['/assets/builder/builder.css'] }) %>
+
+<script>
+  (function () {
+    var KEY = 'rss-prism-builder-theme';
+    function getInitial() {
+      try {
+        var saved = localStorage.getItem(KEY);
+        if (saved === 'dark' || saved === 'light') return saved;
+      } catch (e) {}
+      return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    function syncButtons(mode) {
+      document.querySelectorAll('[data-rp-theme-choice]').forEach(function (btn) {
+        var active = btn.getAttribute('data-rp-theme-choice') === mode;
+        btn.classList.toggle('is-active', active);
+        btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+      });
+    }
+    window.rssPrismSetBuilderTheme = function (next) {
+      var mode = next === 'dark' ? 'dark' : 'light';
+      document.documentElement.dataset.rpBuilderTheme = mode;
+      try { localStorage.setItem(KEY, mode); } catch (e) {}
+      syncButtons(mode);
+      window.dispatchEvent(new CustomEvent('rp-builder-theme-change', { detail: { theme: mode } }));
+    };
+    var initial = getInitial();
+    document.documentElement.dataset.rpBuilderTheme = initial;
+    document.addEventListener('DOMContentLoaded', function () {
+      syncButtons(document.documentElement.dataset.rpBuilderTheme || initial);
+      document.querySelectorAll('[data-rp-theme-choice]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          window.rssPrismSetBuilderTheme(btn.getAttribute('data-rp-theme-choice'));
+        });
+      });
+    });
+  })();
+</script>
+
+<main class="wrap rss-prism-admin-wrap">
+  <div class="rp-builder-topbar">
+    <div class="rp-builder-topbar__left">
+      <h1>RSS Prism Visual Builder</h1>
+      <% if (selected) { %>
+        <span class="rp-builder-editing-meta">
+          <span aria-hidden="true">·</span>
+          <strong><%= selected.title %></strong>
+          <span aria-hidden="true">·</span>
+          <span><%= selected.status === 'publish' ? 'Published' : 'Draft' %></span>
+        </span>
+      <% } %>
+    </div>
+    <div class="rp-builder-topbar__right">
+      <div class="rp-theme-switch" role="group" aria-label="Builder interface theme">
+        <button type="button" class="rp-theme-switch__btn" data-rp-theme-choice="light" aria-pressed="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path></svg>
+          Light
+        </button>
+        <button type="button" class="rp-theme-switch__btn" data-rp-theme-choice="dark" aria-pressed="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+          Dark
+        </button>
+      </div>
+      <a class="button button-primary" href="/builder?new_template=1">＋ New Template</a>
+      <% if (selected) { %>
+        <a class="button" href="/pages?template_id=<%= selected.id %>">View Rendered Preview ↗</a>
+      <% } %>
+      <a class="button" href="/downloads/rss-prism-theme.zip" download>⬇ Theme ZIP</a>
+      <a class="button" href="/downloads/rss-prism-builder.zip" download>⬇ Builder ZIP</a>
+    </div>
+  </div>
+
+  <form method="get" action="/builder" class="rss-prism-template-select">
+    <label for="rss-prism-template-search">Search templates</label>
+    <input type="search" id="rss-prism-template-search" name="template_search" value="<%= templateSearch %>" placeholder="Search by template title…">
+    <button class="button" type="submit">Search</button>
+    <% if (templateSearch) { %><a class="button" href="/builder">Clear</a><% } %>
+    <label for="rss-prism-template-id">Choose template</label>
+    <select id="rss-prism-template-id" name="post_id">
+      <% templatesList.forEach(function(tpl){ %>
+        <option value="<%= tpl.id %>" <%= selected && selected.id === tpl.id ? 'selected' : '' %>>
+          <%= tpl.title %> — <%= tpl.status === 'publish' ? 'Published' : 'Draft' %>
+        </option>
+      <% }); %>
+    </select>
+    <button class="button button-primary" type="submit">Load template</button>
+    <span class="description"><%= templatesList.length %> matching template(s).</span>
+  </form>
+
+  <% if (selected) { %>
+    <div id="rss-prism-builder-app"></div>
+    <script type="application/json" id="rss-prism-builder-data"><%- JSON.stringify({
+      postId: selected.id,
+      layout: selected.layout,
+      nonce: 'rss-prism-local-nonce',
+      restUrl: '/wp-json/rss-prism/v1/layout',
+      copyUrl: '/wp-json/rss-prism/v1/template-copy',
+      publishUrl: '/wp-json/rss-prism/v1/publish-page'
+    }) %></script>
+  <% } else { %>
+    <div class="notice notice-info"><p>No templates matched your search. <a href="/builder?new_template=1">Create a new Prism template</a>.</p></div>
+  <% } %>
+</main>
+
+<script src="/vendor/react/react.production.min.js"></script>
+<script src="/vendor/react-dom/react-dom.production.min.js"></script>
+<script src="/assets/builder/wp-shim.js"></script>
+<script src="/assets/builder/builder-modules.js"></script>
+<script src="/assets/builder/builder.js"></script>
+</body>
+</html>

@@ -1,0 +1,25 @@
+<%- include('partials/theme-head', { pageTitle: page.title, bodyClasses: 'rp-rendered-page', extraCss: ['/assets/builder/builder.css'] }) %>
+<%- include('partials/theme-header') %>
+
+<nav class="rp-breadcrumbs rp-container" aria-label="Breadcrumb">
+  <a href="/">Home</a><span aria-hidden="true"> / </span>
+  <a href="/pages">Pages</a><span aria-hidden="true"> / </span>
+  <span><%= page.title %></span>
+</nav>
+
+<main id="content" class="site-content">
+  <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:20px">
+    <h1 style="margin:0"><%= page.title %></h1>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <a class="button button-primary" href="/builder?post_id=<%= page.templateId %>">Edit with Visual Builder</a>
+      <a class="button" href="/pages">All Pages</a>
+    </div>
+  </div>
+  <article class="entry-card">
+    <div class="entry-content">
+      <%- renderedHtml %>
+    </div>
+  </article>
+</main>
+
+<%- include('partials/theme-footer') %>

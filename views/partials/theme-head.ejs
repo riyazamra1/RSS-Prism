@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title><%= pageTitle ? pageTitle + ' — RSS Prism' : 'RSS Prism — Developing Ideas. Delivering Solutions.' %></title>
+  <meta name="description" content="RSS Prism is the WordPress design platform from Razeen Secure Solution (RSS), featuring the multipurpose theme, Theme Studio, Visual Builder, and Licensing API.">
+  <meta property="og:title" content="<%= pageTitle ? pageTitle + ' — RSS Prism' : 'RSS Prism — Razeen Secure Solution' %>">
+  <meta property="og:description" content="Developing Ideas. Delivering Solutions. Practical digital experiences, software tools, and visual website building.">
+  <link rel="stylesheet" href="/assets/theme/style.css">
+  <style>
+    :root {
+      --rss-prism-accent: <%= customizer.accentColor %>;
+      --rss-prism-background: <%= customizer.backgroundColor %>;
+      --rss-prism-content-width: <%= customizer.contentWidth %>px;
+      --rp-accent: <%= customizer.accentColor %>;
+      --rp-bg: <%= customizer.backgroundColor %>;
+      --rp-width: <%= customizer.contentWidth %>px;
+      --rp-paper: <%= customizer.surfaceColor %>;
+      --rp-ink: <%= customizer.textColor %>;
+      --rp-muted: <%= customizer.mutedColor %>;
+      --rp-radius: <%= customizer.cornerStyle === 'sharp' ? '4px' : customizer.cornerStyle === 'soft' ? '24px' : '16px' %>;
+      <% if (customizer.shadow === 'no') { %>--rp-shadow: none;<% } %>
+      --rp-font-size: <%= customizer.fontScale === 'small' ? '15px' : customizer.fontScale === 'large' ? '18px' : '16px' %>;
+      --rp-button-radius: <%= customizer.buttonShape === 'square' ? '4px' : customizer.buttonShape === 'soft' ? '12px' : '999px' %>;
+      --rp-header-padding: <%= customizer.headerPadding === 'compact' ? '0.45rem' : customizer.headerPadding === 'spacious' ? '1.5rem' : '1rem' %>;
+      --rp-footer-padding: <%= customizer.footerSpacing === 'compact' ? '1.25rem' : customizer.footerSpacing === 'spacious' ? '4rem' : '2.5rem' %>;
+    }
+    .button,.button-primary{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:34px;padding:6px 12px;border:1px solid #cbd5e1;border-radius:7px;background:#fff;color:#1e293b;font-size:13px;font-weight:600;text-decoration:none;cursor:pointer}
+    .button:hover{border-color:#94a3b8;background:#f8fafc}
+    .button-primary{background:#2271b1;border-color:#2271b1;color:#fff}
+    .button-primary:hover{background:#135e96;border-color:#135e96;color:#fff}
+    .button-hero{min-height:42px;padding:8px 18px;font-size:14px}
+    .button-link,.button-link-delete{background:transparent;border:0;padding:2px 6px;font-size:12px;cursor:pointer;text-decoration:underline}
+    .button-link{color:#2271b1}
+    .button-link-delete{color:#b32d2e}
+    .notice{padding:10px 14px;border:1px solid #dcdcde;border-left:4px solid #2271b1;background:#fff;border-radius:8px;margin:12px 0}
+    .notice-success{border-left-color:#00a32a}
+    .notice-info{border-left-color:#2271b1}
+    .description{color:#64748b;font-size:12px}
+    .screen-reader-text{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
+  </style>
+  <% if (typeof extraCss !== 'undefined' && extraCss) { %>
+    <% extraCss.forEach(function(href){ %><link rel="stylesheet" href="<%= href %>"><% }); %>
+  <% } %>
+</head>
+<body id="top" class="<%= bodyClasses %>">
+<%- include('workspace-bar') %>

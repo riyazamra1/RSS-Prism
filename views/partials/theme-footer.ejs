@@ -1,0 +1,41 @@
+<footer class="site-footer site-footer--<%= customizer.footerStyle %> rp-footer-builder rp-footer-align--<%= customizer.footerAlignment %> rp-footer-columns--<%= customizer.footerColumns %> rp-footer-logo--<%= customizer.footerLogoPosition %>">
+  <% studio.footerRows.forEach(function(elements, rowIndex) { if (!elements || !elements.length) return; %>
+    <div class="rp-footer-builder__row<%= rowIndex === 2 ? ' rp-footer-builder__row--bottom' : '' %> rp-container">
+      <% elements.forEach(function(el) { %>
+        <div class="rp-footer-builder__item rp-footer-builder__item--<%= el %>">
+          <% if (el === 'brand') { %>
+            <div class="rp-studio-brand">
+              <a class="rp-studio-site-title" href="/">RSS Prism</a>
+              <span class="rp-studio-tagline">Developing Ideas. Delivering Solutions.</span>
+            </div>
+          <% } else if (el === 'description') { %>
+            <p class="site-footer__copy"><%= customizer.footerText %></p>
+          <% } else if (el === 'menu') { %>
+            <nav class="footer-navigation">
+              <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/builder">Visual Builder</a></li>
+                <li><a href="/studio">Theme Studio</a></li>
+                <li><a href="/licensing">Licensing</a></li>
+              </ul>
+            </nav>
+          <% } else if (el === 'widgets') { %>
+            <p class="rp-studio-help">Razeen Smart Solution · Software, CCTV, Networking, Cloud &amp; AI.</p>
+          <% } else if (el === 'social') { %>
+            <% if (studio.socialUrl) { %>
+              <a class="rp-social-link" href="<%= studio.socialUrl %>" rel="me noopener noreferrer" target="_blank">Follow RSS</a>
+            <% } %>
+          <% } else if (el === 'copyright') { %>
+            <span><%= customizer.footerCopyright || ('© ' + new Date().getFullYear() + ' Razeen Smart Solution. All rights reserved.') %></span>
+          <% } else if (el === 'credit') { %>
+            <span class="rp-prism-credit">Powered by <a href="https://github.com/riyazamra1/RSS-Prism" rel="noopener noreferrer" target="_blank">RSS Prism Theme</a></span>
+          <% } %>
+        </div>
+      <% }); %>
+    </div>
+  <% }); %>
+</footer>
+<a class="rp-back-to-top" href="#top" aria-label="Back to top">↑ <span>Top</span></a>
+<script src="/assets/theme/navigation.js" defer></script>
+</body>
+</html>

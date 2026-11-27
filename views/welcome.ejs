@@ -1,0 +1,59 @@
+<%- include('partials/theme-head', { pageTitle: 'Welcome & Roadmap', bodyClasses: 'rp-welcome-page' }) %>
+<%- include('partials/theme-header') %>
+
+<main id="content" class="site-content">
+  <div class="rp-welcome-notice" style="margin:0 0 28px!important">
+    <div class="rp-welcome-hero">
+      <span class="rp-welcome-kicker">RAZEEN SECURE SOLUTION</span>
+      <h2>Welcome to RSS Prism</h2>
+      <p class="rp-welcome-lead">Developing Ideas. Delivering Solutions. Build responsive business pages with RSS starter layouts, Divi-style visual editing, images, nested content, autosave, and Theme Studio controls.</p>
+      <div class="rp-welcome-actions">
+        <a class="button button-primary button-hero" href="/builder">Open Visual Builder</a>
+        <a class="button button-hero" href="/builder?new_template=1">Create a template</a>
+        <a class="button button-hero" href="/studio">Open RSS Prism Studio</a>
+        <a class="button button-hero" href="/downloads/rss-prism-theme.zip" download>⬇ Download Theme ZIP (WordPress.org)</a>
+        <a class="button button-hero" href="/downloads/rss-prism-builder.zip" download>⬇ Download Builder Plugin ZIP (WordPress.org)</a>
+      </div>
+    </div>
+
+    <div class="rp-welcome-features">
+      <div><strong>Visual drag-and-drop editor</strong><p>Divi-style color-coded Section, Row/Columns, and Module controls with wireframe, desktop, tablet, and mobile views.</p></div>
+      <div><strong>60 Divi-style modules &amp; 6 starters</strong><p>Layout, Content, Accordion, Toggle, Tabs, Sliders, Video, Audio, Maps, Portfolio, Blog, Fullwidth, and WooCommerce modules.</p></div>
+      <div><strong>Theme Studio</strong><p>Drag-and-drop 3-row Header &amp; Footer builder, logo placement, navigation typography, and live site preview.</p></div>
+      <div><strong>Autosave &amp; recovery</strong><p>Automatic layout saving, undo/redo, JSON import/export, and up to 20 browser recovery snapshots per template.</p></div>
+      <div><strong>Free public offering</strong><p>All current Theme and Builder features are free without a licence key, payment, or licence-server configuration.</p></div>
+      <div><strong>Security &amp; sanitization</strong><p>Server-side layout sanitization, bounded container nesting depth (max 2 levels), and 1 MB REST payload limits.</p></div>
+    </div>
+  </div>
+
+  <div class="entry-grid" style="grid-template-columns:repeat(auto-fit,minmax(280px,1fr))">
+    <section class="entry-card">
+      <div class="entry-card__body">
+        <h3 class="entry-title">Free features included</h3>
+        <ul style="padding-left:18px;display:grid;gap:8px;color:#4b5563">
+          <li>Visual drag-and-drop layout editor with Wireframe &amp; Responsive modes</li>
+          <li>Sections, headings, text, buttons, images, columns &amp; nested containers</li>
+          <li>Six RSS starter layouts: business, services, about, projects, security, contact</li>
+          <li>Global Design System presets: RSS Gold, Ocean Blue, Forest Green, Midnight</li>
+          <li>Autosave, undo/redo, JSON import/export &amp; browser recovery history</li>
+          <li>RSS Prism Theme Studio for colours, widths, headers, footers &amp; archives</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="entry-card">
+      <div class="entry-card__body">
+        <h3 class="entry-title">Premium roadmap <span style="font-size:11px;padding:2px 7px;border-radius:5px;background:#fef3c7;color:#92400e">PLANNED — NOT AVAILABLE YET</span></h3>
+        <p class="description">These are planned ideas, not active features or offers. No premium price is being advertised; the catalog remains Free-only.</p>
+        <ul style="padding-left:18px;display:grid;gap:8px;color:#4b5563">
+          <li>Expanded premium widget and block library</li>
+          <li>Cloud template library and synced patterns</li>
+          <li>Advanced responsive and layout controls</li>
+          <li>Premium template kits and workflow tools</li>
+        </ul>
+      </div>
+    </section>
+  </div>
+</main>
+
+<%- include('partials/theme-footer') %>
